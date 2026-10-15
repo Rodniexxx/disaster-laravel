@@ -48,9 +48,9 @@
                         @else
                             @foreach ($recentPlayers as $player)
                                 <tr>
-                                    <td>{{ $player->username }}</td>
-                                    <td>{{ $player->email }}</td>
-                                    <td>{{ $player->created_at?->format('M j, Y') }}</td>
+                                    <td data-label="Username">{{ $player->username }}</td>
+                                    <td data-label="Email">{{ $player->email }}</td>
+                                    <td data-label="Joined">{{ $player->created_at?->format('M j, Y') }}</td>
                                 </tr>
                             @endforeach
                         @endif
@@ -78,9 +78,9 @@
                         @else
                             @foreach ($recentScores as $score)
                                 <tr>
-                                    <td>{{ $score->username }}</td>
-                                    <td>{{ $score->category }}</td>
-                                    <td>{{ (int) $score->score }}</td>
+                                    <td data-label="Player">{{ $score->username }}</td>
+                                    <td data-label="Category">{{ $score->category }}</td>
+                                    <td data-label="Score">{{ (int) $score->score }}</td>
                                 </tr>
                             @endforeach
                         @endif
@@ -156,9 +156,9 @@
                     @else
                         @foreach ($recentAnnouncements as $announcement)
                             <tr>
-                                <td>{{ $announcement->title }}</td>
-                                <td><span class="status-badge {{ $announcement->status }}">{{ $announcement->status }}</span></td>
-                                <td>{{ $announcement->publish_date?->format('M j, Y') ?? 'Not scheduled' }}</td>
+                                <td data-label="Title">{{ $announcement->title }}</td>
+                                <td data-label="Status"><span class="status-badge {{ $announcement->status }}">{{ $announcement->status }}</span></td>
+                                <td data-label="Published">{{ $announcement->publish_date?->format('M j, Y') ?? 'Not scheduled' }}</td>
                             </tr>
                         @endforeach
                     @endif

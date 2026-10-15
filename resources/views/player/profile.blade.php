@@ -9,6 +9,7 @@
 
     <section class="dashboard-header reveal">
         <div>
+            <x-back-button />
             <p class="eyebrow">Preparedness Center</p>
             <h1>Profile &amp; settings</h1>
         </div>
@@ -56,7 +57,7 @@
             </div>
             <p class="muted">Your username is shown on the leaderboard.</p>
 
-            <form method="POST" action="{{ route('profile.update') }}" class="admin-form">
+            <form method="POST" action="{{ route('profile.update') }}" class="admin-form" data-unsaved-guard>
                 @csrf
                 @method('PATCH')
 
@@ -89,7 +90,7 @@
         </div>
         <p class="muted">Confirm your current password before choosing a new one.</p>
 
-        <form method="POST" action="{{ route('profile.password') }}" class="admin-form">
+        <form method="POST" action="{{ route('profile.password') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @method('PUT')
 

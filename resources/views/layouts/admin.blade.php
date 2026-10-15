@@ -6,15 +6,23 @@
 <body class="admin-body">
     <div class="admin-layout">
         @include('partials.admin-sidebar')
+        <div class="admin-backdrop" data-admin-backdrop hidden></div>
 
         <main class="admin-main">
             <header class="admin-topbar">
-                <div>
-                    <p class="eyebrow">@yield('eyebrow', 'Admin')</p>
-                    <h1>@yield('heading', trim($__env->yieldContent('title')) ?: 'Admin')</h1>
-                    @hasSection('subheading')
-                        <p class="admin-topbar-sub">@yield('subheading')</p>
-                    @endif
+                <div class="admin-topbar-main">
+                    <button type="button" class="admin-menu-toggle" aria-label="Open admin menu"
+                            aria-controls="admin-sidebar" aria-expanded="false">☰</button>
+                    <div>
+                        @hasSection('back')
+                            @yield('back')
+                        @endif
+                        <p class="eyebrow">@yield('eyebrow', 'Admin')</p>
+                        <h1>@yield('heading', trim($__env->yieldContent('title')) ?: 'Admin')</h1>
+                        @hasSection('subheading')
+                            <p class="admin-topbar-sub">@yield('subheading')</p>
+                        @endif
+                    </div>
                 </div>
                 <div class="topbar-user">
                     <span>Logged in as {{ auth()->user()->username }}</span>

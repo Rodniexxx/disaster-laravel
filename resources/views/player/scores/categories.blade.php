@@ -10,6 +10,7 @@
 @section('content')
     <section class="dashboard-header reveal">
         <div>
+            <x-back-button fallback="scores.index" />
             <p class="eyebrow">Preparedness Center</p>
             <h1>Category performance</h1>
         </div>

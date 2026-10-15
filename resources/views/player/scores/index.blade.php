@@ -5,6 +5,7 @@
 @section('content')
     <section class="dashboard-header reveal">
         <div>
+            <x-back-button />
             <p class="eyebrow">Preparedness Center</p>
             <h1>My scores</h1>
         </div>
@@ -35,14 +36,14 @@
                         @foreach ($scores as $score)
                             @php $progress = min(100, max(0, (int) $score->score)); @endphp
                             <tr>
-                                <td>{{ $score->category }}</td>
-                                <td>{{ (int) $score->score }}/100</td>
-                                <td>
+                                <td data-label="Category">{{ $score->category }}</td>
+                                <td data-label="Best score">{{ (int) $score->score }}/100</td>
+                                <td data-label="Progress">
                                     <div class="progress-bar">
                                         <span style="width: {{ $progress }}%"></span>
                                     </div>
                                 </td>
-                                <td>{{ $score->created_at?->format('M j, Y') ?? '—' }}</td>
+                                <td data-label="Last updated">{{ $score->created_at?->format('M j, Y') ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -4,12 +4,16 @@
 @section('heading', 'Announcements')
 @section('eyebrow', 'Website Content')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
             <h2>{{ $editing ? 'Edit Announcement' : 'Create Announcement' }}</h2>
         </div>
-        <form method="post" action="{{ $editing ? route('admin.announcements.update', $editing) : route('admin.announcements.store') }}" class="admin-form">
+        <form method="post" action="{{ $editing ? route('admin.announcements.update', $editing) : route('admin.announcements.store') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @if ($editing)
                 @method('PUT')
@@ -69,10 +73,10 @@
                     @else
                         @foreach ($announcements as $announcement)
                             <tr>
-                                <td>{{ $announcement->title }}</td>
-                                <td><span class="status-badge {{ $announcement->status }}">{{ $announcement->status }}</span></td>
-                                <td>{{ $announcement->publish_date?->format('M j, Y H:i') ?? 'Not scheduled' }}</td>
-                                <td class="table-actions">
+                                <td data-label="Title">{{ $announcement->title }}</td>
+                                <td data-label="Status"><span class="status-badge {{ $announcement->status }}">{{ $announcement->status }}</span></td>
+                                <td data-label="Publish date">{{ $announcement->publish_date?->format('M j, Y H:i') ?? 'Not scheduled' }}</td>
+                                <td class="table-actions" data-label="Actions">
                                     <a href="{{ route('admin.announcements.index', ['edit' => $announcement->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.announcements.destroy', $announcement) }}" class="inline-form" onsubmit="return confirm('Delete this announcement?');">
                                         @csrf

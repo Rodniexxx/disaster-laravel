@@ -7,8 +7,11 @@
                 <span class="brand-subtitle">Ready Before It Happens.</span>
             </span>
         </a>
-        <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
-        <div class="nav-links">
+        <button class="nav-toggle" type="button" aria-label="Toggle navigation menu"
+                aria-controls="primary-navigation" aria-expanded="false">
+            <span class="nav-toggle-icon" aria-hidden="true">☰</span>
+        </button>
+        <div class="nav-links" id="primary-navigation">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
             <a href="{{ route('home') }}#disaster-guides">Disasters</a>
             <a href="{{ route('home') }}#safety-guide">Safety Guide</a>

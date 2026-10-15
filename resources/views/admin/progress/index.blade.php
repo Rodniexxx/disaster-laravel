@@ -4,6 +4,10 @@
 @section('heading', 'Player Progress')
 @section('eyebrow', 'Player Insights')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
@@ -52,11 +56,11 @@
                     @else
                         @foreach ($rows as $row)
                             <tr>
-                                <td>{{ $row->user?->username ?? 'Unknown' }}</td>
-                                <td>{{ ucfirst($row->scenario_slug) }}</td>
-                                <td><span class="status-badge {{ $row->status }}">{{ $row->status }}</span></td>
-                                <td>{{ (int) $row->score }}</td>
-                                <td>{{ $row->updated_at?->format('M j, Y H:i') }}</td>
+                                <td data-label="Player">{{ $row->user?->username ?? 'Unknown' }}</td>
+                                <td data-label="Scenario">{{ ucfirst($row->scenario_slug) }}</td>
+                                <td data-label="Status"><span class="status-badge {{ $row->status }}">{{ $row->status }}</span></td>
+                                <td data-label="Score">{{ (int) $row->score }}</td>
+                                <td data-label="Updated">{{ $row->updated_at?->format('M j, Y H:i') }}</td>
                             </tr>
                         @endforeach
                     @endif

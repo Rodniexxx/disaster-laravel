@@ -4,12 +4,16 @@
 @section('heading', 'Game Versions')
 @section('eyebrow', 'Game Release')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
             <h2>{{ $editing ? 'Edit Version' : 'Create Version' }}</h2>
         </div>
-        <form method="post" action="{{ $editing ? route('admin.versions.update', $editing) : route('admin.versions.store') }}" class="admin-form">
+        <form method="post" action="{{ $editing ? route('admin.versions.update', $editing) : route('admin.versions.store') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @if ($editing)
                 @method('PUT')
@@ -80,11 +84,11 @@
                     @else
                         @foreach ($versions as $version)
                             <tr>
-                                <td>{{ $version->version_number }}</td>
-                                <td>{{ $version->platform }}</td>
-                                <td><span class="status-badge {{ $version->status }}">{{ $version->status }}</span></td>
-                                <td>{{ $version->release_date?->format('M j, Y H:i') ?? 'Not scheduled' }}</td>
-                                <td class="table-actions">
+                                <td data-label="Version">{{ $version->version_number }}</td>
+                                <td data-label="Platform">{{ $version->platform }}</td>
+                                <td data-label="Status"><span class="status-badge {{ $version->status }}">{{ $version->status }}</span></td>
+                                <td data-label="Release date">{{ $version->release_date?->format('M j, Y H:i') ?? 'Not scheduled' }}</td>
+                                <td class="table-actions" data-label="Actions">
                                     @if ($version->download_url)
                                         <a href="{{ $version->download_url }}" target="_blank" rel="noopener" class="btn btn-secondary small">Download</a>
                                     @endif

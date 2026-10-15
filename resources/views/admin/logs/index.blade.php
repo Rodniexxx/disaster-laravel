@@ -4,6 +4,10 @@
 @section('heading', 'Activity Logs')
 @section('eyebrow', 'System Activity')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
@@ -26,11 +30,11 @@
                     @else
                         @foreach ($logs as $log)
                             <tr>
-                                <td>{{ $log->created_at?->format('M j, Y H:i') }}</td>
-                                <td>{{ $log->admin?->username ?? 'Unknown' }}</td>
-                                <td>{{ $log->action }}</td>
-                                <td>{{ $log->resource }}</td>
-                                <td>
+                                <td data-label="Time">{{ $log->created_at?->format('M j, Y H:i') }}</td>
+                                <td data-label="Admin">{{ $log->admin?->username ?? 'Unknown' }}</td>
+                                <td data-label="Action">{{ $log->action }}</td>
+                                <td data-label="Resource">{{ $log->resource }}</td>
+                                <td data-label="Details">
                                     @if (! empty($log->details))
                                         @foreach ($log->details as $key => $value)
                                             {{ $key }}: {{ is_scalar($value) ? $value : json_encode($value) }}@if (! $loop->last), @endif

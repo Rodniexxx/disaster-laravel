@@ -4,12 +4,16 @@
 @section('heading', 'Quiz Questions')
 @section('eyebrow', 'Assessment Content')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
             <h2>{{ $editing ? 'Edit Question' : 'Create Question' }}</h2>
         </div>
-        <form method="post" action="{{ $editing ? route('admin.questions.update', $editing) : route('admin.questions.store') }}" class="admin-form">
+        <form method="post" action="{{ $editing ? route('admin.questions.update', $editing) : route('admin.questions.store') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @if ($editing)
                 @method('PUT')
@@ -104,10 +108,10 @@
                     <tbody>
                         @foreach ($group as $question)
                             <tr>
-                                <td>{{ \Illuminate\Support\Str::limit($question->question, 90) }}</td>
-                                <td>{{ $question->correct_answer }}</td>
-                                <td><span class="status-badge {{ $question->status }}">{{ $question->status }}</span></td>
-                                <td class="table-actions">
+                                <td data-label="Question">{{ \Illuminate\Support\Str::limit($question->question, 90) }}</td>
+                                <td data-label="Correct">{{ $question->correct_answer }}</td>
+                                <td data-label="Status"><span class="status-badge {{ $question->status }}">{{ $question->status }}</span></td>
+                                <td class="table-actions" data-label="Actions">
                                     <a href="{{ route('admin.questions.index', ['edit' => $question->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.questions.toggle', $question) }}" class="inline-form">
                                         @csrf

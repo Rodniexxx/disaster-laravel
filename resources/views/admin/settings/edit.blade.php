@@ -4,12 +4,16 @@
 @section('heading', 'Settings')
 @section('eyebrow', 'System')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="admin-panel">
         <div class="panel-header">
             <h2>Website Settings</h2>
         </div>
-        <form method="post" action="{{ route('admin.settings.update') }}" class="admin-form">
+        <form method="post" action="{{ route('admin.settings.update') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @method('PUT')
 

@@ -4,6 +4,10 @@
 @section('heading', 'Leaderboard')
 @section('eyebrow', 'Rankings')
 
+@section('back')
+    <x-back-button />
+@endsection
+
 @section('content')
     <section class="leaderboard-controls">
         <div class="category-tabs">
@@ -31,7 +35,7 @@
                     @else
                         @foreach ($rows as $index => $row)
                             <tr class="leader-row top-{{ $index + 1 }}">
-                                <td>
+                                <td data-label="Rank">
                                     @if ($index === 0)
                                         <span class="medal medal-gold">🥇</span>
                                     @elseif ($index === 1)
@@ -41,9 +45,9 @@
                                     @endif
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
-                                <td>{{ $row['username'] }}</td>
-                                <td>{{ $row['score'] }}</td>
-                                <td>{{ $row['category'] }}</td>
+                                <td data-label="Player">{{ $row['username'] }}</td>
+                                <td data-label="Score">{{ $row['score'] }}</td>
+                                <td data-label="Disaster category">{{ $row['category'] }}</td>
                             </tr>
                         @endforeach
                     @endif

@@ -4,14 +4,10 @@
 @section('card-eyebrow', 'Welcome back')
 @section('card-title', 'Login')
 
-@section('visual-kicker', 'Preparedness program')
-@section('visual-title', 'Continue your emergency training')
+@section('visual-kicker', 'Preparedness Game')
+@section('visual-title', 'Continue your emergency actions')
 @section('visual-text', 'Review safe action plans, revisit response drills, and keep your disaster readiness on track.')
-@section('visual-points')
-    <li>Earthquake response drills</li>
-    <li>Fire escape planning</li>
-    <li>Typhoon and volcano readiness</li>
-@endsection
+
 
 @section('content')
     <form method="post" action="{{ route('login') }}" class="auth-form" data-submit-state>

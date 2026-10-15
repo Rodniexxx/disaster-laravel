@@ -3,6 +3,9 @@
 @section('title', 'User Management')
 @section('heading', 'Players / Users')
 @section('eyebrow', 'User Management')
+@section('back')
+    <x-back-button />
+@endsection
 
 @php
     $roles = ['user' => 'Player', 'admin' => 'Administrator'];
@@ -13,7 +16,7 @@
         <div class="panel-header">
             <h2>{{ $editing ? 'Edit User' : 'Create User' }}</h2>
         </div>
-        <form method="post" action="{{ $editing ? route('admin.users.update', $editing) : route('admin.users.store') }}" class="admin-form">
+        <form method="post" action="{{ $editing ? route('admin.users.update', $editing) : route('admin.users.store') }}" class="admin-form" data-unsaved-guard>
             @csrf
             @if ($editing)
                 @method('PUT')
@@ -109,15 +112,15 @@
                         @foreach ($users as $user)
                             @php $meta = $sessions->get($user->id); @endphp
                             <tr>
-                                <td>{{ $user->username }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td><span class="status-badge {{ $user->role }}">{{ $user->role }}</span></td>
-                                <td><span class="status-badge {{ $user->isActive() ? 'active' : 'inactive' }}">{{ $user->isActive() ? 'Active' : 'Inactive' }}</span></td>
-                                <td>{{ $user->created_at?->format('M j, Y') }}</td>
-                                <td>{{ (int) $completed->get($user->id, 0) }}</td>
-                                <td>{{ (int) ($meta->sessions ?? 0) }}</td>
-                                <td>{{ (int) ($meta->best_score ?? 0) }}</td>
-                                <td class="table-actions">
+                                <td data-label="Username">{{ $user->username }}</td>
+                                <td data-label="Email">{{ $user->email }}</td>
+                                <td data-label="Role"><span class="status-badge {{ $user->role }}">{{ $user->role }}</span></td>
+                                <td data-label="Status"><span class="status-badge {{ $user->isActive() ? 'active' : 'inactive' }}">{{ $user->isActive() ? 'Active' : 'Inactive' }}</span></td>
+                                <td data-label="Joined">{{ $user->created_at?->format('M j, Y') }}</td>
+                                <td data-label="Completed">{{ (int) $completed->get($user->id, 0) }}</td>
+                                <td data-label="Sessions">{{ (int) ($meta->sessions ?? 0) }}</td>
+                                <td data-label="Best score">{{ (int) ($meta->best_score ?? 0) }}</td>
+                                <td class="table-actions" data-label="Actions">
                                     <a href="{{ request()->fullUrlWithQuery(['edit' => $user->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.users.toggle-status', $user) }}" class="inline-form">
                                         @csrf

@@ -4,14 +4,10 @@
 @section('card-eyebrow', 'Create account')
 @section('card-title', 'Register')
 
-@section('visual-kicker', 'Join the program')
+@section('visual-kicker', 'Create an account')
 @section('visual-title', 'Build your emergency readiness')
-@section('visual-text', 'Create an account to track your training, score scenarios, and progress through critical response modules.')
-@section('visual-points')
-    <li>Track disaster response progress</li>
-    <li>Complete interactive survival drills</li>
-    <li>Compare performance on the leaderboard</li>
-@endsection
+@section('visual-text', 'Create an account to play the game, enjoy and learn scenarios, and track progress.')
+
 
 @section('content')
     <form method="post" action="{{ route('register') }}" class="auth-form" data-submit-state>
