@@ -7,37 +7,19 @@ use App\Http\Controllers\Api\ScenarioController;
 use App\Http\Controllers\Api\ScoreController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| MANGNO Unity integration API
-|--------------------------------------------------------------------------
-|
-| Paths and payloads mirror the legacy PHP endpoints exactly so the existing
-| Unity client keeps working without changes. Authentication is cookie/session
-| based (see bootstrap/app.php) rather than token based.
-|
-*/
+Route::middleware('throttle:api-login')->group(function () {
+    Route::post('login', [AuthController::class, 'login'])->name('api.login');
+    Route::post('register', [AuthController::class, 'register'])->name('api.register');
+});
 
-Route::post('login', [AuthController::class, 'login'])
-    ->middleware('throttle:api-login')
-    ->name('api.login');
+Route::middleware('throttle:api')->group(function () {
+    Route::get('get_leaderboard', [LeaderboardController::class, 'get'])->name('api.leaderboard');
+    Route::get('scenarios', [ScenarioController::class, 'index'])->name('api.scenarios');
+    Route::get('announcements', [AnnouncementController::class, 'index'])->name('api.announcements');
 
-Route::post('register', [AuthController::class, 'register'])
-    ->middleware('throttle:api-login')
-    ->name('api.register');
-
-Route::post('save_score', [ScoreController::class, 'save'])
-    ->middleware('throttle:api')
-    ->name('api.save-score');
-
-Route::get('get_leaderboard', [LeaderboardController::class, 'get'])
-    ->middleware('throttle:api')
-    ->name('api.leaderboard');
-
-Route::get('scenarios', [ScenarioController::class, 'index'])
-    ->middleware('throttle:api')
-    ->name('api.scenarios');
-
-Route::get('announcements', [AnnouncementController::class, 'index'])
-    ->middleware('throttle:api')
-    ->name('api.announcements');
+    Route::middleware(['auth:sanctum', 'active'])->group(function () {
+        Route::post('save_score', [ScoreController::class, 'save'])->name('api.save-score');
+        Route::get('me', [AuthController::class, 'me'])->name('api.me');
+        Route::post('logout', [AuthController::class, 'logout'])->name('api.logout');
+    });
+});

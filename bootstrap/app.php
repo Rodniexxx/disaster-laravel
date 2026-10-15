@@ -2,13 +2,10 @@
 
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,24 +21,23 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
         ]);
 
-        // The Unity integration API is cookie/session based, matching the
-        // legacy PHP endpoints. Enable sessions and cookies for these routes
-        // but leave CSRF verification off (the client is not a browser form).
-        $middleware->api(prepend: [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-        ]);
-
-        $middleware->validateCsrfTokens(except: [
-            'api/*',
-        ]);
+        // Mobile API requests authenticate with Sanctum bearer tokens.
 
         // Guests hitting web routes are redirected to the branded login page.
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Login required.'], 401);
+            }
+        });
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'The given data was invalid.', 'errors' => $e->errors()], 422);
+            }
+        });
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

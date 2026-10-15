@@ -20,16 +20,9 @@ class LeaderboardController extends Controller
 
     public function get(Request $request): JsonResponse
     {
-        $titles = $this->catalog->titles();
-        $requested = trim((string) $request->query('category', 'Overall'));
-        $category = 'Overall';
-
-        foreach ($titles as $allowed) {
-            if (strcasecmp($requested, $allowed) === 0) {
-                $category = $allowed;
-                break;
-            }
-        }
+        $request->validate(['category' => ['sometimes', 'string', 'max:120']]);
+        $requested = trim($request->query('category', 'Overall'));
+        $category = $this->catalog->resolveTitle($requested) ?? 'Overall';
 
         if (strcasecmp($requested, 'Overall') !== 0 && $category === 'Overall') {
             return response()->json([

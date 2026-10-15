@@ -5,54 +5,37 @@ namespace App\Services;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Support\DisasterCatalog;
+use Illuminate\Support\Facades\DB;
 
-/**
- * Preserves the score-submission behaviour of api/save_score.php.
- *
- * The legacy site keeps one best score per (player, category). Because the
- * existing leaderboard table has no unique key, we explicitly update the
- * player's existing row when it exists and only insert otherwise, which keeps
- * the intended "best score wins" semantics without altering the schema.
- */
 class ScoreSubmissionService
 {
     public function __construct(private readonly DisasterCatalog $catalog) {}
 
-    /**
-     * @return array{category:string,best_score:int}|null null when the category is invalid.
-     */
     public function submit(User $user, string $categoryInput, int $score): ?array
     {
         $title = $this->catalog->resolveTitle($categoryInput);
-
         if ($title === null) {
             return null;
         }
-
-        $existing = Leaderboard::query()
-            ->where('user_id', $user->id)
-            ->where('category', $title)
-            ->first();
-
-        if ($existing) {
-            if ($score > $existing->score) {
-                $existing->score = $score;
+        return DB::transaction(function () use ($user, $title, $score) {
+            // Serialize requests for this player, including the first insert.
+            User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            $existing = Leaderboard::query()->where('user_id', $user->id)
+                ->where('category', $title)->orderByDesc('score')->lockForUpdate()->first();
+            if ($existing) {
+                if ($score > $existing->score) {
+                    $existing->score = $score;
+                    $existing->created_at = now();
+                }
                 $existing->username = $user->username;
-                $existing->created_at = now();
+                $existing->save();
+            } else {
+                $existing = Leaderboard::create([
+                    'user_id' => $user->id, 'username' => $user->username,
+                    'category' => $title, 'score' => $score,
+                ]);
             }
-            $existing->username = $user->username;
-            $existing->save();
-            $best = (int) $existing->score;
-        } else {
-            $created = Leaderboard::create([
-                'user_id' => $user->id,
-                'username' => $user->username,
-                'category' => $title,
-                'score' => $score,
-            ]);
-            $best = (int) $created->score;
-        }
-
-        return ['category' => $title, 'best_score' => $best];
+            return ['category' => $title, 'best_score' => (int) $existing->score];
+        });
     }
 }

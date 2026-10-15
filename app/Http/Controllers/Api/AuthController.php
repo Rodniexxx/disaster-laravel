@@ -6,146 +6,89 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
-/**
- * Session-based authentication that mirrors the legacy api/login.php and
- * api/register.php endpoints the Unity client already talks to.
- */
 class AuthController extends Controller
 {
     public function login(Request $request): JsonResponse
     {
-        $identifier = trim((string) (
-            $request->input('username')
-            ?? $request->input('email')
-            ?? $request->input('login_identifier')
-            ?? ''
-        ));
-        $password = (string) $request->input('password', '');
-
-        if ($identifier === '' || $password === '') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Username/email and password are required.',
-            ], 400);
+        $request->validate([
+            'username' => ['nullable', 'string', 'max:100'],
+            'email' => ['nullable', 'string', 'max:100'],
+            'login_identifier' => ['nullable', 'string', 'max:100'],
+            'password' => ['required', 'string', 'max:255'],
+            'device_name' => ['sometimes', 'string', 'max:100'],
+        ]);
+        $identifier = trim($request->input('username') ?: ($request->input('email') ?: $request->input('login_identifier', '')));
+        if ($identifier === '') {
+            return response()->json(['success' => false, 'message' => 'Username/email is required.'], 422);
         }
-
-        try {
-            $user = User::query()
-                ->where('username', $identifier)
-                ->orWhere('email', $identifier)
-                ->first();
-
-            if ($user && Hash::check($password, $user->password_hash) && $user->isActive()) {
-                Auth::guard('web')->login($user);
-                $request->session()->regenerate();
-
-                $user->forceFill(['last_login_at' => now()])->save();
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Login successful',
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'user_id' => (int) $user->id,
-                    'role' => $user->role ?? User::ROLE_USER,
-                ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid username or password',
-            ], 401);
-        } catch (\Throwable $e) {
-            report($e);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error while logging in.',
-            ], 500);
+        $user = User::query()->where('username', $identifier)->orWhere('email', $identifier)->first();
+        if (! $user || ! Hash::check($request->input('password'), $user->password_hash) || ! $user->isActive()) {
+            return response()->json(['success' => false, 'message' => 'Invalid username or password'], 401);
         }
+        return DB::transaction(function () use ($user, $request) {
+            $user->forceFill(['last_login_at' => now()])->save();
+            return $this->authenticated($user, $request, 'Login successful');
+        });
     }
 
     public function register(Request $request): JsonResponse
     {
-        $username = trim((string) $request->input('username', ''));
-        $email = trim((string) $request->input('email', ''));
-        $password = (string) $request->input('password', '');
-        $confirm = (string) $request->input('confirm_password', '');
-
-        if ($username === '' || $email === '' || $password === '') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Username, email, and password are required.',
-            ], 400);
+        $data = $request->validate([
+            'username' => ['required', 'string', 'max:50'],
+            'email' => ['required', 'email', 'max:100'],
+            'password' => ['required', 'string', 'min:8', 'max:255'],
+            'confirm_password' => ['sometimes', 'required', 'string', 'same:password'],
+            'password_confirmation' => ['sometimes', 'required', 'string', 'same:password'],
+            'device_name' => ['sometimes', 'string', 'max:100'],
+        ]);
+        if (User::query()->where('username', $data['username'])->exists() || User::query()->where('email', $data['email'])->exists()) {
+            return response()->json(['success' => false, 'message' => 'Username or email is already registered.'], 409);
         }
-
-        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please enter a valid email address.',
-            ], 400);
-        }
-
-        if (strlen($password) < 6) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Password must be at least 6 characters long.',
-            ], 400);
-        }
-
-        if ($confirm !== '' && $password !== $confirm) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Passwords do not match.',
-            ], 400);
-        }
-
-        try {
-            if (User::query()->where('username', $username)->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Username is already taken.',
-                ], 409);
-            }
-
-            if (User::query()->where('email', $email)->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email is already registered.',
-                ], 409);
-            }
-
-            User::create([
-                'username' => $username,
-                'email' => $email,
-                'password_hash' => Hash::make($password),
+        return DB::transaction(function () use ($data, $request) {
+            $user = User::create([
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password_hash' => Hash::make($data['password']),
                 'role' => User::ROLE_USER,
                 'is_active' => true,
             ]);
+            return $this->authenticated($user, $request, 'Registration successful');
+        });
+    }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration successful',
-                'username' => $username,
-                'email' => $email,
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'The given data was invalid.',
-                'errors' => $e->errors(),
-            ], 422);
-        } catch (\Throwable $e) {
-            report($e);
+    public function me(Request $request): JsonResponse
+    {
+        return response()->json(['success' => true, 'user' => $this->details($request->user())]);
+    }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error while creating the account.',
-            ], 500);
+    public function logout(Request $request): JsonResponse
+    {
+        $token = $request->user()->currentAccessToken();
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
         }
+        return response()->json(['success' => true, 'message' => 'Logged out.']);
+    }
+
+    private function authenticated(User $user, Request $request, string $message): JsonResponse
+    {
+        $expires = now()->addDays(30);
+        $token = $user->createToken($request->input('device_name', 'Unity Android'), ['scores:submit'], $expires);
+        return response()->json(array_merge([
+            'success' => true,
+            'message' => $message,
+            'token' => $token->plainTextToken,
+            'token_type' => 'Bearer',
+            'expires_at' => $expires->toIso8601String(),
+        ], $this->details($user)));
+    }
+
+    private function details(User $user): array
+    {
+        return ['user_id' => (int) $user->id, 'username' => $user->username, 'email' => $user->email, 'role' => $user->role];
     }
 }

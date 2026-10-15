@@ -17,8 +17,9 @@ class EnsureUserIsActive
         $user = $request->user();
 
         if ($user && ! $user->isActive()) {
-            if ($request->expectsJson()) {
+            if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
+                    'success' => false,
                     'message' => 'This account has been deactivated. Please contact an administrator.',
                 ], 403);
             }

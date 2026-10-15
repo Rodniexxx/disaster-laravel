@@ -114,7 +114,7 @@ class ApiEndpointsTest extends TestCase
 
         $this->actingAs($this->makeUser())
             ->postJson('/api/save_score', ['category' => 'fire', 'score' => 150])
-            ->assertStatus(400);
+            ->assertStatus(422);
     }
 
     public function test_get_leaderboard_returns_ranked_rows(): void
