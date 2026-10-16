@@ -3,7 +3,6 @@
 
     $safetyGuides = [
         [
-            'icon' => '🌎',
             'title' => 'Earthquake',
             'agency' => 'DOST-PHIVOLCS',
             'before' => [
@@ -25,7 +24,6 @@
             'source' => 'Adapted from DOST-PHIVOLCS Earthquake Preparedness.',
         ],
         [
-            'icon' => '⛰️',
             'title' => 'Volcanic Eruption',
             'agency' => 'DOST-PHIVOLCS',
             'before' => [
@@ -47,7 +45,6 @@
             'source' => 'Adapted from DOST-PHIVOLCS Volcano Preparedness.',
         ],
         [
-            'icon' => '🌧️',
             'title' => 'Typhoon',
             'agency' => 'DOST-PAGASA',
             'before' => [
@@ -68,7 +65,6 @@
             'source' => 'Adapted from DOST-PAGASA weather bulletins and advisories.',
         ],
         [
-            'icon' => '🔥',
             'title' => 'Fire',
             'agency' => 'BFP',
             'before' => [
@@ -128,7 +124,7 @@
         @foreach ($safetyGuides as $guide)
             <article class="safety-card reveal-item">
                 <div class="safety-card-head">
-                    <span class="safety-icon" aria-hidden="true">{{ $guide['icon'] }}</span>
+                    
                     <h3>{{ $guide['title'] }}</h3>
                 </div>
 

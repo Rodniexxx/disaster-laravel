@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\VersionController as AdminVersionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ProfileController;
@@ -19,6 +20,13 @@ use App\Http\Controllers\ScoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+
+Route::get('/download', DownloadController::class)->name('download');
+Route::get('/download/windows', [DownloadController::class, 'windows'])->name('downloads.windows');
+Route::get('/download/android', [DownloadController::class, 'android'])->name('downloads.android');
+Route::get('/download/{platform}/file', [DownloadController::class, 'file'])
+    ->where('platform', 'windows|android')
+    ->name('download.file');
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
@@ -70,6 +78,10 @@ Route::middleware(['auth', 'active', 'admin'])
 
         Route::resource('announcements', AdminAnnouncementController::class)->except(['create', 'show', 'edit']);
 
+        Route::put('versions/content', [AdminVersionController::class, 'updateContent'])->name('versions.content');
+        Route::get('versions/{version}/file', [AdminVersionController::class, 'download'])->name('versions.download');
+        Route::patch('versions/{version}/toggle', [AdminVersionController::class, 'toggle'])->name('versions.toggle');
+        Route::patch('versions/{version}/latest', [AdminVersionController::class, 'setLatest'])->name('versions.latest');
         Route::resource('versions', AdminVersionController::class)->except(['create', 'show', 'edit']);
 
         Route::get('logs', [AdminLogController::class, 'index'])->name('logs.index');

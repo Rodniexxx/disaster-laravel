@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="quick-icons" aria-label="Quick disaster preparation links">
-                    <a href="#disaster-guides" class="icon-button" aria-label="Training exercises">
+                    <a href="#disaster-guides" class="icon-button" aria-label="Scenarios — training exercises">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.75a7.25 7.25 0 0 1 7.25 7.25c0 4.83-3.48 9.09-8 11.36-4.52-2.27-8-6.53-8-11.36A7.25 7.25 0 0 1 12 2.75Zm0 3.25a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-5.7 9.03a7.95 7.95 0 0 0 11.4 0l-1.76-1.46A5.46 5.46 0 0 1 12 15.5a5.46 5.46 0 0 1-3.94-1.68L7.3 15.03Z"/></svg>
                         <span>Scenarios</span>
                     </a>
@@ -96,8 +96,8 @@
         @else
             <div class="cards">
                 @foreach ($scenarios as $scenario)
-                    <article class="card reveal-item">
-                        <div class="card-icon" aria-hidden="true">{{ $emojis[strtolower($scenario->slug)] ?? '🌎' }}</div>
+                    <article class="card card-scenario reveal-item"
+                             style="--card-bg: url('{{ asset('images/scenarios/'.$scenario->slug.'.webp') }}')">
                         <span class="card-tag">{{ $scenario->title }}</span>
                         <h3>{{ $scenario->title }}</h3>
                         <p>{{ \Illuminate\Support\Str::limit($scenario->description, 120) ?: 'Learn safe actions and response steps.' }}</p>
@@ -109,8 +109,52 @@
 
     @include('partials.safety-guide')
 
+    <section class="section container about-section" id="about">
+        <div class="section-heading reveal-item">
+            <p class="eyebrow">About</p>
+            <h2>MANGNO</h2>
+        </div>
+
+        <div class="about-panel reveal-item">
+            <p class="about-lead">
+                MANGNO is an educational game developed and designed by Joshua Brondial, Rodnie Calmada,
+                John Michael Borlagdan, Lee Daves Harvy Buenconsejo, and Glendon James Mapa &mdash; 4th-year
+                Bachelor of Science in Computer Science students of Dr. Ruby Lanting Casaul Educational
+                Foundation, Inc., as part of their thesis study entitled
+                <em>&ldquo;Mangno: Developing and Pilot Testing of an Educational Preparedness Game.&rdquo;</em>
+            </p>
+            <p class="about-lead">
+                The project aims to promote disaster preparedness awareness and knowledge through interactive
+                gameplay, simulated disaster scenarios, and educational challenges. By allowing players to
+                experience different hazards, including typhoons, earthquakes, volcanic eruptions, and fires. Mangno seeks to help users understand appropriate preparedness
+                measures and responses in a more engaging and accessible learning environment. Through pilot
+                testing and participant feedback, the researchers also aim to evaluate the game&rsquo;s
+                efficiency, acceptability, and overall user experience to identify opportunities for further
+                improvement.
+            </p>
+
+            <hr class="about-divider">
+
+            <div class="about-columns">
+
+                <div class="about-block">
+                    <h3>Developed &amp; Designed By</h3>
+                    <ul class="about-devs">
+                        <p>Joshua Brondial</p>
+                        <p>Rodnie Calmada</p>
+                        <p>John Michael Borlagdan</p>
+                        <p>Lee Daves Harvy Buenconsejo</p>
+                        <p>Glendon James Mapa</p>
+                    </ul>
+                </div>
+            </div>
+
+            
+        </div>
+    </section>
+
     @if ($announcements->isNotEmpty())
-        <section class="section container scenario-section">
+        <section class="section container scenario-section" id="ans">
             <div class="section-heading reveal-item">
                 <p class="eyebrow">Latest Updates</p>
                 <h2>Announcements</h2>
@@ -119,7 +163,7 @@
             <div class="cards">
                 @foreach ($announcements as $announcement)
                     <article class="card reveal-item">
-                        <div class="card-icon" aria-hidden="true">📣</div>
+                        
                         <span class="card-tag">Announcement</span>
                         <h3>{{ $announcement->title }}</h3>
                         <p>{{ $announcement->message }}</p>

@@ -1,11 +1,7 @@
 <header class="site-header">
     <nav class="navbar container" aria-label="Main navigation">
-        <a href="{{ route('home') }}" class="brand" aria-label="MANGNO home">
-            <span class="brand-mark">⚡</span>
-            <span class="brand-text">
-                <span class="brand-title">MANGNO</span>
-                <span class="brand-subtitle">Ready Before It Happens.</span>
-            </span>
+        <a href="{{ route('home') }}" class="brand" aria-label="MANGNO — Home">
+            <img src="{{ asset('images/logo.png') }}" alt="MANGNO" class="brand-logo">
         </a>
         <button class="nav-toggle" type="button" aria-label="Toggle navigation menu"
                 aria-controls="primary-navigation" aria-expanded="false">
@@ -14,7 +10,9 @@
         <div class="nav-links" id="primary-navigation">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
             <a href="{{ route('home') }}#disaster-guides">Disasters</a>
-            <a href="{{ route('home') }}#safety-guide">Safety Guide</a>
+            <a href="{{ route('home') }}#ans">Announcements</a>
+            <a href="{{ route('home') }}#about">About</a>
+            <a href="{{ route('download') }}" class="{{ request()->routeIs('download') ? 'active' : '' }}">Download</a>
             <a href="{{ route('leaderboard.index') }}" class="{{ request()->routeIs('leaderboard.*') ? 'active' : '' }}">Leaderboard</a>
             @auth
                 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Play Game</a>

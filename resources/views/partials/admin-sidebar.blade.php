@@ -1,10 +1,6 @@
 <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin navigation">
     <div class="admin-brand">
-        <span class="brand-mark">⚡</span>
-        <div>
-            <strong>MANGNO</strong>
-            <small>Admin</small>
-        </div>
+        <img src="{{ asset('images/logo.png') }}" alt="MANGNO" class="admin-brand-logo">
         <button type="button" class="admin-sidebar-close" aria-label="Close admin menu">✕</button>
     </div>
     <nav class="admin-nav">

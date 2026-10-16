@@ -2,8 +2,8 @@
     <div class="container footer-content">
         <div>
             <strong>MANGNO</strong>
-            <span>Ready Before It Happens.</span>
+            <span>Disaster Preparedness</span>
         </div>
-        <p>© {{ date('Y') }} MANGNO · Disaster Preparedness Simulation</p>
+        <p>© {{ date('Y') }} MANGNO · Educational Simulation Game</p>
     </div>
 </footer>
