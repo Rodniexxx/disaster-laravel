@@ -10,7 +10,6 @@
         <a href="{{ route('admin.progress.index') }}" class="{{ request()->routeIs('admin.progress.*') ? 'active' : '' }}">Progress</a>
 
         <span class="admin-nav-group">Game</span>
-        <a href="{{ route('admin.questions.index') }}" class="{{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">Quizzes</a>
         <a href="{{ route('admin.leaderboard') }}" class="{{ request()->routeIs('admin.leaderboard') ? 'active' : '' }}">Leaderboard</a>
         <a href="{{ route('admin.announcements.index') }}" class="{{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">Announcements</a>
         <a href="{{ route('admin.versions.index') }}" class="{{ request()->routeIs('admin.versions.*') ? 'active' : '' }}">Game Versions</a>
@@ -18,10 +17,9 @@
         <span class="admin-nav-group">System</span>
         <a href="{{ route('admin.logs.index') }}" class="{{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">Activity Logs</a>
         <a href="{{ route('admin.settings.edit') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">Settings</a>
-        <span class="admin-sidebar-user">{{ auth()->user()->username }}</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit">Logout</button>
+                <button type="submit">Logout {{ auth()->user()->username }}</button>
             </form>
 
     </nav>
