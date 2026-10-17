@@ -8,8 +8,9 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN --mount=type=cache,id=cacheKey/s/mangno-/root/.npm,target=/root/.npm \
-    npm ci
+
+RUN npm ci
+
 
 COPY vite.config.js ./
 COPY resources ./resources
@@ -27,14 +28,15 @@ WORKDIR /app
 
 COPY composer.json composer.lock ./
 
-RUN --mount=type=cache,id=cacheKey/s/mangno-/tmp/composer-cache,target=/tmp/composer-cache \
-    COMPOSER_CACHE_DIR=/tmp/composer-cache composer install \
-        --no-dev \
-        --no-interaction \
-        --no-progress \
-        --prefer-dist \
-        --no-scripts \
-        --no-autoloader
+
+RUN COMPOSER_CACHE_DIR=/tmp/composer-cache composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --no-scripts \
+    --no-autoloader
+
 
 COPY . .
 
