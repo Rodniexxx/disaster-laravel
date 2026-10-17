@@ -3035,17 +3035,119 @@ button.nav-logout:hover {
     font-weight: 600;
 }
 
+/* MANGNO Download Page - Visibility and Mobile Fix */
+
+.download-hero .reveal-item,
+#downloads .reveal-item,
+#before-you-download .reveal-item,
+#about .reveal-item,
+.download-grid .download-card {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+}
+
+/* Responsive download layout */
 @media (max-width: 760px) {
     .download-hero {
         padding: 44px 0 24px;
+        text-align: center;
+    }
+
+    .download-hero-title {
+        font-size: clamp(2rem, 7vw, 3rem);
+        line-height: 1.15;
+        overflow-wrap: anywhere;
+    }
+
+    .download-hero-text {
+        width: 100%;
+        font-size: 0.95rem;
+        line-height: 1.65;
+    }
+
+    .download-hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .download-hero-actions .btn {
+        width: 100%;
     }
 
     .download-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+        width: 100%;
     }
 
     .download-card {
-        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        width: 100%;
+        padding: 20px;
+        gap: 16px;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+    }
+
+    .download-card-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .download-card-title {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .download-card-head h3 {
+        font-size: 1.1rem;
+        overflow-wrap: anywhere;
+    }
+
+    .download-status {
+        flex-shrink: 0;
+        margin-left: auto;
+        font-size: 0.6rem;
+        padding: 4px 7px;
+    }
+
+    .download-meta li {
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 0.82rem;
+    }
+
+    .download-meta li span {
+        flex: 0 0 42%;
+    }
+
+    .download-meta li strong {
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .download-card-action,
+    .download-card-action .btn {
+        width: 100%;
+    }
+
+    #downloads .reveal-item,
+    #before-you-download .reveal-item,
+    #about .reveal-item,
+    .download-hero .reveal-item {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        animation: none !important;
     }
 }
 
