@@ -15,7 +15,7 @@
         </div>
 
         <div class="dashboard-header-actions">
-            <span class="welcome-tag">Player profile</span>
+            <span class="welcome-tag"><a href="{{ route('profile.edit') }}" class="btn btn-secondary">Player profile</a></span>
             <a href="{{ route('leaderboard.index') }}" class="btn btn-secondary">
                 Leaderboard
             </a>
