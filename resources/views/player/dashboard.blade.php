@@ -5,33 +5,6 @@
 
 @php
     use App\Services\PlayerStatsService;
-
-    $scenarios = [
-        [
-            'title' => 'Earthquake',
-            'slug' => 'earthquake',
-            'image' => 'images/scenarios/earthquake.webp',
-            'description' => 'Practice safe response steps and evacuation planning.',
-        ],
-        [
-            'title' => 'Fire',
-            'slug' => 'fire',
-            'image' => 'images/scenarios/fire.webp',
-            'description' => 'Learn quick actions for fire alarms, exits, and safe escapes.',
-        ],
-        [
-            'title' => 'Typhoon',
-            'slug' => 'typhoon',
-            'image' => 'images/scenarios/typhoon.webp',
-            'description' => 'Review sheltering, warning signs, and flooding preparation.',
-        ],
-        [
-            'title' => 'Volcanic Eruption',
-            'slug' => 'volcano',
-            'image' => 'images/scenarios/volcanic-eruption.webp',
-            'description' => 'Study ash safety, evacuation routes, and emergency communication.',
-        ],
-    ];
 @endphp
 
 @section('content')
@@ -78,19 +51,21 @@
     </section>
 
     <section class="progress-grid">
-        @foreach ($scenarios as $scenario)
+        @foreach ($stats['scenarios'] as $scenario)
             @php
-                $score = (int) ($stats['perCategory'][$scenario['title']] ?? 0);
-                $progress = min(100, max(0, $score));
-                $status = PlayerStatsService::statusLabel($score);
+                $slug = $scenario->slug;
+                $hasScore = $stats['hasScore'][$slug] ?? false;
+                $score = (int) ($stats['perCategory'][$slug] ?? 0);
+                $progress = $hasScore ? min(100, max(0, $score)) : 0;
+                $status = PlayerStatsService::statusLabelFor($score, $hasScore);
             @endphp
 
             <article class="progress-card reveal">
                 <div class="progress-head">
                     <div class="card-icon large">
                         <img
-                            src="{{ asset($scenario['image']) }}"
-                            alt="{{ $scenario['title'] }}"
+                            src="{{ asset($scenario->image) }}"
+                            alt="{{ $scenario->title }}"
                             class="scenario-icon"
                             loading="lazy"
                         >
@@ -99,13 +74,13 @@
                     <span class="score-badge">{{ $status }}</span>
                 </div>
 
-                <h3>{{ $scenario['title'] }}</h3>
+                <h3>{{ $scenario->title }}</h3>
 
-                <p>{{ $scenario['description'] }}</p>
+                <p>{{ $scenario->description }}</p>
 
                 <div class="score-row">
                     <span class="score-label">Best score</span>
-                    <span class="score-value">{{ $score }}/100</span>
+                    <span class="score-value">{{ $hasScore ? $score.'/100' : '—' }}</span>
                 </div>
 
                 <div
@@ -114,7 +89,7 @@
                     aria-valuenow="{{ $progress }}"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    aria-label="{{ $scenario['title'] }} best score"
+                    aria-label="{{ $scenario->title }} best score"
                 >
                     <span style="width: {{ $progress }}%"></span>
                 </div>

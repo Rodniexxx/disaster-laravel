@@ -108,6 +108,32 @@ class ApiEndpointsTest extends TestCase
             ->assertJson(['success' => false]);
     }
 
+    public function test_saving_with_category_aliases_never_duplicates_a_scenario(): void
+    {
+        $user = $this->makeUser();
+
+        $this->actingAs($user)
+            ->postJson('/api/save_score', ['category' => 'Volcanic Eruption', 'score' => 60])
+            ->assertOk()
+            ->assertJson(['best_score' => 60]);
+        $this->actingAs($user)
+            ->postJson('/api/save_score', ['category' => 'volcano', 'score' => 40])
+            ->assertOk()
+            ->assertJson(['best_score' => 60]);
+        $this->actingAs($user)
+            ->postJson('/api/save_score', ['category' => 'Volcano', 'score' => 95])
+            ->assertOk()
+            ->assertJson(['best_score' => 95]);
+
+        // One row per scenario, stored under the canonical category.
+        $this->assertSame(1, Leaderboard::query()->where('user_id', $user->id)->count());
+        $this->assertDatabaseHas('leaderboard', [
+            'user_id' => $user->id,
+            'category' => 'Volcano',
+            'score' => 95,
+        ]);
+    }
+
     public function test_save_score_rejects_out_of_range_values(): void
     {
         $this->makeScenario(['slug' => 'fire', 'title' => 'Fire']);

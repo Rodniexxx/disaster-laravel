@@ -466,7 +466,7 @@ button {
 .home-page .title-word {
     display: block;
     font-family: "Orbitron", "Inter", sans-serif;
-    font-size: clamp(2.7rem, 5vw, 6.2rem);
+    font-size: clamp(2rem, 5vw, 5rem);
     line-height: 0.92;
     letter-spacing: -0.05em;
     font-weight: 800;

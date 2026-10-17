@@ -13,15 +13,20 @@ class ScoreSubmissionService
 
     public function submit(User $user, string $categoryInput, int $score): ?array
     {
-        $title = $this->catalog->resolveTitle($categoryInput);
-        if ($title === null) {
+        $category = $this->catalog->resolveCategory($categoryInput);
+        if ($category === null) {
             return null;
         }
-        return DB::transaction(function () use ($user, $title, $score) {
+
+        return DB::transaction(function () use ($user, $category, $score) {
             // Serialize requests for this player, including the first insert.
             User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+            // Match any stored spelling of this scenario so an alias never
+            // creates a duplicate category for the same disaster.
+            $categories = $this->catalog->categoryValues($category);
             $existing = Leaderboard::query()->where('user_id', $user->id)
-                ->where('category', $title)->orderByDesc('score')->lockForUpdate()->first();
+                ->whereIn('category', $categories === [] ? [$category] : $categories)
+                ->orderByDesc('score')->lockForUpdate()->first();
             if ($existing) {
                 if ($score > $existing->score) {
                     $existing->score = $score;
@@ -32,10 +37,11 @@ class ScoreSubmissionService
             } else {
                 $existing = Leaderboard::create([
                     'user_id' => $user->id, 'username' => $user->username,
-                    'category' => $title, 'score' => $score,
+                    'category' => $category, 'score' => $score,
                 ]);
             }
-            return ['category' => $title, 'best_score' => (int) $existing->score];
+
+            return ['category' => $category, 'best_score' => (int) $existing->score];
         });
     }
 }

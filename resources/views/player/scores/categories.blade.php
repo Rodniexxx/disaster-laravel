@@ -4,7 +4,6 @@
 
 @php
     use App\Services\PlayerStatsService;
-    $emojis = ['earthquake' => '🌎', 'fire' => '🔥', 'typhoon' => '🌧️', 'volcano' => '⛰️'];
 @endphp
 
 @section('content')
@@ -17,26 +16,35 @@
     </section>
 
     @if ($rows->isEmpty())
-        <div class="empty-state">Categories will appear once an administrator adds scenarios.</div>
+        <div class="empty-state">No scenarios are available right now.</div>
     @else
         <section class="progress-grid">
             @foreach ($rows as $row)
                 @php
+                    $scenario = $row['scenario'];
+                    $hasScore = (bool) $row['has_score'];
                     $score = (int) $row['score'];
-                    $progress = min(100, max(0, $score));
-                    $status = PlayerStatsService::statusLabel($score);
+                    $progress = $hasScore ? min(100, max(0, $score)) : 0;
+                    $status = PlayerStatsService::statusLabelFor($score, $hasScore);
                 @endphp
                 <article class="progress-card reveal">
                     <div class="progress-head">
-                        <div class="card-icon large">{{ $emojis[strtolower($row['scenario']->slug)] ?? '🌎' }}</div>
+                        <div class="card-icon large">
+                            <img
+                                src="{{ asset($scenario->image) }}"
+                                alt="{{ $scenario->title }}"
+                                class="scenario-icon"
+                                loading="lazy"
+                            >
+                        </div>
                         <span class="score-badge">{{ $status }}</span>
                     </div>
-                    <h3>{{ $row['scenario']->title }}</h3>
-                    <p>{{ $row['scenario']->description ?: 'Practice safe response steps.' }}</p>
+                    <h3>{{ $scenario->title }}</h3>
+                    <p>{{ $scenario->description ?: 'Practice safe response steps.' }}</p>
 
                     <div class="score-row">
                         <span class="score-label">Best score</span>
-                        <span class="score-value">{{ $score }}/100</span>
+                        <span class="score-value">{{ $hasScore ? $score.'/100' : '—' }}</span>
                     </div>
                     <div class="progress-bar">
                         <span style="width: {{ $progress }}%"></span>

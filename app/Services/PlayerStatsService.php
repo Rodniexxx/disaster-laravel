@@ -11,6 +11,11 @@ use Illuminate\Support\Collection;
  * Builds the data used by the player dashboard, mirroring the calculations in
  * the legacy dashboard.php (overall = rounded average of the four category
  * bests, best = highest single category best, plus summed-score rank).
+ *
+ * The four scenarios come from the fixed {@see DisasterCatalog}, and each
+ * player's score is matched to a scenario through its stored leaderboard
+ * categories (canonical value plus historical aliases). A missing score is
+ * distinguished from a genuine score of zero.
  */
 class PlayerStatsService
 {
@@ -20,9 +25,36 @@ class PlayerStatsService
     ) {}
 
     /**
+     * Per-scenario score rows for the dashboard and category breakdown pages.
+     *
+     * @return Collection<int, array{scenario:Scenario, score:int, has_score:bool}>
+     */
+    public function scenarioScores(User $user): Collection
+    {
+        $best = $this->leaderboard->bestScoresForUser($user);
+
+        return $this->catalog->all()->map(function (Scenario $scenario) use ($best) {
+            $aliasScores = [];
+
+            foreach ($this->catalog->categoryValues($scenario->slug) as $category) {
+                if (array_key_exists($category, $best)) {
+                    $aliasScores[] = (int) $best[$category];
+                }
+            }
+
+            return [
+                'scenario' => $scenario,
+                'score' => $aliasScores === [] ? 0 : max($aliasScores),
+                'has_score' => $aliasScores !== [],
+            ];
+        });
+    }
+
+    /**
      * @return array{
      *     scenarios: Collection<int, Scenario>,
      *     perCategory: array<string,int>,
+     *     hasScore: array<string,bool>,
      *     overall: int,
      *     best: int,
      *     rank: int|null
@@ -30,11 +62,13 @@ class PlayerStatsService
      */
     public function forUser(User $user): array
     {
-        $best = $this->leaderboard->bestScoresForUser($user);
         $perCategory = [];
+        $hasScore = [];
 
-        foreach ($this->catalog->titles() as $title) {
-            $perCategory[$title] = (int) ($best[$title] ?? 0);
+        foreach ($this->scenarioScores($user) as $row) {
+            $slug = $row['scenario']->slug;
+            $perCategory[$slug] = $row['score'];
+            $hasScore[$slug] = $row['has_score'];
         }
 
         $values = array_values($perCategory);
@@ -43,6 +77,7 @@ class PlayerStatsService
         return [
             'scenarios' => $this->catalog->all(),
             'perCategory' => $perCategory,
+            'hasScore' => $hasScore,
             'overall' => $overall,
             'best' => $values !== [] ? max($values) : 0,
             'rank' => $this->leaderboard->rankForUsername($user->username),
@@ -60,5 +95,14 @@ class PlayerStatsService
             $score >= 40 => 'Building',
             default => 'Start',
         };
+    }
+
+    /**
+     * Status shown on a scenario card. Players who have never completed a
+     * scenario are labelled "Not Started" instead of the zero-score band.
+     */
+    public static function statusLabelFor(int $score, bool $hasScore): string
+    {
+        return $hasScore ? self::statusLabel($score) : 'Not Started';
     }
 }

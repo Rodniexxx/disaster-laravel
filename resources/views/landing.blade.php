@@ -66,11 +66,11 @@
                     <p class="card-kicker">Featured Scenario</p>
                     <h2 data-carousel-title>{{ strtoupper($featured->title ?? 'EARTHQUAKE') }}</h2>
                     <p data-carousel-description>{{ $featured->description ?? 'Learn the correct actions to take during strong earthquake shaking.' }}</p>
-                    <a href="{{ $startUrl }}" class="inline-link">START TRAINING</a>
+                    <a href="{{ $startUrl }}" class="inline-link">SIMULATE DISASTER</a>
                 </div>
 
                 <div class="module-card glass-card reveal-item">
-                    <p class="card-kicker">Training Modules</p>
+                    <p class="card-kicker">CATEGORIES</p>
                     <div class="spec-list" aria-label="Training module list">
                         @foreach ($scenarios as $scenario)
                             <div class="spec-row" data-carousel-row>
@@ -122,7 +122,7 @@
 
         <!-- Volcanic Eruption -->
         <article class="card card-scenario reveal-item"
-                 style="--card-bg: url('{{ asset('images/scenarios/volcano.webp') }}')">
+                 style="--card-bg: url('{{ asset('images/scenarios/volcanic-eruption.webp') }}')">
             <span class="card-tag">Natural Disaster</span>
             <h3>Volcanic Eruption</h3>
             <p>

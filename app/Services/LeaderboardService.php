@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Leaderboard;
 use App\Models\User;
+use App\Support\DisasterCatalog;
 use Illuminate\Support\Collection;
 
 /**
@@ -13,16 +14,29 @@ class LeaderboardService
 {
     public const LIMIT = 100;
 
+    public function __construct(private readonly DisasterCatalog $catalog) {}
+
     /**
      * Ranked leaderboard rows for a category (or "Overall") as plain arrays
      * that mirror the JSON shape returned by api/get_leaderboard.php.
+     *
+     * The category may be a canonical category value, a display name or an
+     * alias; every stored spelling that maps to the scenario is included so
+     * historical records are never dropped.
      *
      * @return Collection<int, array{rank:int, username:string, category:string, score:int}>
      */
     public function rows(?string $category): Collection
     {
-        return Leaderboard::query()
-            ->forCategory($category)
+        $query = Leaderboard::query();
+
+        if ($category !== null && $category !== '' && $category !== 'Overall') {
+            $values = $this->catalog->categoryValues($category);
+
+            $query->whereIn('category', $values === [] ? [$category] : $values);
+        }
+
+        return $query
             ->ranked()
             ->limit(self::LIMIT)
             ->get()
@@ -36,7 +50,8 @@ class LeaderboardService
     }
 
     /**
-     * Best score per category (title => score) for a single player.
+     * Best score per category (stored category => score) for a single player.
+     * Duplicate rows for the same category are collapsed to the highest score.
      *
      * @return array<string, int>
      */
@@ -45,7 +60,8 @@ class LeaderboardService
         return Leaderboard::query()
             ->where('user_id', $user->id)
             ->get()
-            ->mapWithKeys(fn (Leaderboard $row) => [$row->category => (int) $row->score])
+            ->groupBy('category')
+            ->map(fn (Collection $rows) => (int) $rows->max('score'))
             ->all();
     }
 
