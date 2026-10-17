@@ -3822,6 +3822,10 @@ label {
         justify-content: center;
     }
 
+    .icon-button span {
+        font-size: 4px;
+    }
+
     .home-page .card {
         padding: 20px 18px;
     }
