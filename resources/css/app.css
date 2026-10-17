@@ -186,16 +186,25 @@ button {
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 9px;
+    justify-content: center;
+    gap: 6px 10px;
     flex-wrap: wrap;
+    white-space: normal;
 }
 
 .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 8px 12px;
     border-radius: var(--radius-sm);
     color: var(--home-muted);
-    font-weight: 600;
-    font-size: 1 rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    text-align: center;
+    flex-shrink: 0;
     transition:
         color 0.2s ease,
         background 0.2s ease;
@@ -204,6 +213,29 @@ button {
 .nav-links a:hover {
     color: var(--home-text);
     background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 1170px) {
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 4px 8px;
+        max-width: 620px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .nav-links a {
+        padding: 7px 10px;
+        font-size: 0.88rem;
+    }
+
+    /* Hide the hamburger when links remain visible */
+    .nav-toggle {
+        display: none;
+    }
 }
 
 .nav-links a.active {
@@ -969,15 +1001,23 @@ button {
         top: calc(100% + 10px);
         left: 16px;
         right: 16px;
+
+        display: flex;
         flex-direction: column;
         align-items: stretch;
+        gap: 6px;
+
         padding: 18px 16px;
-        background: rgba(8, 12, 18, 0.92);
+        background: rgba(8, 12, 18, 0.96);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 18px;
+        z-index: 1000;
+
         opacity: 0;
         visibility: hidden;
+        pointer-events: none;
         transform: translateY(-8px);
+
         transition:
             opacity 0.25s ease,
             transform 0.25s ease,
@@ -987,6 +1027,7 @@ button {
     .home-page .nav-links.open {
         opacity: 1;
         visibility: visible;
+        pointer-events: auto;
         transform: translateY(0);
     }
 

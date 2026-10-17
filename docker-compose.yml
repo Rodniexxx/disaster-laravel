@@ -1,0 +1,104 @@
+name: mangno
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: mangno-app
+    container_name: mangno-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Reach the MySQL service over the internal Docker network.
+      DB_HOST: db
+      DB_PORT: "3306"
+      # Production runtime — no debug output or stack traces in responses.
+      APP_ENV: production
+      APP_DEBUG: "false"
+      # The queue table exists in this project, so workers use the database driver.
+      # Remove this line to fall back to the QUEUE_CONNECTION in your .env (sync).
+      QUEUE_CONNECTION: database
+    volumes:
+      # Persists uploaded game builds (storage/app/private/downloads), logs,
+      # framework cache, sessions and views across container rebuilds.
+      - app_storage:/var/www/html/storage
+    expose:
+      - "9000" # internal only — PHP-FPM is never published to the host
+    networks:
+      - mangno
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: mangno-app
+    container_name: mangno-worker
+    restart: unless-stopped
+    command: ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      QUEUE_CONNECTION: database
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - mangno
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    image: mangno-nginx
+    container_name: mangno-nginx
+    restart: unless-stopped
+    ports:
+      # Host port 8000 matches APP_URL in .env (port 80 is used by XAMPP Apache).
+      - "${NGINX_PORT:-8000}:80"
+    networks:
+      - mangno
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: mangno-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-disaster_game}
+      # Matches the credentials the application already reads from .env.
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - mangno
+    healthcheck:
+      test:
+        ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  mangno:
+    driver: bridge
+
+volumes:
+  app_storage:
+  db_data:
