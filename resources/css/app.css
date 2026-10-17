@@ -1548,8 +1548,7 @@ button {
     display: inline-flex;
     align-items: center;
     padding: 8px 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
+
     background: rgba(255, 255, 255, 0.03);
     color: var(--muted);
     font-size: 0.85rem;
