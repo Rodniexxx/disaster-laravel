@@ -330,7 +330,7 @@ button {
 }
 
 .btn-primary {
-    background: var(--primary-strong);
+    background: #040b12;
     color: #fff;
     border-color: white;
     box-shadow: var(--shadow-sm);
@@ -338,7 +338,7 @@ button {
 
 .btn-primary:hover {
     background: #dddfe2;
-    border-color: white;
+    border-color: #040b12;
     box-shadow: #040b12;
 }
 
