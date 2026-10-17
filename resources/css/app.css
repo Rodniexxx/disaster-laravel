@@ -338,8 +338,9 @@ button {
 
 .btn-primary:hover {
     background: #dddfe2;
-    border-color: #040b12;
+    border-color: 1px solid #040b12;
     box-shadow: #040b12;
+    color: #040b12;
 }
 
 .btn-secondary {
