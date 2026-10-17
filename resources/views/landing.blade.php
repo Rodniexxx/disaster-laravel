@@ -122,7 +122,7 @@
 
         <!-- Volcanic Eruption -->
         <article class="card card-scenario reveal-item"
-                 style="--card-bg: url('{{ asset('images/scenarios/volcanic-eruption.webp') }}')">
+                 style="--card-bg: url('{{ asset('images/scenarios/volcano.webp') }}')">
             <span class="card-tag">Natural Disaster</span>
             <h3>Volcanic Eruption</h3>
             <p>
