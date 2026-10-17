@@ -1060,7 +1060,7 @@ button {
     }
 
     .home-page .title-word {
-        font-size: clamp(2rem, 9vw, 2.8rem);
+        font-size: clamp(2.1rem, 10vw, 3rem);
         line-height: 1.1;
         letter-spacing: -0.03em;
         overflow-wrap: normal;
