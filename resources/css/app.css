@@ -1056,12 +1056,16 @@ button {
     }
 
     .home-page .hero-inner {
-        padding-top: 52px;
-        padding-bottom: 28px;
+        padding: 52px 16px 28px;
     }
 
     .home-page .title-word {
-        font-size: clamp(2.4rem, 13vw, 3.6rem);
+        font-size: clamp(2rem, 9vw, 2.8rem);
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        overflow-wrap: normal;
+        word-break: normal;
+        hyphens: none;
     }
 
     .home-page .page-indicator {
