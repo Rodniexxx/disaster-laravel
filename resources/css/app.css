@@ -3035,8 +3035,7 @@ button.nav-logout:hover {
     font-weight: 600;
 }
 
-/* MANGNO Download Page - Visibility and Mobile Fix */
-
+/* Keep download page content visible */
 .download-hero .reveal-item,
 #downloads .reveal-item,
 #before-you-download .reveal-item,
@@ -3049,6 +3048,19 @@ button.nav-logout:hover {
 
 /* Responsive download layout */
 @media (max-width: 760px) {
+    /* Remove accidental blur from page content */
+    .download-hero,
+    .download-hero *,
+    #downloads,
+    #downloads *,
+    #before-you-download,
+    #before-you-download *,
+    #about,
+    #about * {
+        -webkit-filter: none !important;
+        filter: none !important;
+    }
+
     .download-hero {
         padding: 44px 0 24px;
         text-align: center;
@@ -3067,6 +3079,7 @@ button.nav-logout:hover {
     }
 
     .download-hero-actions {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
@@ -3088,11 +3101,14 @@ button.nav-logout:hover {
         flex-direction: column;
         min-width: 0;
         width: 100%;
+        box-sizing: border-box;
         padding: 20px;
         gap: 16px;
         opacity: 1 !important;
         visibility: visible !important;
         transform: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
     }
 
     .download-card-head {
@@ -3140,17 +3156,19 @@ button.nav-logout:hover {
         width: 100%;
     }
 
+    /* Disable reveal animations that can hide content */
+    .download-hero .reveal-item,
     #downloads .reveal-item,
     #before-you-download .reveal-item,
-    #about .reveal-item,
-    .download-hero .reveal-item {
+    #about .reveal-item {
         opacity: 1 !important;
         visibility: visible !important;
         transform: none !important;
+        filter: none !important;
+        -webkit-filter: none !important;
         animation: none !important;
     }
 }
-
 @media (max-width: 900px) {
     .safety-grid {
         grid-template-columns: 1fr;
