@@ -20,10 +20,9 @@
     </nav>
 
     <div class="admin-sidebar-footer">
-        <span class="admin-sidebar-user">{{ auth()->user()->username }}</span>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit">Logout</button>
+            <button type="submit">Logout {{ auth()->user()->username }}</button>
         </form>
     </div>
 </aside>
