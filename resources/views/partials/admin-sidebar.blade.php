@@ -18,13 +18,11 @@
         <span class="admin-nav-group">System</span>
         <a href="{{ route('admin.logs.index') }}" class="{{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">Activity Logs</a>
         <a href="{{ route('admin.settings.edit') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">Settings</a>
-
-        <div class="admin-nav-footer">
-            <span class="admin-sidebar-user">{{ auth()->user()->username }}</span>
+        <span class="admin-sidebar-user">{{ auth()->user()->username }}</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit">Logout</button>
             </form>
-        </div>
+
     </nav>
 </aside>
