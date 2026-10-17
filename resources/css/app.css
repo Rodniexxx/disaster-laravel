@@ -1195,8 +1195,22 @@ button {
 }
 
 .card-icon.large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 58px;
     height: 58px;
+    padding: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.scenario-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-md);
 }
 
 .card-tag {
