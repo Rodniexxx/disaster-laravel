@@ -67,7 +67,7 @@ return [
         [
             'slug' => 'volcano',
             'name' => 'Volcanic Eruption',
-            'image' => 'images/scenarios/volcanic-eruption.webp',
+            'image' => 'images/scenarios/volcano.webp',
             'description' => 'Study ash safety, evacuation routes, and emergency communication.',
             'difficulty' => 'Hard',
             'category' => 'Volcano',
