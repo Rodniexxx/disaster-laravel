@@ -15,7 +15,7 @@
             <a href="{{ route('download') }}" class="{{ request()->routeIs('download') ? 'active' : '' }}">Download</a>
             <a href="{{ route('leaderboard.index') }}" class="{{ request()->routeIs('leaderboard.*') ? 'active' : '' }}">Leaderboard</a>
             @auth
-                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Player Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
                 <div class="nav-user">
                     <span class="nav-user-name">Hi, {{ auth()->user()->username }}</span>
                     <form method="POST" action="{{ route('logout') }}" class="inline-form">
