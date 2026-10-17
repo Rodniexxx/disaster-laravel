@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Leaderboard;
 use App\Models\User;
 use App\Support\DisasterCatalog;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -28,15 +30,7 @@ class LeaderboardService
      */
     public function rows(?string $category): Collection
     {
-        $query = Leaderboard::query();
-
-        if ($category !== null && $category !== '' && $category !== 'Overall') {
-            $values = $this->catalog->categoryValues($category);
-
-            $query->whereIn('category', $values === [] ? [$category] : $values);
-        }
-
-        return $query
+        return $this->query($category)
             ->ranked()
             ->limit(self::LIMIT)
             ->get()
@@ -47,6 +41,47 @@ class LeaderboardService
                 'category' => $row->category,
                 'score' => (int) $row->score,
             ]);
+    }
+
+    /**
+     * Paginated ranked leaderboard rows. Ranks are global (page 2 starts at
+     * perPage + 1) so the ranking matches the legacy top-100 list.
+     *
+     * @return LengthAwarePaginator<int, array{rank:int, username:string, category:string, score:int}>
+     */
+    public function paginate(?string $category, int $perPage = 20): LengthAwarePaginator
+    {
+        $paginator = $this->query($category)
+            ->ranked()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $offset = ($paginator->currentPage() - 1) * $paginator->perPage();
+
+        $paginator->getCollection()->transform(fn (Leaderboard $row, int $i) => [
+            'rank' => $offset + $i + 1,
+            'username' => $row->username,
+            'category' => $row->category,
+            'score' => (int) $row->score,
+        ]);
+
+        return $paginator;
+    }
+
+    /**
+     * @return Builder<Leaderboard>
+     */
+    private function query(?string $category)
+    {
+        $query = Leaderboard::query();
+
+        if ($category !== null && $category !== '' && $category !== 'Overall') {
+            $values = $this->catalog->categoryValues($category);
+
+            $query->whereIn('category', $values === [] ? [$category] : $values);
+        }
+
+        return $query;
     }
 
     /**

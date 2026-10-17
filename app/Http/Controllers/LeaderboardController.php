@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\LeaderboardService;
 use App\Support\DisasterCatalog;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class LeaderboardController extends Controller
 {
@@ -28,22 +28,24 @@ class LeaderboardController extends Controller
         return view('leaderboard.index', [
             'categories' => $categories,
             'category' => $category,
-            'rows' => $this->withDisplayCategories($this->leaderboard->rows($category)),
+            'rows' => $this->withDisplayCategories($this->leaderboard->paginate($category)),
         ]);
     }
 
     /**
      * Replace stored category values with their friendly scenario names.
      *
-     * @param  Collection<int, array{rank:int, username:string, category:string, score:int}>  $rows
-     * @return Collection<int, array{rank:int, username:string, category:string, score:int}>
+     * @param  LengthAwarePaginator<int, array{rank:int, username:string, category:string, score:int}>  $rows
+     * @return LengthAwarePaginator<int, array{rank:int, username:string, category:string, score:int}>
      */
-    private function withDisplayCategories($rows)
+    private function withDisplayCategories(LengthAwarePaginator $rows): LengthAwarePaginator
     {
-        return $rows->map(function (array $row) {
+        $rows->getCollection()->transform(function (array $row) {
             $row['category'] = $this->catalog->displayName($row['category']) ?? $row['category'];
 
             return $row;
         });
+
+        return $rows;
     }
 }

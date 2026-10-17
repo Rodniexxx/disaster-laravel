@@ -1041,7 +1041,8 @@ button {
 
 @media (max-width: 720px) {
     .home-page .cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
     }
 
     .home-page .featured-card,
@@ -1571,6 +1572,7 @@ button {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
+    min-width: 0;
 }
 
 .stat-panel.highlight {
@@ -1870,12 +1872,15 @@ tbody tr:hover {
     }
 
     .hero-content,
+    .form-shell {
+        grid-template-columns: 1fr;
+    }
+
     .cards,
     .progress-grid,
     .stats-strip,
-    .admin-stats,
-    .form-shell {
-        grid-template-columns: 1fr;
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
     }
 
     .hero-metrics {
@@ -1901,12 +1906,27 @@ tbody tr:hover {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
     min-height: 100vh;
+    overflow-x: clip;
 }
 
 .admin-sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     background: rgba(9, 22, 38, 0.96);
     border-right: 1px solid var(--border);
     padding: 22px 16px;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 .admin-brand {
@@ -1998,6 +2018,7 @@ tbody tr:hover {
 
 .admin-main {
     padding: 32px;
+    min-width: 0;
 }
 
 .admin-topbar {
@@ -2042,6 +2063,7 @@ tbody tr:hover {
     box-shadow: var(--shadow-sm);
     padding: 24px;
     margin-bottom: 24px;
+    min-width: 0;
 }
 
 .panel-header {
@@ -2249,7 +2271,7 @@ textarea {
 
 @media (max-width: 980px) {
     .admin-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .admin-sidebar {
@@ -2259,6 +2281,18 @@ textarea {
 
     .admin-grid,
     .form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-panel {
+        padding: 20px;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-grid,
+    .form-grid.compact {
         grid-template-columns: 1fr;
     }
 }
@@ -3472,12 +3506,23 @@ label {
 
 @media (max-width: 640px) {
     .stats-strip {
-        gap: 14px;
-        grid-template-columns: 1fr;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
     }
 
     .stat-panel {
-        padding: 18px;
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .admin-stats {
+        gap: 10px;
     }
 }
 
@@ -3721,7 +3766,7 @@ label {
 
 @media (max-width: 980px) {
     .admin-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .admin-sidebar {
@@ -3763,6 +3808,21 @@ label {
         display: inline-flex;
     }
 
+    .admin-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        margin: -32px -32px 24px;
+        padding: 24px 32px 20px;
+        background: rgba(7, 26, 45, 0.97);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+
+    .admin-topbar .topbar-user {
+        display: none;
+    }
+
     body.admin-nav-open {
         overflow: hidden;
     }
@@ -3778,6 +3838,11 @@ label {
 @media (max-width: 760px) {
     .admin-topbar h1 {
         font-size: clamp(1.5rem, 6vw, 2rem);
+    }
+
+    .admin-topbar {
+        margin: -20px -16px 24px;
+        padding: 16px 16px 18px;
     }
 
     .admin-topbar-main {
@@ -3913,5 +3978,327 @@ button.nav-logout:focus-visible {
         min-height: 44px;
         padding: 10px 18px 10px 16px;
         font-size: 0.76rem;
+    }
+}
+
+/* ---------------------------------------------------------------- */
+/* Compact tables — stay a single dense table on phones and tablets
+   (opt out of the stacked-card transformation above). */
+
+.table-compact {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Column visibility helpers */
+@media (max-width: 980px) {
+    .table-wrap.table-compact th.hide-tablet,
+    .table-wrap.table-compact td.hide-tablet {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .table-wrap.table-compact th.hide-mobile,
+    .table-wrap.table-compact td.hide-mobile {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .table-wrap.table-compact {
+        overflow-x: auto;
+    }
+
+    .table-wrap.table-compact table {
+        display: table;
+        width: 100%;
+    }
+
+    .table-wrap.table-compact thead {
+        display: table-header-group;
+        position: static;
+        width: auto;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .table-wrap.table-compact tbody {
+        display: table-row-group;
+    }
+
+    .table-wrap.table-compact tbody tr {
+        display: table-row;
+        margin-bottom: 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: none;
+    }
+
+    .table-wrap.table-compact tbody td {
+        display: table-cell;
+        width: auto;
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        font-size: 0.82rem;
+        white-space: nowrap;
+    }
+
+    .table-wrap.table-compact tbody td::before {
+        content: none;
+    }
+
+    .table-wrap.table-compact tbody td.table-empty {
+        display: table-cell;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .table-wrap.table-compact th {
+        padding: 8px 10px;
+        font-size: 0.62rem;
+    }
+
+    .table-wrap.table-compact tbody td.table-actions {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        gap: 6px;
+        white-space: normal;
+    }
+
+    .table-wrap.table-compact tbody td.table-actions .btn {
+        flex: 0 1 auto;
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+
+    .table-wrap.table-compact tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Compact pagination inside panels */
+    .pagination {
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .pagination .btn.small {
+        min-height: 36px;
+        padding: 6px 10px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-wrap.table-compact th,
+    .table-wrap.table-compact td {
+        padding: 10px 12px;
+    }
+}
+
+/* ---------------------------------------------------------------- */
+/* Stacked cards on phones AND tablets — opt-in alternative to the
+   dense table-compact layout. Prevents horizontal scrolling by
+   turning each row into a card with labelled values. */
+
+@media (max-width: 980px) {
+    .table-wrap.table-stack {
+        overflow-x: visible;
+    }
+
+    .table-wrap.table-stack table,
+    .table-wrap.table-stack thead,
+    .table-wrap.table-stack tbody,
+    .table-wrap.table-stack tr,
+    .table-wrap.table-stack td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-wrap.table-stack thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .table-wrap.table-stack tbody tr {
+        margin-bottom: 14px;
+        padding: 4px 16px;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .table-wrap.table-stack tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .table-wrap.table-stack tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        text-align: right;
+        white-space: normal;
+    }
+
+    .table-wrap.table-stack tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .table-wrap.table-stack tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+    }
+
+    .table-wrap.table-stack tbody td:not([data-label])::before,
+    .table-wrap.table-stack tbody td[data-label=""]::before {
+        content: none;
+    }
+
+    .table-wrap.table-stack tbody td.table-empty {
+        display: block;
+        text-align: center;
+    }
+
+    .table-wrap.table-stack tbody td.table-empty::before {
+        content: none;
+    }
+
+    .table-wrap.table-stack tbody td.table-actions {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 8px;
+        padding-top: 14px;
+    }
+
+    .table-wrap.table-stack tbody td.table-actions::before {
+        width: 100%;
+        margin-bottom: 2px;
+    }
+
+    .table-wrap.table-stack tbody td.table-actions .btn {
+        flex: 1 1 auto;
+        min-height: 42px;
+    }
+}
+
+/* Pagination wrap under leaderboard tables */
+.pagination-wrap {
+    padding: 14px 16px 16px;
+    border-top: 1px solid var(--border);
+}
+
+.pagination-wrap .pagination {
+    margin-top: 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* Denser content on phones — smaller cards, panels and headers */
+
+@media (max-width: 640px) {
+    .card,
+    .progress-card {
+        padding: 16px;
+    }
+
+    .card h3,
+    .progress-card h3 {
+        font-size: 1.05rem;
+    }
+
+    .card p,
+    .progress-card p {
+        margin-bottom: 12px;
+        font-size: 0.86rem;
+    }
+
+    .card-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .card-tag {
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        margin-bottom: 8px;
+        font-size: 0.66rem;
+    }
+
+    .stat-value {
+        font-size: 1.35rem;
+    }
+
+    .leaderboard-controls {
+        padding: 12px;
+        margin-bottom: 16px;
+    }
+
+    .category-tabs {
+        gap: 8px;
+    }
+
+    .tab-btn {
+        padding: 7px 10px;
+        font-size: 0.78rem;
+    }
+
+    .admin-panel {
+        margin-bottom: 16px;
+    }
+
+    .panel-header {
+        margin-bottom: 12px;
+    }
+
+    .panel-header h2 {
+        font-size: 1rem;
+    }
+
+    .form-grid,
+    .form-grid.compact {
+        gap: 12px;
+    }
+
+    .field-group input,
+    .field-group select {
+        padding: 10px 12px;
+        font-size: 0.92rem;
+    }
+
+    .btn {
+        min-height: 40px;
+    }
+
+    .btn.small {
+        min-height: 36px;
+        padding: 6px 12px;
+        font-size: 0.78rem;
     }
 }
