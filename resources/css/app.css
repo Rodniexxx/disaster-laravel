@@ -1931,8 +1931,14 @@ tbody tr:hover {
     display: none;
 }
 
-.admin-sidebar-footer {
+.admin-sidebar-user {
     display: none;
+    margin-top: 18px;
+    padding: 0 14px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    word-break: break-word;
 }
 
 .admin-brand {
@@ -3810,48 +3816,8 @@ label {
         flex: none;
     }
 
-    .admin-nav form.admin-nav-logout {
-        display: none;
-    }
-
-    .admin-sidebar-footer {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        flex: none;
-        margin-top: 16px;
-        padding-top: 16px;
-        padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
-        border-top: 1px solid var(--border);
-        background: rgba(9, 22, 38, 0.96);
-    }
-
-    .admin-sidebar-footer .admin-sidebar-user {
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 600;
-        word-break: break-word;
-    }
-
-    .admin-sidebar-footer form {
-        margin: 0;
-    }
-
-    .admin-sidebar-footer button {
+    .admin-sidebar-user {
         display: block;
-        width: 100%;
-        padding: 11px 14px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--text);
-        font: inherit;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .admin-sidebar-footer button:hover {
-        background: rgba(255, 255, 255, 0.08);
     }
 
     .admin-menu-toggle {
