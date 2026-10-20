@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const isPassword = input.type === 'password';
             input.type = isPassword ? 'text' : 'password';
-            button.textContent = isPassword ? 'Hide' : 'Show';
+            button.classList.toggle('is-visible', isPassword);
             button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
             input.focus();
         });

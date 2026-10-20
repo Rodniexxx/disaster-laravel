@@ -13,9 +13,11 @@
                     <p class="auth-kicker">@yield('visual-kicker')</p>
                     <h1>@yield('visual-title')</h1>
                     <p>@yield('visual-text')</p>
-                    <ul class="auth-points">
-                        @yield('visual-points')
-                    </ul>
+                    @hasSection('visual-points')
+                        <ul class="auth-points">
+                            @yield('visual-points')
+                        </ul>
+                    @endif
                 </div>
             </div>
 
