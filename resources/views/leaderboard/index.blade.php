@@ -7,7 +7,7 @@
     <section class="dashboard-header reveal">
         <div>
             <x-back-button />
-            <p class="eyebrow">Top preparedness scores</p>
+            <p class="eyebrow">Disaster readiness rankings</p>
             <h1>Leaderboard</h1>
         </div>
     </section>
@@ -21,6 +21,8 @@
         </div>
     </section>
 
+    <p class="muted">Overall totals each player's best completed scenario scores (up to 400). Each disaster is scored out of 100.</p>
+
     <section class="leaderboard-panel reveal">
         <div class="table-wrap table-compact">
             <table>
@@ -28,13 +30,13 @@
                     <tr>
                         <th>Rank</th>
                         <th>Player</th>
-                        <th>Score</th>
+                        <th>Readiness score</th>
                         <th class="hide-mobile">Disaster category</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if ($rows->isEmpty())
-                        <tr><td colspan="4" class="table-empty">No scores yet.</td></tr>
+                        <tr><td colspan="4" class="table-empty">No readiness scores yet. Complete a scenario to join the rankings.</td></tr>
                     @else
                         @foreach ($rows as $row)
                             <tr class="leader-row top-{{ $row['rank'] }}">

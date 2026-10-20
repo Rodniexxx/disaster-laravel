@@ -165,6 +165,13 @@ class PlayerDashboardTest extends TestCase
             ->assertSee('Volcanic Eruption')
             ->assertDontSee('Volcano');
 
+        app(\App\Services\ReadinessService::class)->submit($user, [
+            'attempt_id' => (string) \Illuminate\Support\Str::uuid(), 'scenario' => 'Volcano',
+            'completed' => true, 'quiz_correct' => 8, 'quiz_total' => 10,
+            'metrics' => array_map(fn ($id) => ['id' => $id, 'earned' => 1, 'possible' => 1],
+                \App\Services\ReadinessService::CRITERIA['Volcano']),
+        ]);
+
         $this->get('/leaderboard')
             ->assertOk()
             ->assertSee('volcanohero')

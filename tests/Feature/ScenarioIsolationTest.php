@@ -80,6 +80,13 @@ class ScenarioIsolationTest extends TestCase
             'score' => 88,
         ]);
 
+        app(\App\Services\ReadinessService::class)->submit($player, [
+            'attempt_id' => (string) \Illuminate\Support\Str::uuid(), 'scenario' => 'Volcano',
+            'completed' => true, 'quiz_correct' => 7, 'quiz_total' => 10,
+            'metrics' => array_map(fn ($id) => ['id' => $id, 'earned' => 1, 'possible' => 1],
+                \App\Services\ReadinessService::CRITERIA['Volcano']),
+        ]);
+
         foreach (['volcano', 'Volcano', 'volcanic eruption', 'Volcanic Eruption'] as $requested) {
             $this->get('/leaderboard?category='.urlencode($requested))
                 ->assertOk()

@@ -17,7 +17,7 @@ class UnityIntegrationTest extends TestCase
         Auth::forgetGuards();
     }
 
-    public function test_mobile_token_scores_and_website_share_all_four_categories(): void
+    public function test_mobile_legacy_scores_remain_available_without_entering_readiness_rankings(): void
     {
         $registration = $this->postJson('/api/register', [
             'username' => 'androidplayer', 'email' => 'android@example.com',
@@ -44,7 +44,7 @@ class UnityIntegrationTest extends TestCase
                 ->assertJsonPath('leaderboard.0.category', $category)
                 ->assertJsonPath('leaderboard.0.score', 80 + $i);
             $this->get('/leaderboard?category='.$category)
-                ->assertOk()->assertSee('androidplayer')->assertSee((string) (80 + $i));
+                ->assertOk()->assertViewHas('rows', fn ($rows) => $rows->isEmpty());
         }
         $this->assertSame(4, Leaderboard::where('user_id', $user->id)->count());
         // The website shows the friendly name for the Unity "Volcano" category.

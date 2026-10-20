@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\LeaderboardService;
+use App\Services\ReadinessService;
 use App\Support\DisasterCatalog;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class LeaderboardController extends Controller
 {
     public function __construct(
-        private readonly LeaderboardService $leaderboard,
+        private readonly ReadinessService $readiness,
         private readonly DisasterCatalog $catalog,
     ) {}
 
@@ -19,7 +19,9 @@ class LeaderboardController extends Controller
     {
         $categories = array_merge(['Overall'], $this->catalog->titles());
 
-        $requested = (string) $request->query('category', 'Overall');
+        $requested = trim((string) $request->query('category', 'Overall'));
+        $identifier = strcasecmp($requested, 'Overall') === 0
+            ? 'Overall' : ($this->catalog->resolveCategory($requested) ?? 'Overall');
         $category = 'Overall';
         if (strcasecmp($requested, 'Overall') !== 0) {
             // Accepts slugs, canonical categories ("Volcano") and aliases.
@@ -29,7 +31,7 @@ class LeaderboardController extends Controller
         return view('admin.leaderboard.index', [
             'categories' => $categories,
             'category' => $category,
-            'rows' => $this->withDisplayCategories($this->leaderboard->paginate($category)),
+            'rows' => $this->withDisplayCategories($this->readiness->paginateLeaderboard($identifier)),
         ]);
     }
 

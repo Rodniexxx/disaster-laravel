@@ -121,6 +121,19 @@ class ReadinessService
             'mastered_scenarios' => count(array_filter($scenarios, fn ($s) => $s['stars'] === 3)),
             'achievements' => DB::table('readiness_achievements')->where('user_id', $userId)->orderBy('id')->get(['achievement_id as id', 'unlocked_at'])->all()];
     }
+    /** Website pages are slices of the exact same top-100 ranking returned to Unity. */
+    public function paginateLeaderboard(string $category, int $perPage = 20): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        $rows = collect($this->leaderboard($category));
+        $page = max(1, \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage());
+        $perPage = max(1, $perPage);
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            $rows->forPage($page, $perPage)->values(), $rows->count(), $perPage, $page,
+            ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath(), 'query' => request()->query()],
+        );
+    }
+
     public function leaderboard(string $category): array
     {
         $query = DB::table('readiness_progress as p')->join('users as u', 'u.id', '=', 'p.user_id')
