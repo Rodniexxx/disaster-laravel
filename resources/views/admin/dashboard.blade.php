@@ -28,6 +28,7 @@
         <small>{{ number_format($totals['questions']) }} quiz questions</small>
     </article>
 </a>
+    </section>
 
     <section class="admin-grid">
         <article class="admin-panel">
