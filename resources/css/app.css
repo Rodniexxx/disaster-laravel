@@ -83,20 +83,50 @@ body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background:
-        radial-gradient(
-            circle at top,
-            rgba(84, 143, 222, 0.2),
-            transparent 25%
+    background-color: var(--bg);
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.02) 0 1px,
+            transparent 1px 76px
         ),
-        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.02) 0 1px,
+            transparent 1px 76px
+        ),
+        radial-gradient(
+            ellipse 90% 55% at 50% -8%,
+            rgba(84, 143, 222, 0.18),
+            transparent 62%
+        ),
+        linear-gradient(180deg, #0a1c33 0%, var(--bg) 34%, #04101f 100%);
+    background-attachment: fixed;
     color: var(--text);
     line-height: 1.6;
 }
 
 body.home-page {
     font-family: var(--font-sans);
-    background: #040e1d;
+    background-color: #040e1d;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.018) 0 1px,
+            transparent 1px 76px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.018) 0 1px,
+            transparent 1px 76px
+        ),
+        radial-gradient(
+            ellipse 80% 45% at 50% -6%,
+            rgba(84, 143, 222, 0.14),
+            transparent 60%
+        ),
+        linear-gradient(180deg, #061527 0%, #040e1d 40%, #030a14 100%);
+    background-attachment: fixed;
     color: var(--home-text);
 }
 
@@ -330,17 +360,16 @@ button {
 }
 
 .btn-primary {
-    background: #040b12;
-    color: #fff;
-    border-color: white;
+    background: var(--primary);
+    color: #051322;
+    border-color: var(--primary);
     box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-    background: #dddfe2;
-    border-color: 1px solid #040b12;
-    box-shadow: #040b12;
-    color: #040b12;
+    background: #82beff;
+    border-color: #82beff;
+    color: #051322;
 }
 
 .btn-secondary {
@@ -4425,4 +4454,457 @@ button.nav-logout:focus-visible {
         padding: 6px 12px;
         font-size: 0.78rem;
     }
+}
+
+/* =========================================================================
+ | Visual refresh — "operations console" layer
+ | UI only: same navy/blue palette, same markup contracts. Replaces the
+ | template-style glass/blur effects with solid hairline surfaces, mono
+ | meta labels, and an editorial section rhythm so the site reads as a
+ | purpose-built disaster training console.
+ | ---------------------------------------------------------------------- */
+
+:root {
+    --font-mono: "JetBrains Mono", "Consolas", ui-monospace, monospace;
+    --surface: rgba(13, 26, 44, 0.96);
+    --surface-raised: rgba(18, 35, 58, 0.96);
+    --hairline: rgba(255, 255, 255, 0.1);
+    --edge-light: rgba(255, 255, 255, 0.06);
+    --radius: 14px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+    --radius-lg: 16px;
+    --ease-out: cubic-bezier(0.22, 0.7, 0.25, 1);
+}
+
+/* ------------------------------------------------ */
+/* Panels: solid surfaces, hairline borders, no blur */
+
+.card,
+.progress-card,
+.stat-panel,
+.admin-panel,
+.leaderboard-panel,
+.glass-panel,
+.auth-card,
+.form-box,
+.dashboard-header,
+.leaderboard-controls,
+.panel-box {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--hairline);
+    box-shadow:
+        inset 0 1px 0 var(--edge-light),
+        0 14px 34px rgba(2, 8, 16, 0.36);
+}
+
+.card:hover,
+.progress-card:hover {
+    border-color: rgba(98, 174, 251, 0.4);
+    box-shadow:
+        inset 0 1px 0 var(--edge-light),
+        0 18px 40px rgba(2, 8, 16, 0.45);
+}
+
+.home-page .card,
+.home-page .glass-card,
+.home-page .safety-card,
+.home-page .contact-card,
+.home-page .download-card,
+.home-page .about-panel,
+.home-page .references {
+    background: rgba(9, 18, 30, 0.94);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: var(--hairline);
+    border-radius: var(--radius);
+    box-shadow:
+        inset 0 1px 0 var(--edge-light),
+        0 16px 40px rgba(1, 6, 12, 0.4);
+}
+
+/* ------------------------------------------------ */
+/* Meta labels: monospace for numbers, tags and keys */
+
+.eyebrow,
+.card-kicker,
+.page-number,
+.page-label,
+.stat-label,
+.download-platform,
+.contact-role,
+.admin-nav-group,
+.card-tag,
+.back-button,
+.agency-badge {
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.12em;
+}
+
+.eyebrow::before {
+    content: "";
+    flex: none;
+    width: 20px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.8;
+}
+
+th {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+
+/* ------------------------------------------------ */
+/* Section headings: left-aligned, numbered, ruled   */
+
+body {
+    counter-reset: section-index;
+}
+
+.section-heading {
+    text-align: left;
+    counter-increment: section-index;
+    margin-bottom: 28px;
+}
+
+.section-heading::before {
+    content: counter(section-index, decimal-leading-zero);
+    display: block;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--home-accent, var(--primary));
+}
+
+.section-heading h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+}
+
+.section-heading h2::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        var(--hairline),
+        transparent
+    );
+    transform: translateY(-0.35em);
+}
+
+.section-heading .section-description {
+    margin: 14px 0 0;
+    max-width: 60ch;
+    color: var(--home-muted, var(--muted));
+}
+
+/* ------------------------------------------------ */
+/* Buttons: blue primary, quiet secondary, pressed  */
+
+.btn {
+    border-radius: var(--radius-md);
+}
+
+.btn-primary,
+.home-page .btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #051322;
+}
+
+.btn-primary:hover,
+.home-page .btn-primary:hover {
+    background: #82beff;
+    border-color: #82beff;
+    color: #051322;
+    box-shadow: 0 10px 26px rgba(98, 174, 251, 0.26);
+}
+
+.btn-secondary,
+.home-page .btn-secondary {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--home-text, var(--text));
+}
+
+.btn-secondary:hover,
+.home-page .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.34);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* ------------------------------------------------ */
+/* Navigation: quiet rail, mono-tinged active state */
+
+.site-header {
+    background: rgba(6, 16, 29, 0.86);
+    border-bottom-color: var(--hairline);
+}
+
+.nav-links a.active {
+    box-shadow: inset 0 -2px 0 var(--home-accent);
+    border-radius: 0;
+}
+
+.nav-links a.nav-register {
+    border-radius: 999px;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-links a.nav-register:hover {
+    background: var(--home-text);
+    color: #040e1d;
+}
+
+/* ------------------------------------------------ */
+/* Hero: inline quick-link chips, mono readouts     */
+
+.home-page .hero-subtitle {
+    filter: none;
+    color: var(--home-muted);
+    font-size: clamp(1rem, 1.6vw, 1.24rem);
+}
+
+.home-page .quick-icons {
+    gap: 10px;
+}
+
+.home-page .icon-button {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    width: auto;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    border-color: var(--hairline);
+    background: rgba(9, 18, 30, 0.7);
+}
+
+.home-page .icon-button:hover {
+    border-color: rgba(98, 174, 251, 0.5);
+    background: rgba(98, 174, 251, 0.1);
+    transform: none;
+}
+
+.home-page .icon-button svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    opacity: 1;
+}
+
+.home-page .icon-button span {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: var(--home-text);
+}
+
+.home-page .page-number {
+    font-variant-numeric: tabular-nums;
+}
+
+.home-page .featured-card h2 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.home-page .inline-link {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    border-bottom-color: rgba(98, 174, 251, 0.5);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.home-page .inline-link:hover {
+    color: var(--home-accent);
+    border-bottom-color: var(--home-accent);
+}
+
+.home-page .spec-row span {
+    font-weight: 600;
+}
+
+.home-page .spec-row strong {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+}
+
+/* ------------------------------------------------ */
+/* Scenario cards: varied widths + mono index       */
+
+.home-page .card-scenario .card-tag::before {
+    counter-increment: scenario-index;
+    content: counter(scenario-index, decimal-leading-zero) " / ";
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+}
+
+.home-page .cards.scenario-grid {
+    counter-reset: scenario-index;
+}
+
+@media (min-width: 1025px) {
+    .home-page .cards.scenario-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .home-page .scenario-grid .card:nth-child(1) {
+        grid-column: span 4;
+    }
+
+    .home-page .scenario-grid .card:nth-child(2) {
+        grid-column: span 2;
+    }
+
+    .home-page .scenario-grid .card:nth-child(3) {
+        grid-column: span 2;
+    }
+
+    .home-page .scenario-grid .card:nth-child(4) {
+        grid-column: span 4;
+    }
+}
+
+/* ------------------------------------------------ */
+/* Motion: short, crisp reveals — no blur washes    */
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.home-page .hero-subtitle,
+.home-page .hero-actions,
+.home-page .quick-icons {
+    filter: none;
+}
+
+.home-page .reveal-item {
+    transform: translateY(12px);
+    filter: none;
+    transition:
+        opacity 0.5s var(--ease-out),
+        transform 0.5s var(--ease-out);
+}
+
+.home-page .reveal-item.is-visible {
+    transform: translateY(0);
+    filter: none;
+}
+
+/* ------------------------------------------------ */
+/* Forms & admin: readable inputs, quiet chrome     */
+
+.field-group input,
+.field-group textarea,
+.field-group select,
+textarea,
+select {
+    background: rgba(5, 13, 23, 0.8);
+    border-color: var(--hairline);
+    border-radius: var(--radius-md);
+}
+
+.field-group input:focus,
+.field-group textarea:focus,
+.field-group select:focus,
+textarea:focus,
+select:focus {
+    background: rgba(7, 17, 29, 0.96);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(98, 174, 251, 0.22);
+}
+
+.admin-sidebar {
+    background: rgba(6, 15, 27, 0.98);
+}
+
+.admin-nav a.active {
+    background: rgba(98, 174, 251, 0.12);
+    box-shadow: inset 2px 0 0 var(--primary);
+}
+
+.admin-nav a.active::before {
+    display: none;
+}
+
+.admin-body {
+    background-color: #071a2d;
+}
+
+.tab-btn {
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+}
+
+.tab-btn.active {
+    background: var(--primary-soft);
+    border-color: rgba(98, 174, 251, 0.5);
+    color: var(--home-text);
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+/* ------------------------------------------------ */
+/* Misc readouts                                     */
+
+.stat-value {
+    font-variant-numeric: tabular-nums;
+}
+
+.contact-card .contact-number {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.site-footer {
+    background: rgba(3, 9, 17, 0.92);
+    border-top-color: var(--hairline);
+}
+
+.home-page .site-footer {
+    background: rgba(3, 8, 15, 0.94);
+}
+
+.footer-content {
+    font-size: 0.9rem;
 }
