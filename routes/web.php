@@ -87,6 +87,7 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::get('logs', [AdminLogController::class, 'index'])->name('logs.index');
 
         Route::get('leaderboard', [AdminLeaderboardController::class, 'index'])->name('leaderboard');
+        Route::delete('leaderboard/scores', [AdminLeaderboardController::class, 'destroy'])->name('leaderboard.destroy');
 
         Route::get('settings', [AdminSettingsController::class, 'edit'])->name('settings.edit');
         Route::put('settings', [AdminSettingsController::class, 'update'])->name('settings.update');
