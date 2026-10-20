@@ -13,11 +13,14 @@ Route::middleware('throttle:api-login')->group(function () {
 });
 
 Route::middleware('throttle:api')->group(function () {
+    Route::get('readiness/leaderboard', [\App\Http\Controllers\Api\ReadinessController::class, 'leaderboard']);
     Route::get('get_leaderboard', [LeaderboardController::class, 'get'])->name('api.leaderboard');
     Route::get('scenarios', [ScenarioController::class, 'index'])->name('api.scenarios');
     Route::get('announcements', [AnnouncementController::class, 'index'])->name('api.announcements');
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
+        Route::get('readiness', [\App\Http\Controllers\Api\ReadinessController::class, 'show']);
+        Route::post('readiness/attempts', [\App\Http\Controllers\Api\ReadinessController::class, 'store']);
         Route::post('save_score', [ScoreController::class, 'save'])->name('api.save-score');
         Route::get('me', [AuthController::class, 'me'])->name('api.me');
         Route::post('logout', [AuthController::class, 'logout'])->name('api.logout');
