@@ -34,16 +34,16 @@
                     </thead>
                     <tbody>
                         @foreach ($scores as $score)
-                            @php $progress = min(100, max(0, (int) $score->score)); @endphp
+                            @php $progress = min(100, max(0, (int) $score['score'])); @endphp
                             <tr>
-                                <td data-label="Category">{{ $score->category }}</td>
-                                <td data-label="Best score">{{ (int) $score->score }}/100</td>
+                                <td data-label="Category">{{ $score['category'] }}</td>
+                                <td data-label="Best score">{{ (int) $score['score'] }}/100</td>
                                 <td data-label="Progress">
                                     <div class="progress-bar">
                                         <span style="width: {{ $progress }}%"></span>
                                     </div>
                                 </td>
-                                <td data-label="Last updated">{{ $score->created_at?->format('M j, Y') ?? '—' }}</td>
+                                <td data-label="Last updated">{{ $score['created_at']?->format('M j, Y') ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

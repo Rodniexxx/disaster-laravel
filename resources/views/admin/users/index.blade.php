@@ -90,18 +90,18 @@
         <div class="panel-header">
             <h2>User Directory</h2>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap table-stack">
             <table>
                 <thead>
                     <tr>
                         <th>Username</th>
-                        <th>Email</th>
+                        <th class="hide-tablet">Email</th>
                         <th>Role</th>
                         <th>Status</th>
-                        <th>Joined</th>
-                        <th>Completed</th>
-                        <th>Sessions</th>
-                        <th>Best Score</th>
+                        <th class="hide-tablet">Joined</th>
+                        <th class="hide-mobile">Completed</th>
+                        <th class="hide-mobile">Sessions</th>
+                        <th class="hide-mobile">Best Score</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -113,13 +113,13 @@
                             @php $meta = $sessions->get($user->id); @endphp
                             <tr>
                                 <td data-label="Username">{{ $user->username }}</td>
-                                <td data-label="Email">{{ $user->email }}</td>
+                                <td data-label="Email" class="hide-tablet">{{ $user->email }}</td>
                                 <td data-label="Role"><span class="status-badge {{ $user->role }}">{{ $user->role }}</span></td>
                                 <td data-label="Status"><span class="status-badge {{ $user->isActive() ? 'active' : 'inactive' }}">{{ $user->isActive() ? 'Active' : 'Inactive' }}</span></td>
-                                <td data-label="Joined">{{ $user->created_at?->format('M j, Y') }}</td>
-                                <td data-label="Completed">{{ (int) $completed->get($user->id, 0) }}</td>
-                                <td data-label="Sessions">{{ (int) ($meta->sessions ?? 0) }}</td>
-                                <td data-label="Best score">{{ (int) ($meta->best_score ?? 0) }}</td>
+                                <td data-label="Joined" class="hide-tablet">{{ $user->created_at?->format('M j, Y') }}</td>
+                                <td data-label="Completed" class="hide-mobile">{{ (int) $completed->get($user->id, 0) }}</td>
+                                <td data-label="Sessions" class="hide-mobile">{{ (int) ($meta->sessions ?? 0) }}</td>
+                                <td data-label="Best score" class="hide-mobile">{{ (int) ($meta->best_score ?? 0) }}</td>
                                 <td class="table-actions" data-label="Actions">
                                     <a href="{{ request()->fullUrlWithQuery(['edit' => $user->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.users.toggle-status', $user) }}" class="inline-form">

@@ -21,12 +21,13 @@
             <strong class="stat-value">{{ number_format($totals['completed_progress']) }}</strong>
             <small>Completed player progress records</small>
         </article>
-        <article class="stat-panel highlight">
-            <span class="stat-label">Scenarios</span>
-            <strong class="stat-value">{{ number_format($totals['scenarios']) }}</strong>
-            <small>{{ number_format($totals['questions']) }} quiz questions</small>
-        </article>
-    </section>
+        <a href="{{ route('admin.questions.index') }}" class="stat-card-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
+    <article class="stat-panel highlight">
+        <span class="stat-label">Scenarios</span>
+        <strong class="stat-value">{{ number_format($totals['scenarios']) }}</strong>
+        <small>{{ number_format($totals['questions']) }} quiz questions</small>
+    </article>
+</a>
 
     <section class="admin-grid">
         <article class="admin-panel">

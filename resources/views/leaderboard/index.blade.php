@@ -22,40 +22,44 @@
     </section>
 
     <section class="leaderboard-panel reveal">
-        <div class="table-wrap">
+        <div class="table-wrap table-compact">
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Player</th>
                         <th>Score</th>
-                        <th>Disaster category</th>
+                        <th class="hide-mobile">Disaster category</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if ($rows->isEmpty())
                         <tr><td colspan="4" class="table-empty">No scores yet.</td></tr>
                     @else
-                        @foreach ($rows as $index => $row)
-                            <tr class="leader-row top-{{ $index + 1 }}">
+                        @foreach ($rows as $row)
+                            <tr class="leader-row top-{{ $row['rank'] }}">
                                 <td data-label="Rank">
-                                    @if ($index === 0)
+                                    @if ($row['rank'] === 1)
                                         <span class="medal medal-gold">🥇</span>
-                                    @elseif ($index === 1)
+                                    @elseif ($row['rank'] === 2)
                                         <span class="medal medal-silver">🥈</span>
-                                    @elseif ($index === 2)
+                                    @elseif ($row['rank'] === 3)
                                         <span class="medal medal-bronze">🥉</span>
                                     @endif
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
                                 <td data-label="Player">{{ $row['username'] }}</td>
                                 <td data-label="Score">{{ $row['score'] }}</td>
-                                <td data-label="Category">{{ $row['category'] }}</td>
+                                <td data-label="Category" class="hide-mobile">{{ $row['category'] }}</td>
                             </tr>
                         @endforeach
                     @endif
                 </tbody>
             </table>
+        </div>
+
+        <div class="pagination-wrap">
+            {{ $rows->links() }}
         </div>
     </section>
 @endsection

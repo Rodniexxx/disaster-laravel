@@ -66,11 +66,11 @@
                     <p class="card-kicker">Featured Scenario</p>
                     <h2 data-carousel-title>{{ strtoupper($featured->title ?? 'EARTHQUAKE') }}</h2>
                     <p data-carousel-description>{{ $featured->description ?? 'Learn the correct actions to take during strong earthquake shaking.' }}</p>
-                    <a href="{{ $startUrl }}" class="inline-link">START TRAINING</a>
+                    <a href="{{ $startUrl }}" class="inline-link">SIMULATE DISASTER</a>
                 </div>
 
                 <div class="module-card glass-card reveal-item">
-                    <p class="card-kicker">Training Modules</p>
+                    <p class="card-kicker">CATEGORIES</p>
                     <div class="spec-list" aria-label="Training module list">
                         @foreach ($scenarios as $scenario)
                             <div class="spec-row" data-carousel-row>
@@ -85,27 +85,66 @@
         </div>
     </section>
 
-    <section class="section container scenario-section" id="disaster-guides">
-        <div class="section-heading reveal-item">
-            <p class="eyebrow">Emergency Topics</p>
-            <h2>Simulation Scenarios</h2>
-        </div>
+    
+<section class="section container scenario-section" id="disaster-guides">
+    <div class="section-heading reveal-item">
+        <p class="eyebrow">Emergency Topics</p>
+        <h2>Simulation Scenarios</h2>
+        <p class="section-description">
+            Explore disaster scenarios and learn the essential actions
+            to protect yourself and others during emergencies.
+        </p>
+    </div>
 
-        @if ($scenarios->isEmpty())
-            <div class="empty-state">No scenarios are available yet. Please check back soon.</div>
-        @else
-            <div class="cards">
-                @foreach ($scenarios as $scenario)
-                    <article class="card card-scenario reveal-item"
-                             style="--card-bg: url('{{ asset('images/scenarios/'.$scenario->slug.'.webp') }}')">
-                        <span class="card-tag">{{ $scenario->title }}</span>
-                        <h3>{{ $scenario->title }}</h3>
-                        <p>{{ \Illuminate\Support\Str::limit($scenario->description, 120) ?: 'Learn safe actions and response steps.' }}</p>
-                    </article>
-                @endforeach
-            </div>
-        @endif
-    </section>
+    <div class="cards scenario-grid">
+
+        <!-- Typhoon -->
+        <article class="card card-scenario reveal-item"
+                 style="--card-bg: url('{{ asset('images/scenarios/typhoon.webp') }}')">
+            <span class="card-tag">Natural Disaster</span>
+            <h3>Typhoon</h3>
+            <p>
+                Learn how to prepare for strong winds, heavy rainfall,
+                flooding, and possible evacuation during a typhoon.
+            </p>
+        </article>
+
+        <!-- Earthquake -->
+        <article class="card card-scenario reveal-item"
+                 style="--card-bg: url('{{ asset('images/scenarios/earthquake.webp') }}')">
+            <span class="card-tag">Natural Disaster</span>
+            <h3>Earthquake</h3>
+            <p>
+                Practice Drop, Cover, and Hold On, identify safe areas,
+                and understand what to do before and after an earthquake.
+            </p>
+        </article>
+
+        <!-- Volcanic Eruption -->
+        <article class="card card-scenario reveal-item"
+                 style="--card-bg: url('{{ asset('images/scenarios/volcanic-eruption.webp') }}')">
+            <span class="card-tag">Natural Disaster</span>
+            <h3>Volcanic Eruption</h3>
+            <p>
+                Prepare for ashfall, follow evacuation instructions,
+                and learn how to protect yourself during volcanic activity.
+            </p>
+        </article>
+
+        <!-- Fire -->
+        <article class="card card-scenario reveal-item"
+                 style="--card-bg: url('{{ asset('images/scenarios/fire.webp') }}')">
+            <span class="card-tag">Human-Caused Hazard</span>
+            <h3>Fire</h3>
+            <p>
+                Learn fire prevention, recognize emergency warning signs,
+                and practice safe evacuation during a fire.
+            </p>
+        </article>
+
+    </div>
+</section>
+
 
     @include('partials.safety-guide')
 

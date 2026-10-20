@@ -47,7 +47,8 @@ class UnityIntegrationTest extends TestCase
                 ->assertOk()->assertSee('androidplayer')->assertSee((string) (80 + $i));
         }
         $this->assertSame(4, Leaderboard::where('user_id', $user->id)->count());
-        $this->actingAs($user)->get('/scores')->assertOk()->assertSee('Volcano');
+        // The website shows the friendly name for the Unity "Volcano" category.
+        $this->actingAs($user)->get('/scores')->assertOk()->assertSee('Volcanic Eruption');
     }
 
     public function test_login_email_and_username_issue_tokens_and_logout_revokes_only_current_token(): void

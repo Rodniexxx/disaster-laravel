@@ -58,8 +58,6 @@ class PlayerDashboardTest extends TestCase
 
     public function test_player_stats_average_the_category_bests(): void
     {
-        $this->makeScenario(['slug' => 'earthquake', 'title' => 'Earthquake']);
-        $this->makeScenario(['slug' => 'fire', 'title' => 'Fire']);
         $user = $this->makeUser();
 
         Leaderboard::create([
@@ -68,14 +66,109 @@ class PlayerDashboardTest extends TestCase
         Leaderboard::create([
             'user_id' => $user->id, 'username' => $user->username, 'category' => 'Fire', 'score' => 60,
         ]);
+        Leaderboard::create([
+            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Typhoon', 'score' => 70,
+        ]);
+        Leaderboard::create([
+            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Volcano', 'score' => 90,
+        ]);
 
         $stats = app(PlayerStatsService::class)->forUser($user);
 
-        // Average of the two active categories: (80 + 60) / 2 = 70.
-        $this->assertSame(2, $stats['scenarios']->count());
-        $this->assertSame(70, $stats['overall']);
-        $this->assertSame(80, $stats['best']);
+        // Average across the four fixed scenarios: (80 + 60 + 70 + 90) / 4 = 75.
+        $this->assertSame(4, $stats['scenarios']->count());
+        $this->assertSame(75, $stats['overall']);
+        $this->assertSame(90, $stats['best']);
         $this->assertSame(1, $stats['rank']);
+    }
+
+    public function test_unplayed_scenarios_are_reported_as_not_started(): void
+    {
+        $user = $this->makeUser();
+
+        Leaderboard::create([
+            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Earthquake', 'score' => 80,
+        ]);
+
+        $stats = app(PlayerStatsService::class)->forUser($user);
+
+        $this->assertSame(
+            ['Earthquake', 'Fire', 'Typhoon', 'Volcanic Eruption'],
+            $stats['scenarios']->pluck('title')->all(),
+        );
+        $this->assertSame(80, $stats['perCategory']['earthquake']);
+        $this->assertSame(0, $stats['perCategory']['volcano']);
+        $this->assertTrue($stats['hasScore']['earthquake']);
+        $this->assertFalse($stats['hasScore']['volcano']);
+        // Only the played scenario counts toward the fixed four.
+        $this->assertSame(20, $stats['overall']);
+
+        $this->assertSame('Excellent', PlayerStatsService::statusLabelFor(80, true));
+        $this->assertSame('Not Started', PlayerStatsService::statusLabelFor(0, false));
+        // A genuine score of zero is still shown as a score, not as missing.
+        $this->assertSame('Start', PlayerStatsService::statusLabelFor(0, true));
+    }
+
+    public function test_the_dashboard_lists_the_four_fixed_scenarios_with_images(): void
+    {
+        $this->actingAs($this->makeUser())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Earthquake')
+            ->assertSee('Fire')
+            ->assertSee('Typhoon')
+            ->assertSee('Volcanic Eruption')
+            ->assertSee('Not Started')
+            ->assertSee('images/scenarios/earthquake.webp')
+            ->assertSee('images/scenarios/volcanic-eruption.webp');
+    }
+
+    public function test_adding_a_database_scenario_does_not_change_the_dashboard_cards(): void
+    {
+        $this->makeScenario(['slug' => 'custom', 'title' => 'Custom Disaster', 'status' => 'active']);
+
+        $this->actingAs($this->makeUser())
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertDontSee('Custom Disaster')
+            ->assertSee('Volcanic Eruption');
+    }
+
+    public function test_scores_are_isolated_between_players(): void
+    {
+        $a = $this->makeUser(['username' => 'alice']);
+        $b = $this->makeUser(['username' => 'bob']);
+
+        Leaderboard::create([
+            'user_id' => $a->id, 'username' => 'alice', 'category' => 'Fire', 'score' => 90,
+        ]);
+
+        $stats = app(PlayerStatsService::class)->forUser($b);
+
+        $this->assertSame(0, $stats['perCategory']['fire']);
+        $this->assertFalse($stats['hasScore']['fire']);
+        $this->assertSame(0, $stats['overall']);
+        $this->assertNull($stats['rank']);
+    }
+
+    public function test_the_scores_and_leaderboard_show_friendly_scenario_names(): void
+    {
+        $user = $this->makeUser(['username' => 'volcanohero']);
+
+        Leaderboard::create([
+            'user_id' => $user->id, 'username' => 'volcanohero', 'category' => 'Volcano', 'score' => 95,
+        ]);
+
+        $this->actingAs($user)
+            ->get('/scores')
+            ->assertOk()
+            ->assertSee('Volcanic Eruption')
+            ->assertDontSee('Volcano');
+
+        $this->get('/leaderboard')
+            ->assertOk()
+            ->assertSee('volcanohero')
+            ->assertSee('Volcanic Eruption');
     }
 
     public function test_inactive_players_are_logged_out_of_the_player_area(): void

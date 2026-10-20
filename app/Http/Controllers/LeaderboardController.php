@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\LeaderboardService;
 use App\Support\DisasterCatalog;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
 class LeaderboardController extends Controller
@@ -15,22 +16,36 @@ class LeaderboardController extends Controller
 
     public function index(Request $request)
     {
-        $titles = $this->catalog->titles();
-        $categories = array_merge(['Overall'], $titles);
+        $categories = array_merge(['Overall'], $this->catalog->titles());
 
         $requested = (string) $request->query('category', 'Overall');
         $category = 'Overall';
-        foreach ($categories as $allowed) {
-            if (strcasecmp($requested, $allowed) === 0) {
-                $category = $allowed;
-                break;
-            }
+        if (strcasecmp($requested, 'Overall') !== 0) {
+            // Accepts slugs, canonical categories ("Volcano") and aliases.
+            $category = $this->catalog->displayName($requested) ?? 'Overall';
         }
 
         return view('leaderboard.index', [
             'categories' => $categories,
             'category' => $category,
-            'rows' => $this->leaderboard->rows($category),
+            'rows' => $this->withDisplayCategories($this->leaderboard->paginate($category)),
         ]);
+    }
+
+    /**
+     * Replace stored category values with their friendly scenario names.
+     *
+     * @param  LengthAwarePaginator<int, array{rank:int, username:string, category:string, score:int}>  $rows
+     * @return LengthAwarePaginator<int, array{rank:int, username:string, category:string, score:int}>
+     */
+    private function withDisplayCategories(LengthAwarePaginator $rows): LengthAwarePaginator
+    {
+        $rows->getCollection()->transform(function (array $row) {
+            $row['category'] = $this->catalog->displayName($row['category']) ?? $row['category'];
+
+            return $row;
+        });
+
+        return $rows;
     }
 }

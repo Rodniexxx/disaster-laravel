@@ -18,6 +18,65 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Built-in disaster scenarios
+    |--------------------------------------------------------------------------
+    |
+    | The four MANGNO disasters are fixed and permanent. The player dashboard,
+    | landing page and leaderboard filters always read this list, never the
+    | database, so the cards are identical for everyone even if a scenario row
+    | is removed or deactivated. Administrators cannot add, rename, reorder or
+    | delete these entries.
+    |
+    | "category" is the canonical identifier written to (and read from) the
+    | leaderboard table by the Unity game. "aliases" lists every historical /
+    | alternate spelling that must map onto this scenario so old score records
+    | are never lost and duplicate categories are not created. The Unity client
+    | keeps sending short names such as "Volcano"; the website displays the
+    | friendlier "Volcanic Eruption".
+    |
+    */
+
+    'scenarios' => [
+        [
+            'slug' => 'earthquake',
+            'name' => 'Earthquake',
+            'image' => 'images/scenarios/earthquake.webp',
+            'description' => 'Practice safe response steps and evacuation planning.',
+            'difficulty' => 'Medium',
+            'category' => 'Earthquake',
+            'aliases' => ['Earthquake'],
+        ],
+        [
+            'slug' => 'fire',
+            'name' => 'Fire',
+            'image' => 'images/scenarios/fire.webp',
+            'description' => 'Learn quick actions for fire alarms, exits, and safe escapes.',
+            'difficulty' => 'Easy',
+            'category' => 'Fire',
+            'aliases' => ['Fire'],
+        ],
+        [
+            'slug' => 'typhoon',
+            'name' => 'Typhoon',
+            'image' => 'images/scenarios/typhoon.webp',
+            'description' => 'Review sheltering, warning signs, and flooding preparation.',
+            'difficulty' => 'Hard',
+            'category' => 'Typhoon',
+            'aliases' => ['Typhoon'],
+        ],
+        [
+            'slug' => 'volcano',
+            'name' => 'Volcanic Eruption',
+            'image' => 'images/scenarios/volcano.webp',
+            'description' => 'Study ash safety, evacuation routes, and emergency communication.',
+            'difficulty' => 'Hard',
+            'category' => 'Volcano',
+            'aliases' => ['Volcano', 'Volcanic Eruption'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Unity game integration
     |--------------------------------------------------------------------------
     |

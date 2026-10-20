@@ -22,7 +22,7 @@ class LeaderboardController extends Controller
     {
         $request->validate(['category' => ['sometimes', 'string', 'max:120']]);
         $requested = trim($request->query('category', 'Overall'));
-        $category = $this->catalog->resolveTitle($requested) ?? 'Overall';
+        $category = $this->catalog->resolveCategory($requested) ?? 'Overall';
 
         if (strcasecmp($requested, 'Overall') !== 0 && $category === 'Overall') {
             return response()->json([

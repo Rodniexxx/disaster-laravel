@@ -1,0 +1,43 @@
+# ---- Version control / docs -------------------------------------------------
+.git
+.gitattributes
+.gitignore
+.github
+README.md
+UNITY_API.md
+start-unity-api.ps1
+
+# ---- Secrets (never bake the real .env into an image) -----------------------
+.env
+.env.*
+!.env.example
+
+# ---- Dependencies (rebuilt inside the image) --------------------------------
+node_modules
+vendor
+
+# ---- Runtime data that must not be baked into the image ---------------------
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+.phpunit.result.cache
+
+# User-uploaded game builds and machine-specific settings are runtime data,
+# persisted in the app_storage Docker volume — never bake them into the image.
+storage/app/private/downloads/*
+!storage/app/private/downloads/.gitignore
+storage/app/private/settings.json
+
+# Cached Laravel manifests from the local/dev machine (regenerated in-image).
+bootstrap/cache/*.php
+
+# ---- Tests / dev tooling ----------------------------------------------------
+tests
+phpunit.xml
+.editorconfig
+
+# ---- Docker meta (not needed inside the app image) --------------------------
+docker-compose.yml
+.dockerignore

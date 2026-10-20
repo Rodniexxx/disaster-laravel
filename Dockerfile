@@ -1,0 +1,106 @@
+
+# syntax=docker/dockerfile:1
+
+# --------------------------------------------------
+# 1. Build frontend assets
+# --------------------------------------------------
+FROM node:20-alpine AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY vite.config.js ./
+COPY resources ./resources
+COPY public ./public
+
+RUN npm run build
+
+
+# --------------------------------------------------
+# 2. Install production Composer dependencies
+# --------------------------------------------------
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN COMPOSER_CACHE_DIR=/tmp/composer-cache composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --no-scripts \
+    --no-autoloader
+
+COPY . .
+
+RUN composer dump-autoload --optimize --no-dev --no-scripts
+
+
+# --------------------------------------------------
+# 3. Application image — PHP-FPM + Nginx + Supervisor
+# --------------------------------------------------
+FROM php:8.3-fpm-bookworm AS app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+        zip \
+        curl \
+        nginx \
+        supervisor \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        libwebp-dev \
+        libzip-dev \
+        libicu-dev \
+        libonig-dev \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+        --with-webp \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        intl \
+        opcache \
+        sockets \
+    && mkdir -p /var/log/supervisor /run/nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/zz-mangno.ini
+
+WORKDIR /var/www/html
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY --from=vendor /app /var/www/html
+
+COPY --from=assets /app/public/build /var/www/html/public/build
+
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/php/entrypoint.sh /usr/local/bin/mangno-entrypoint
+
+RUN sed -i 's/\r$//' /usr/local/bin/mangno-entrypoint \
+    && chmod +x /usr/local/bin/mangno-entrypoint \
+    && php artisan package:discover --ansi \
+    && php artisan storage:link \
+    && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R ug+rwX storage bootstrap/cache
+
+EXPOSE 80
+
+ENTRYPOINT ["mangno-entrypoint"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
