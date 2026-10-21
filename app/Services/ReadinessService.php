@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -121,6 +122,123 @@ class ReadinessService
             'mastered_scenarios' => count(array_filter($scenarios, fn ($s) => $s['stars'] === 3)),
             'achievements' => DB::table('readiness_achievements')->where('user_id', $userId)->orderBy('id')->get(['achievement_id as id', 'unlocked_at'])->all()];
     }
+    /**
+     * The player's saved readiness records, keyed by the stored scenario name.
+     *
+     * These are the very records the leaderboard ranks, so a player dashboard
+     * built from them can never disagree with the leaderboard. The number of
+     * saved attempts per scenario is included as well: it is what tells a
+     * scenario that was started but not completed apart from one that was
+     * never played at all.
+     *
+     * @return array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>
+     */
+    public function scenarioRecords(int $userId): array
+    {
+        $attempts = DB::table('readiness_attempts')->where('user_id', $userId)
+            ->select('scenario')->selectRaw('COUNT(*) as attempts')->groupBy('scenario')
+            ->pluck('attempts', 'scenario');
+
+        $records = [];
+        foreach (DB::table('readiness_progress')->where('user_id', $userId)->get() as $row) {
+            $records[$row->scenario] = [
+                'scenario' => (string) $row->scenario,
+                'completed' => (bool) $row->completed,
+                'score' => (int) $row->best_overall_score,
+                'gameplay_score' => (int) $row->best_gameplay_score,
+                'quiz_score' => (int) $row->best_quiz_score,
+                'stars' => (int) $row->stars,
+                'completed_at' => $row->completed_at === null ? null : Carbon::parse($row->completed_at),
+                'attempts' => (int) ($attempts[$row->scenario] ?? 0),
+            ];
+        }
+
+        // A scenario that was attempted but never completed is saved progress
+        // too, so it is reported as well (without a personal best).
+        foreach ($attempts as $scenario => $count) {
+            if (! isset($records[$scenario])) {
+                $records[$scenario] = [
+                    'scenario' => (string) $scenario, 'completed' => false, 'score' => 0,
+                    'gameplay_score' => 0, 'quiz_score' => 0, 'stars' => 0,
+                    'completed_at' => null, 'attempts' => (int) $count,
+                ];
+            }
+        }
+
+        return $records;
+    }
+
+    /**
+     * Everything a player page needs about one player, taken from the same
+     * records and the same rules the leaderboard uses.
+     *
+     * "overall" is the sum of the player's best score in every completed
+     * scenario (100 per disaster, so 400 at most) and is therefore the exact
+     * number the Overall leaderboard ranks. "best" is the highest individual
+     * scenario score (100 at most). "rank" is the player's position in the
+     * Overall ranking, or null while the player has no completed scenario.
+     *
+     * @param  array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>|null  $records  Already fetched records, to avoid querying twice.
+     * @return array{overall:int, best:int, rank:int|null, records:array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>}
+     */
+    public function playerSummary(int $userId, ?array $records = null): array
+    {
+        $records ??= $this->scenarioRecords($userId);
+        $scores = array_values(array_map(
+            fn (array $record) => $record['completed'] ? $record['score'] : 0,
+            $records,
+        ));
+
+        return [
+            'overall' => array_sum($scores),
+            'best' => $scores === [] ? 0 : max($scores),
+            'rank' => $this->rankForUser($userId),
+            'records' => $records,
+        ];
+    }
+
+    /**
+     * The player's position in the Overall leaderboard.
+     *
+     * The ordering is the leaderboard's own ordering (total score first, then
+     * the lower user id wins the tie), so the number matches the rank shown
+     * on the leaderboard page. Players without a completed scenario are not
+     * ranked at all and get null.
+     */
+    public function rankForUser(int $userId): ?int
+    {
+        $mine = DB::query()->fromSub($this->totalsQuery(), 'totals')->where('id', $userId)->first();
+
+        if (! $mine) {
+            return null;
+        }
+
+        $score = (int) $mine->score;
+        $ahead = DB::query()->fromSub($this->totalsQuery(), 'totals')
+            ->where(function ($query) use ($score, $userId) {
+                $query->where('score', '>', $score)
+                    ->orWhere(function ($query) use ($score, $userId) {
+                        $query->where('score', $score)->where('id', '<', $userId);
+                    });
+            })->count();
+
+        return $ahead + 1;
+    }
+
+    /**
+     * Grouped readiness totals for every eligible player: one row per player
+     * holding the sum of their completed scenario bests. These are the exact
+     * rows the leaderboard ranks.
+     */
+    private function totalsQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('readiness_progress as p')->join('users as u', 'u.id', '=', 'p.user_id')
+            ->where('p.completed', true)->where('u.is_active', true)
+            ->groupBy('u.id', 'u.username')
+            ->select('u.id as id', 'u.username as username')
+            ->selectRaw('SUM(p.best_overall_score) as score');
+    }
+
     /** Website pages are slices of the exact same top-100 ranking returned to Unity. */
     public function paginateLeaderboard(string $category, int $perPage = 20): \Illuminate\Pagination\LengthAwarePaginator
     {
@@ -136,11 +254,10 @@ class ReadinessService
 
     public function leaderboard(string $category): array
     {
-        $query = DB::table('readiness_progress as p')->join('users as u', 'u.id', '=', 'p.user_id')
-            ->where('p.completed', true)->where('u.is_active', true);
+        $query = $this->totalsQuery();
         if ($category !== 'Overall') $query->where('p.scenario', $category);
-        return $query->select('u.id', 'u.username')->selectRaw('SUM(p.best_overall_score) as score')
-            ->groupBy('u.id', 'u.username')->orderByDesc('score')->orderBy('u.id')->limit(100)->get()->values()
+
+        return $query->orderByDesc('score')->orderBy('u.id')->limit(100)->get()->values()
             ->map(fn ($r, $i) => ['rank' => $i+1, 'username' => $r->username, 'category' => $category, 'score' => (int) $r->score])->all();
     }
 }

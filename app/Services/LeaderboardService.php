@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Leaderboard;
-use App\Models\User;
 use App\Support\DisasterCatalog;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -82,58 +81,5 @@ class LeaderboardService
         }
 
         return $query;
-    }
-
-    /**
-     * Best score per category (stored category => score) for a single player.
-     * Duplicate rows for the same category are collapsed to the highest score.
-     *
-     * @return array<string, int>
-     */
-    public function bestScoresForUser(User $user): array
-    {
-        return Leaderboard::query()
-            ->where('user_id', $user->id)
-            ->get()
-            ->groupBy('category')
-            ->map(fn (Collection $rows) => (int) $rows->max('score'))
-            ->all();
-    }
-
-    /**
-     * Sum of each player's leaderboard scores, ordered high to low. Matches the
-     * dashboard rank calculation in the legacy dashboard.php.
-     *
-     * @return array<string, int>
-     */
-    public function totalsByUsername(): array
-    {
-        $totals = Leaderboard::query()
-            ->get()
-            ->groupBy('username')
-            ->map(fn (Collection $rows) => (int) $rows->sum('score'))
-            ->all();
-
-        arsort($totals);
-
-        return $totals;
-    }
-
-    /**
-     * 1-based rank of a player based on summed scores, or null if unranked.
-     */
-    public function rankForUsername(string $username): ?int
-    {
-        $position = 1;
-
-        foreach (array_keys($this->totalsByUsername()) as $name) {
-            if ($name === $username) {
-                return $position;
-            }
-
-            $position++;
-        }
-
-        return null;
     }
 }

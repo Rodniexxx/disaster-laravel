@@ -25,9 +25,9 @@
         <div class="stat-panel highlight">
             <span class="stat-label">Overall score</span>
             <strong class="stat-value">
-                {{ $stats['overall'] }}<span>/100</span>
+                {{ $stats['overall'] }}<span>/{{ $stats['overallMax'] }}</span>
             </strong>
-            <small>Across all disaster categories</small>
+            <small>Sum of your best score in each disaster</small>
         </div>
 
         <div class="stat-panel">
@@ -57,7 +57,10 @@
                 $hasScore = $stats['hasScore'][$slug] ?? false;
                 $score = (int) ($stats['perCategory'][$slug] ?? 0);
                 $progress = $hasScore ? min(100, max(0, $score)) : 0;
-                $status = PlayerStatsService::statusLabelFor($score, $hasScore);
+                // The status is the factual readiness state of the scenario
+                // (completed, in progress or not started), never a score band.
+                $statusKey = $stats['status'][$slug] ?? 'not_started';
+                $status = PlayerStatsService::statusLabel($statusKey);
                 // Each catalog scenario carries a hazard class used for its
                 // accent rail and progress fill; the mission index is the
                 // scenario's fixed position in the catalog.
@@ -80,7 +83,7 @@
 
                     <div class="progress-head-meta">
                         <span class="progress-index">MISSION {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                        <span class="score-badge {{ \Illuminate\Support\Str::slug($status) }}">{{ $status }}</span>
+                        <span class="status-badge {{ $statusKey }}">{{ $status }}</span>
                         @if ($scenario->difficulty)
                             <span class="difficulty-tag {{ strtolower($scenario->difficulty) }}">{{ $scenario->difficulty }}</span>
                         @endif

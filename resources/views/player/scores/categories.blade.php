@@ -26,7 +26,10 @@
                     $hasScore = (bool) $row['has_score'];
                     $score = (int) $row['score'];
                     $progress = $hasScore ? min(100, max(0, $score)) : 0;
-                    $status = PlayerStatsService::statusLabelFor($score, $hasScore);
+                    // The status is the factual readiness state of the scenario
+                    // (completed, in progress or not started), never a score band.
+                    $statusKey = $row['status'];
+                    $status = PlayerStatsService::statusLabel($statusKey);
                     $hazardClass = 'hazard-'.match ($scenario->slug) {
                         'volcanic-eruption', 'volcano' => 'volcano',
                         default => str_replace('-eruption', '', $scenario->slug),
@@ -44,7 +47,7 @@
                         </div>
                         <div class="progress-head-meta">
                             <span class="progress-index">MISSION {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                            <span class="score-badge {{ \Illuminate\Support\Str::slug($status) }}">{{ $status }}</span>
+                            <span class="status-badge {{ $statusKey }}">{{ $status }}</span>
                             @if ($scenario->difficulty)
                                 <span class="difficulty-tag {{ strtolower($scenario->difficulty) }}">{{ $scenario->difficulty }}</span>
                             @endif

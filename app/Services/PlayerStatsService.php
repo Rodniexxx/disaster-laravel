@@ -8,44 +8,59 @@ use App\Support\DisasterCatalog;
 use Illuminate\Support\Collection;
 
 /**
- * Builds the data used by the player dashboard, mirroring the calculations in
- * the legacy dashboard.php (overall = rounded average of the four category
- * bests, best = highest single category best, plus summed-score rank).
+ * Builds the data used by the player dashboard and the category breakdown page.
  *
- * The four scenarios come from the fixed {@see DisasterCatalog}, and each
- * player's score is matched to a scenario through its stored leaderboard
- * categories (canonical value plus historical aliases). A missing score is
- * distinguished from a genuine score of zero.
+ * Every number comes from the readiness_progress records that the leaderboard
+ * ranks (see {@see ReadinessService}), so the dashboard and the leaderboard can
+ * never disagree about the same player. The four scenarios come from the fixed
+ * {@see DisasterCatalog}, and a stored scenario name is matched to a card
+ * through that catalog, so a historical spelling (for example "Volcanic
+ * Eruption") never creates a second card.
+ *
+ * "overall" is the sum of the player's best score in every completed scenario
+ * (100 per disaster, so 400 at most) and is therefore the exact number the
+ * Overall leaderboard ranks. "best" is the highest individual scenario score.
  */
 class PlayerStatsService
 {
+    /** Four disasters, each scored out of 100. */
+    public const OVERALL_MAX = 400;
+
     public function __construct(
-        private readonly LeaderboardService $leaderboard,
+        private readonly ReadinessService $readiness,
         private readonly DisasterCatalog $catalog,
     ) {}
 
     /**
      * Per-scenario score rows for the dashboard and category breakdown pages.
      *
-     * @return Collection<int, array{scenario:Scenario, score:int, has_score:bool}>
+     * @return Collection<int, array{scenario:Scenario, score:int, has_score:bool, status:string, completed_at:mixed}>
      */
     public function scenarioScores(User $user): Collection
     {
-        $best = $this->leaderboard->bestScoresForUser($user);
+        return $this->scoresFor($this->readiness->scenarioRecords($user->id));
+    }
 
-        return $this->catalog->all()->map(function (Scenario $scenario) use ($best) {
-            $aliasScores = [];
+    /**
+     * One row per fixed scenario, built from the saved readiness records.
+     *
+     * @param  array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>  $records
+     * @return Collection<int, array{scenario:Scenario, score:int, has_score:bool, status:string, completed_at:mixed}>
+     */
+    private function scoresFor(array $records): Collection
+    {
+        $byCategory = $this->recordsByCategory($records);
 
-            foreach ($this->catalog->categoryValues($scenario->slug) as $category) {
-                if (array_key_exists($category, $best)) {
-                    $aliasScores[] = (int) $best[$category];
-                }
-            }
+        return $this->catalog->all()->map(function (Scenario $scenario) use ($byCategory) {
+            $record = $byCategory[$scenario->category] ?? null;
+            $completed = (bool) ($record['completed'] ?? false);
 
             return [
                 'scenario' => $scenario,
-                'score' => $aliasScores === [] ? 0 : max($aliasScores),
-                'has_score' => $aliasScores !== [],
+                'score' => $completed ? (int) ($record['score'] ?? 0) : 0,
+                'has_score' => $completed,
+                'status' => self::statusOf($record),
+                'completed_at' => $record['completed_at'] ?? null,
             ];
         });
     }
@@ -55,54 +70,97 @@ class PlayerStatsService
      *     scenarios: Collection<int, Scenario>,
      *     perCategory: array<string,int>,
      *     hasScore: array<string,bool>,
+     *     status: array<string,string>,
      *     overall: int,
+     *     overallMax: int,
      *     best: int,
      *     rank: int|null
      * }
      */
     public function forUser(User $user): array
     {
+        $records = $this->readiness->scenarioRecords($user->id);
+        $rows = $this->scoresFor($records);
+        $summary = $this->readiness->playerSummary($user->id, $records);
+
         $perCategory = [];
         $hasScore = [];
+        $status = [];
 
-        foreach ($this->scenarioScores($user) as $row) {
+        foreach ($rows as $row) {
             $slug = $row['scenario']->slug;
             $perCategory[$slug] = $row['score'];
             $hasScore[$slug] = $row['has_score'];
+            $status[$slug] = $row['status'];
         }
-
-        $values = array_values($perCategory);
-        $overall = $values !== [] ? (int) round(array_sum($values) / count($values)) : 0;
 
         return [
             'scenarios' => $this->catalog->all(),
             'perCategory' => $perCategory,
             'hasScore' => $hasScore,
-            'overall' => $overall,
-            'best' => $values !== [] ? max($values) : 0,
-            'rank' => $this->leaderboard->rankForUsername($user->username),
+            'status' => $status,
+            'overall' => $summary['overall'],
+            'overallMax' => self::OVERALL_MAX,
+            'best' => $summary['best'],
+            'rank' => $summary['rank'],
         ];
     }
 
     /**
-     * Readiness label per score band (matches the legacy status text).
+     * The player's saved readiness records keyed by their canonical category.
+     *
+     * Stored spellings are resolved through the catalog, and two spellings of
+     * the same disaster never add up: the best record wins.
+     *
+     * @param  array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>  $records
+     * @return array<string, array{scenario:string, completed:bool, score:int, gameplay_score:int, quiz_score:int, stars:int, completed_at:mixed, attempts:int}>
      */
-    public static function statusLabel(int $score): string
+    private function recordsByCategory(array $records): array
     {
-        return match (true) {
-            $score >= 80 => 'Excellent',
-            $score >= 60 => 'Strong',
-            $score >= 40 => 'Building',
-            default => 'Start',
-        };
+        $byCategory = [];
+
+        foreach ($records as $record) {
+            $category = $this->catalog->resolveCategory($record['scenario']) ?? $record['scenario'];
+            $current = $byCategory[$category] ?? null;
+
+            if ($current === null
+                || ($record['completed'] && ! $current['completed'])
+                || ($record['completed'] === $current['completed'] && $record['score'] > $current['score'])) {
+                $byCategory[$category] = $record;
+            }
+        }
+
+        return $byCategory;
     }
 
     /**
-     * Status shown on a scenario card. Players who have never completed a
-     * scenario are labelled "Not Started" instead of the zero-score band.
+     * The completion status of a scenario.
+     *
+     * "completed" only when the readiness rules recorded a completed personal
+     * best, "in_progress" when the player has saved attempts for the scenario
+     * but has not completed it yet, and "not_started" when the scenario was
+     * never played.
+     *
+     * @param  array{completed?:bool, attempts?:int}|null  $record
      */
-    public static function statusLabelFor(int $score, bool $hasScore): string
+    public static function statusOf(?array $record): string
     {
-        return $hasScore ? self::statusLabel($score) : 'Not Started';
+        if (($record['completed'] ?? false) === true) {
+            return 'completed';
+        }
+
+        return ($record['attempts'] ?? 0) > 0 ? 'in_progress' : 'not_started';
+    }
+
+    /**
+     * Human readable label for a scenario status.
+     */
+    public static function statusLabel(string $status): string
+    {
+        return match ($status) {
+            'completed' => 'Completed',
+            'in_progress' => 'In Progress',
+            default => 'Not Started',
+        };
     }
 }

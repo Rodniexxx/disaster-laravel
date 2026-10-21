@@ -4,12 +4,26 @@ namespace Tests\Feature;
 
 use App\Models\Leaderboard;
 use App\Services\PlayerStatsService;
+use App\Services\ReadinessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class PlayerDashboardTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Save a readiness attempt (the same records the leaderboard ranks).
+     */
+    private function attempt($user, string $scenario, int $correct = 8, bool $completed = true): array
+    {
+        return app(ReadinessService::class)->submit($user, [
+            'attempt_id' => (string) Str::uuid(), 'scenario' => $scenario,
+            'completed' => $completed, 'quiz_correct' => $correct, 'quiz_total' => 10,
+            'metrics' => array_map(fn ($id) => ['id' => $id, 'earned' => 1, 'possible' => 1], ReadinessService::CRITERIA[$scenario]),
+        ]);
+    }
 
     public function test_the_landing_page_lists_scenarios(): void
     {
@@ -56,29 +70,24 @@ class PlayerDashboardTest extends TestCase
             ->assertSee('dashplayer');
     }
 
-    public function test_player_stats_average_the_category_bests(): void
+    public function test_player_stats_sum_the_category_bests(): void
     {
         $user = $this->makeUser();
 
-        Leaderboard::create([
-            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Earthquake', 'score' => 80,
-        ]);
-        Leaderboard::create([
-            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Fire', 'score' => 60,
-        ]);
-        Leaderboard::create([
-            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Typhoon', 'score' => 70,
-        ]);
-        Leaderboard::create([
-            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Volcano', 'score' => 90,
-        ]);
+        $this->attempt($user, 'Earthquake', 8); // 92
+        $this->attempt($user, 'Fire', 6);      // 84
+        $this->attempt($user, 'Typhoon', 5);   // 80
+        $this->attempt($user, 'Volcano', 9);   // 96
 
         $stats = app(PlayerStatsService::class)->forUser($user);
 
-        // Average across the four fixed scenarios: (80 + 60 + 70 + 90) / 4 = 75.
+        // The four fixed scenarios, each scored out of 100.
         $this->assertSame(4, $stats['scenarios']->count());
-        $this->assertSame(75, $stats['overall']);
-        $this->assertSame(90, $stats['best']);
+        $this->assertSame(400, $stats['overallMax']);
+        // The overall score is the leaderboard total: 92 + 84 + 80 + 96 = 352.
+        $this->assertSame(352, $stats['overall']);
+        // The best score is the highest single scenario result.
+        $this->assertSame(96, $stats['best']);
         $this->assertSame(1, $stats['rank']);
     }
 
@@ -86,9 +95,7 @@ class PlayerDashboardTest extends TestCase
     {
         $user = $this->makeUser();
 
-        Leaderboard::create([
-            'user_id' => $user->id, 'username' => $user->username, 'category' => 'Earthquake', 'score' => 80,
-        ]);
+        $this->attempt($user, 'Earthquake', 8);
 
         $stats = app(PlayerStatsService::class)->forUser($user);
 
@@ -96,17 +103,18 @@ class PlayerDashboardTest extends TestCase
             ['Earthquake', 'Fire', 'Typhoon', 'Volcanic Eruption'],
             $stats['scenarios']->pluck('title')->all(),
         );
-        $this->assertSame(80, $stats['perCategory']['earthquake']);
+        $this->assertSame(92, $stats['perCategory']['earthquake']);
         $this->assertSame(0, $stats['perCategory']['volcano']);
         $this->assertTrue($stats['hasScore']['earthquake']);
         $this->assertFalse($stats['hasScore']['volcano']);
-        // Only the played scenario counts toward the fixed four.
-        $this->assertSame(20, $stats['overall']);
+        // Only the completed scenario counts toward the overall total.
+        $this->assertSame(92, $stats['overall']);
 
-        $this->assertSame('Excellent', PlayerStatsService::statusLabelFor(80, true));
-        $this->assertSame('Not Started', PlayerStatsService::statusLabelFor(0, false));
-        // A genuine score of zero is still shown as a score, not as missing.
-        $this->assertSame('Start', PlayerStatsService::statusLabelFor(0, true));
+        $this->assertSame('completed', $stats['status']['earthquake']);
+        $this->assertSame('not_started', $stats['status']['volcano']);
+        $this->assertSame('Completed', PlayerStatsService::statusLabel('completed'));
+        $this->assertSame('Not Started', PlayerStatsService::statusLabel('not_started'));
+        $this->assertSame('In Progress', PlayerStatsService::statusLabel('in_progress'));
     }
 
     public function test_the_dashboard_lists_the_four_fixed_scenarios_with_images(): void
@@ -139,9 +147,7 @@ class PlayerDashboardTest extends TestCase
         $a = $this->makeUser(['username' => 'alice']);
         $b = $this->makeUser(['username' => 'bob']);
 
-        Leaderboard::create([
-            'user_id' => $a->id, 'username' => 'alice', 'category' => 'Fire', 'score' => 90,
-        ]);
+        $this->attempt($a, 'Fire', 9);
 
         $stats = app(PlayerStatsService::class)->forUser($b);
 
@@ -165,12 +171,7 @@ class PlayerDashboardTest extends TestCase
             ->assertSee('Volcanic Eruption')
             ->assertDontSee('Volcano');
 
-        app(\App\Services\ReadinessService::class)->submit($user, [
-            'attempt_id' => (string) \Illuminate\Support\Str::uuid(), 'scenario' => 'Volcano',
-            'completed' => true, 'quiz_correct' => 8, 'quiz_total' => 10,
-            'metrics' => array_map(fn ($id) => ['id' => $id, 'earned' => 1, 'possible' => 1],
-                \App\Services\ReadinessService::CRITERIA['Volcano']),
-        ]);
+        $this->attempt($user, 'Volcano', 8);
 
         $this->get('/leaderboard')
             ->assertOk()
