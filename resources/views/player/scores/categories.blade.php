@@ -18,7 +18,8 @@
     @if ($rows->isEmpty())
         <div class="empty-state">No scenarios are available right now.</div>
     @else
-        <section class="progress-grid">
+        <section class="progress-grid" aria-labelledby="category-performance-heading">
+            <h2 id="category-performance-heading" class="visually-hidden">Scenarios</h2>
             @foreach ($rows as $row)
                 @php
                     $scenario = $row['scenario'];
@@ -26,8 +27,12 @@
                     $score = (int) $row['score'];
                     $progress = $hasScore ? min(100, max(0, $score)) : 0;
                     $status = PlayerStatsService::statusLabelFor($score, $hasScore);
+                    $hazardClass = 'hazard-'.match ($scenario->slug) {
+                        'volcanic-eruption', 'volcano' => 'volcano',
+                        default => str_replace('-eruption', '', $scenario->slug),
+                    };
                 @endphp
-                <article class="progress-card reveal">
+                <article class="progress-card {{ $hazardClass }} reveal">
                     <div class="progress-head">
                         <div class="card-icon large">
                             <img
@@ -37,16 +42,29 @@
                                 loading="lazy"
                             >
                         </div>
-                        <span class="score-badge">{{ $status }}</span>
+                        <div class="progress-head-meta">
+                            <span class="progress-index">MISSION {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span class="score-badge {{ \Illuminate\Support\Str::slug($status) }}">{{ $status }}</span>
+                            @if ($scenario->difficulty)
+                                <span class="difficulty-tag {{ strtolower($scenario->difficulty) }}">{{ $scenario->difficulty }}</span>
+                            @endif
+                        </div>
                     </div>
                     <h3>{{ $scenario->title }}</h3>
                     <p>{{ $scenario->description ?: 'Practice safe response steps.' }}</p>
 
                     <div class="score-row">
                         <span class="score-label">Best score</span>
-                        <span class="score-value">{{ $hasScore ? $score.'/100' : '—' }}</span>
+                        <span class="score-value">
+                            {{ $hasScore ? $score : '—' }}@if ($hasScore)<span class="score-out">/100</span>@endif
+                        </span>
                     </div>
-                    <div class="progress-bar">
+                    <div class="progress-bar"
+                         role="progressbar"
+                         aria-valuenow="{{ $progress }}"
+                         aria-valuemin="0"
+                         aria-valuemax="100"
+                         aria-label="{{ $scenario->title }} best score">
                         <span style="width: {{ $progress }}%"></span>
                     </div>
                 </article>

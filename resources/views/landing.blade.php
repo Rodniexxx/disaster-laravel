@@ -3,12 +3,12 @@
 @php
     $siteName = $settings['site_name'] ?? 'MANGNO';
     $tagline = $settings['site_tagline'] ?? 'Ready Before It Happens.';
-    $emojis = ['earthquake' => '🌎', 'fire' => '🔥', 'typhoon' => '🌧️', 'volcano' => '⛰️'];
     $featured = $scenarios->first();
     $startUrl = auth()->check() ? route('dashboard') : route('login');
     $carousel = $scenarios->values()->map(fn ($scenario) => [
         'title' => strtoupper($scenario->title),
         'description' => $scenario->description ?: 'Learn safe actions and response steps.',
+        'image' => asset($scenario->image ?: 'images/scenarios/'.$scenario->slug.'.webp'),
     ])->all();
     $slideTotal = max($scenarios->count(), 1);
 @endphp
@@ -18,9 +18,13 @@
 @section('main-class', '')
 
 @section('content')
-    <section class="hero" aria-label="Disaster preparedness hero section">
+    <section class="hero" aria-label="Disaster preparedness hero section"
+             data-carousel-bg
+             style="--hero-image: url('{{ asset($featured->image ?? 'images/scenarios/earthquake.webp') }}')">
         <div class="hero-bg" aria-hidden="true">
             <div class="hero-layer hero-base"></div>
+            <div class="hero-layer hero-photo"></div>
+            <div class="hero-layer hero-grid"></div>
             <div class="hero-layer hero-reveal"></div>
             <div class="hero-vignette"></div>
         </div>
@@ -99,9 +103,12 @@
     <div class="cards scenario-grid">
 
         <!-- Typhoon -->
-        <article class="card card-scenario reveal-item"
+        <article class="card card-scenario hazard-typhoon reveal-item"
                  style="--card-bg: url('{{ asset('images/scenarios/typhoon.webp') }}')">
-            <span class="card-tag">Natural Disaster</span>
+            <div class="card-scenario-meta">
+                <span class="card-scenario-index">MISSION 03</span>
+                <span class="card-scenario-hazard">Natural Disaster</span>
+            </div>
             <h3>Typhoon</h3>
             <p>
                 Learn how to prepare for strong winds, heavy rainfall,
@@ -110,9 +117,12 @@
         </article>
 
         <!-- Earthquake -->
-        <article class="card card-scenario reveal-item"
+        <article class="card card-scenario hazard-earthquake reveal-item"
                  style="--card-bg: url('{{ asset('images/scenarios/earthquake.webp') }}')">
-            <span class="card-tag">Natural Disaster</span>
+            <div class="card-scenario-meta">
+                <span class="card-scenario-index">MISSION 01</span>
+                <span class="card-scenario-hazard">Natural Disaster</span>
+            </div>
             <h3>Earthquake</h3>
             <p>
                 Practice Drop, Cover, and Hold On, identify safe areas,
@@ -121,9 +131,12 @@
         </article>
 
         <!-- Volcanic Eruption -->
-        <article class="card card-scenario reveal-item"
+        <article class="card card-scenario hazard-volcano reveal-item"
                  style="--card-bg: url('{{ asset('images/scenarios/volcanic-eruption.webp') }}')">
-            <span class="card-tag">Natural Disaster</span>
+            <div class="card-scenario-meta">
+                <span class="card-scenario-index">MISSION 04</span>
+                <span class="card-scenario-hazard">Natural Disaster</span>
+            </div>
             <h3>Volcanic Eruption</h3>
             <p>
                 Prepare for ashfall, follow evacuation instructions,
@@ -132,9 +145,12 @@
         </article>
 
         <!-- Fire -->
-        <article class="card card-scenario reveal-item"
+        <article class="card card-scenario hazard-fire reveal-item"
                  style="--card-bg: url('{{ asset('images/scenarios/fire.webp') }}')">
-            <span class="card-tag">Human-Caused Hazard</span>
+            <div class="card-scenario-meta">
+                <span class="card-scenario-index">MISSION 02</span>
+                <span class="card-scenario-hazard">Human-Caused Hazard</span>
+            </div>
             <h3>Fire</h3>
             <p>
                 Learn fire prevention, recognize emergency warning signs,
@@ -179,11 +195,11 @@
                 <div class="about-block">
                     <h3>Developed &amp; Designed By</h3>
                     <ul class="about-devs">
-                        <p>Joshua Brondial</p>
-                        <p>Rodnie Calmada</p>
-                        <p>John Michael Borlagdan</p>
-                        <p>Lee Daves Harvy Buenconsejo</p>
-                        <p>Glendon James Mapa</p>
+                        <li>Joshua Brondial</li>
+                        <li>Rodnie Calmada</li>
+                        <li>John Michael Borlagdan</li>
+                        <li>Lee Daves Harvy Buenconsejo</li>
+                        <li>Glendon James Mapa</li>
                     </ul>
                 </div>
             </div>
@@ -199,10 +215,9 @@
                 <h2>Announcements</h2>
             </div>
 
-            <div class="cards">
+            <div class="announcement-list">
                 @foreach ($announcements as $announcement)
-                    <article class="card reveal-item">
-                        
+                    <article class="announcement reveal-item">
                         <span class="card-tag">Announcement</span>
                         <h3>{{ $announcement->title }}</h3>
                         <p>{{ $announcement->message }}</p>

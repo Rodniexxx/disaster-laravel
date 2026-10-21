@@ -13,7 +13,7 @@
         <div class="panel-header">
             <h2>Recent Admin Activity</h2>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap table-stack">
             <table>
                 <thead>
                     <tr>

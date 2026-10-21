@@ -35,7 +35,7 @@
             <div class="panel-header">
                 <h2>Recent Players</h2>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap table-stack">
                 <table>
                     <thead>
                         <tr>
@@ -65,7 +65,7 @@
             <div class="panel-header">
                 <h2>Recent Scores</h2>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap table-stack">
                 <table>
                     <thead>
                         <tr>
@@ -143,7 +143,7 @@
         <div class="panel-header">
             <h2>Recent Announcements</h2>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap table-stack">
             <table>
                 <thead>
                     <tr>
@@ -160,7 +160,7 @@
                             <tr>
                                 <td data-label="Title">{{ $announcement->title }}</td>
                                 <td data-label="Status"><span class="status-badge {{ $announcement->status }}">{{ $announcement->status }}</span></td>
-                                <td data-label="Published">{{ $announcement->publish_date?->format('M j, Y') ?? 'Not scheduled' }}</td>
+                                <td data-label="Published Date">{{ $announcement->publish_date?->format('M j, Y') ?? 'Not scheduled' }}</td>
                             </tr>
                         @endforeach
                     @endif

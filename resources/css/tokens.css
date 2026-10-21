@@ -1,0 +1,103 @@
+/* =========================================================================
+   MANGNO design tokens — "Readiness Console" (dark)
+   Near-black blue shell, dark-navy panels and white text, with a single
+   bright-blue action accent plus semantic hazard colors. Matches the
+   MANGNO game client's dark blue / black / white UI.
+   ========================================================================= */
+
+:root {
+    /* --- Surfaces (dark page + panels) --- */
+    --paper: #070b14;
+    --surface: #0d1422;
+    --surface-2: #111a2c;
+    --surface-sunken: #0a101b;
+
+    /* --- Shell (header, footer, hero, sidebar) — black-blue --- */
+    --ink: #03060c;
+    --ink-2: #080e1a;
+    --ink-3: #111b2e;
+
+    /* --- Text --- */
+    --text: #eaf0fa;
+    --muted: #9aa8bf;
+    --text-on-dark: #f4f7fc;
+    --muted-on-dark: #9fb0c9;
+
+    /* --- Lines --- */
+    --line: #1e2a45;
+    --line-strong: #516797; /* ≥ 3:1 on page + panels — control boundaries */
+    --line-dark: rgba(255, 255, 255, 0.14);
+    --line-dark-strong: rgba(255, 255, 255, 0.26);
+
+    /* --- Brand accent: bright blue --- */
+    --accent: #2563eb;       /* solid actions — white text 5.2:1 */
+    --accent-hover: #1d4ed8;
+    --accent-bright: #5b9dff; /* rails, icons, eyebrows on near-black (6.8:1+) */
+    --accent-text: #8ab8ff;   /* links / small text on dark surfaces (8.6:1) */
+    --accent-soft: rgba(37, 99, 235, 0.16);
+    --accent-ring: rgba(91, 157, 255, 0.5);
+
+    /* --- Semantic states (bright, text-safe on dark surfaces) --- */
+    --danger: #ff7a70;
+    --danger-solid: #d92d20; /* destructive button fill — white text 4.8:1 */
+    --danger-solid-hover: #b4261a;
+    --danger-soft: rgba(255, 122, 112, 0.12);
+    --warning: #ffb454;
+    --warning-soft: rgba(255, 180, 84, 0.12);
+    --success: #3ecf7a;
+    --success-soft: rgba(62, 207, 122, 0.12);
+    --info: #5fc3ec;
+    --info-soft: rgba(95, 195, 236, 0.12);
+
+    /* --- Hazard identity (rails, fills, edges — never body text) --- */
+    --hazard-earthquake: #c98a1b;
+    --hazard-fire: #e4544a;
+    --hazard-typhoon: #3e9be0;
+    --hazard-volcano: #d4566a;
+    --hazard-neutral: #8a93a5;
+
+    /* --- Legacy-compatible aliases (kept so old rules stay valid) --- */
+    --bg: var(--paper);
+    --panel: var(--surface);
+    --primary: var(--accent);
+    --primary-strong: var(--accent-hover);
+    --border: var(--line);
+    --ring: 0 0 0 3px var(--accent-ring);
+
+    /* --- Typography --- */
+    --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    --font-display: var(--font-sans);
+
+    /* --- Spacing scale --- */
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 16px;
+    --s5: 24px;
+    --s6: 32px;
+    --s7: 48px;
+    --s8: 64px;
+    --section-y: clamp(48px, 7vw, 84px);
+
+    /* --- Shape --- */
+    --radius: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+    --radius-sm: 4px;
+    --radius-pill: 999px;
+
+    /* --- Elevation (restrained, tuned for dark surfaces) --- */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 14px 34px rgba(0, 0, 0, 0.5);
+    --shadow-dark: 0 16px 44px rgba(0, 0, 0, 0.6);
+
+    /* --- Layout --- */
+    --container: 1200px;
+    --header-h: 68px;
+    --sidebar-w: 240px;
+
+    /* --- Motion --- */
+    --t-fast: 140ms ease;
+    --t-base: 200ms ease;
+}

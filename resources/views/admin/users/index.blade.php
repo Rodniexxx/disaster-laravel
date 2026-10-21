@@ -119,7 +119,7 @@
                                 <td data-label="Joined" class="hide-tablet">{{ $user->created_at?->format('M j, Y') }}</td>
                                 <td data-label="Completed" class="hide-mobile">{{ (int) $completed->get($user->id, 0) }}</td>
                                 <td data-label="Sessions" class="hide-mobile">{{ (int) ($meta->sessions ?? 0) }}</td>
-                                <td data-label="Best score" class="hide-mobile">{{ (int) ($meta->best_score ?? 0) }}</td>
+                                <td data-label="Best Score" class="hide-mobile">{{ (int) ($meta->best_score ?? 0) }}</td>
                                 <td class="table-actions" data-label="Actions">
                                     <a href="{{ request()->fullUrlWithQuery(['edit' => $user->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.users.toggle-status', $user) }}" class="inline-form">

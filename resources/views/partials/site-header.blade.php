@@ -3,10 +3,15 @@
         <a href="{{ route('home') }}" class="brand" aria-label="MANGNO — Home">
             <img src="{{ asset('images/logo.png') }}" alt="MANGNO" class="brand-logo">
         </a>
+
         <button class="nav-toggle" type="button" aria-label="Toggle navigation menu"
                 aria-controls="primary-navigation" aria-expanded="false">
-            <span class="nav-toggle-icon" aria-hidden="true">☰</span>
+            <span class="nav-toggle-icon" aria-hidden="true">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </span>
         </button>
+
         <div class="nav-links" id="primary-navigation">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
             <a href="{{ route('home') }}#disaster-guides">Disasters</a>

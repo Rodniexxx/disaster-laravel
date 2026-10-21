@@ -39,7 +39,7 @@
         <div class="panel-header">
             <h2>Progress Records</h2>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap table-stack">
             <table>
                 <thead>
                     <tr>

@@ -15,10 +15,9 @@
         </div>
 
         <div class="dashboard-header-actions">
-            <span class="welcome-tag"><a href="{{ route('profile.edit') }}" class="btn btn-secondary">Player profile</a></span>
-            <a href="{{ route('leaderboard.index') }}" class="btn btn-secondary">
-                Leaderboard
-            </a>
+            <a href="{{ route('scores.index') }}" class="btn btn-secondary">My scores</a>
+            <a href="{{ route('profile.edit') }}" class="btn btn-secondary">Player profile</a>
+            <a href="{{ route('leaderboard.index') }}" class="btn btn-secondary">Leaderboard</a>
         </div>
     </section>
 
@@ -50,7 +49,8 @@
         </div>
     </section>
 
-    <section class="progress-grid">
+    <section class="progress-grid" aria-labelledby="scenario-missions-heading">
+        <h2 id="scenario-missions-heading" class="visually-hidden">Disaster scenarios</h2>
         @foreach ($stats['scenarios'] as $scenario)
             @php
                 $slug = $scenario->slug;
@@ -58,9 +58,16 @@
                 $score = (int) ($stats['perCategory'][$slug] ?? 0);
                 $progress = $hasScore ? min(100, max(0, $score)) : 0;
                 $status = PlayerStatsService::statusLabelFor($score, $hasScore);
+                // Each catalog scenario carries a hazard class used for its
+                // accent rail and progress fill; the mission index is the
+                // scenario's fixed position in the catalog.
+                $hazardClass = 'hazard-'.match ($slug) {
+                    'volcanic-eruption', 'volcano' => 'volcano',
+                    default => str_replace('-eruption', '', $slug),
+                };
             @endphp
 
-            <article class="progress-card reveal">
+            <article class="progress-card {{ $hazardClass }} reveal">
                 <div class="progress-head">
                     <div class="card-icon large">
                         <img
@@ -71,7 +78,13 @@
                         >
                     </div>
 
-                    <span class="score-badge">{{ $status }}</span>
+                    <div class="progress-head-meta">
+                        <span class="progress-index">MISSION {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                        <span class="score-badge {{ \Illuminate\Support\Str::slug($status) }}">{{ $status }}</span>
+                        @if ($scenario->difficulty)
+                            <span class="difficulty-tag {{ strtolower($scenario->difficulty) }}">{{ $scenario->difficulty }}</span>
+                        @endif
+                    </div>
                 </div>
 
                 <h3>{{ $scenario->title }}</h3>
@@ -80,7 +93,9 @@
 
                 <div class="score-row">
                     <span class="score-label">Best score</span>
-                    <span class="score-value">{{ $hasScore ? $score.'/100' : '—' }}</span>
+                    <span class="score-value">
+                        {{ $hasScore ? $score : '—' }}@if ($hasScore)<span class="score-out">/100</span>@endif
+                    </span>
                 </div>
 
                 <div
@@ -95,7 +110,7 @@
                 </div>
 
                 <a href="{{ route('scores.categories') }}"
-                   class="btn btn-primary small">
+                   class="btn btn-secondary small">
                     View Scores
                 </a>
             </article>

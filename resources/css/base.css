@@ -1,0 +1,291 @@
+/* =========================================================================
+   MANGNO base — reset, document typography, page shells, utilities
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--text);
+    background-color: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* The landing and download pages keep the same paper canvas — only their
+   hero bands are dark, so the page no longer needs a separate dark shell. */
+body.home-page {
+    background-color: var(--paper);
+    color: var(--text);
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+}
+
+h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.05rem; }
+
+p {
+    margin: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+ul,
+ol {
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: var(--s5) 0;
+}
+
+:focus-visible {
+    /* Bright accent ring for improved visibility on dark surfaces */
+    outline: 3px solid var(--accent-bright);
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
+::selection {
+    background: var(--accent-soft);
+    color: var(--text);
+}
+
+/* --- Skip link (accessibility) ------------------------------------------ */
+.skip-link {
+    position: absolute;
+    left: 16px;
+    top: -60px;
+    z-index: 200;
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: top var(--t-fast);
+}
+
+.skip-link:focus {
+    top: 12px;
+}
+
+/* --- Layout primitives --------------------------------------------------- */
+.container {
+    width: min(var(--container), calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.section {
+    padding-top: var(--section-y);
+}
+
+.section-heading {
+    max-width: 720px;
+    margin-bottom: var(--s6);
+}
+
+.section-heading--spaced {
+    margin-top: var(--s7);
+}
+
+.section-heading h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    letter-spacing: -0.015em;
+}
+
+.section-description {
+    margin-top: var(--s3);
+    color: var(--muted);
+    font-size: 1.02rem;
+}
+
+.eyebrow {
+    margin: 0 0 10px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.mono,
+.data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Accessibility helpers ---------------------------------------------- */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.hide-mobile {
+    /* column-level hiding is defined with the tables; kept here as a utility */
+}
+
+@media (max-width: 560px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+/* --- Reveal motion (only armed when JS is present; see partials/head) ----- */
+.js .reveal,
+.js .reveal-item {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 460ms ease, transform 460ms ease;
+    transition-delay: calc(var(--index, 0) * 60ms);
+}
+
+.js .reveal.is-visible,
+.js .reveal-item.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .js .reveal,
+    .js .reveal-item {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* --- Dashboard page shell ------------------------------------------------ */
+.dashboard-page {
+    padding-top: var(--s7);
+    padding-bottom: var(--s8);
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s4);
+    flex-wrap: wrap;
+    padding-bottom: var(--s5);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: var(--s6);
+}
+
+.dashboard-header h1 {
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.dashboard-header-actions {
+    display: flex;
+    gap: var(--s2);
+    flex-wrap: wrap;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s4);
+    flex-wrap: wrap;
+    margin-bottom: var(--s4);
+}
+
+/* --- Print --------------------------------------------------------------- */
+@media print {
+    .site-header,
+    .site-footer,
+    .admin-sidebar,
+    .admin-topbar,
+    .back-button,
+    .nav-toggle,
+    .btn {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+        color: #000;
+    }
+}

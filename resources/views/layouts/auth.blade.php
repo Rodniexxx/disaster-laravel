@@ -4,9 +4,11 @@
     @include('partials.head')
 </head>
 <body class="auth-body">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     @include('partials.site-header')
 
-    <main class="auth-page">
+    <main id="main-content" class="auth-page">
         <div class="auth-shell reveal">
             <div class="auth-visual">
                 <div class="auth-visual-inner">
@@ -21,7 +23,7 @@
                 </div>
             </div>
 
-            <div class="auth-card glass-panel">
+            <div class="auth-card">
                 <div class="auth-card-header">
                     <p class="eyebrow">@yield('card-eyebrow')</p>
                     <h2>@yield('card-title')</h2>

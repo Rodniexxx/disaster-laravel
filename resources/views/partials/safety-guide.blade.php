@@ -124,7 +124,6 @@
         @foreach ($safetyGuides as $guide)
             <article class="safety-card reveal-item">
                 <div class="safety-card-head">
-                    
                     <h3>{{ $guide['title'] }}</h3>
                 </div>
 
@@ -162,7 +161,7 @@
         @endforeach
     </div>
 
-    <div class="section-heading reveal-item" id="emergency-info" style="margin-top: 56px;">
+    <div class="section-heading section-heading--spaced reveal-item" id="emergency-info">
         <p class="eyebrow">Emergency Info</p>
         <h2>Who to Call</h2>
     </div>
@@ -178,7 +177,7 @@
         @endforeach
     </div>
 
-    <p class="safety-note reveal-item" style="margin-top: 22px;">
+    <p class="safety-note safety-note--after reveal-item">
         Hotline numbers may change over time. Please verify the latest contact details with the respective agency.
     </p>
 

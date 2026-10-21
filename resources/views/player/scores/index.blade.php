@@ -22,7 +22,7 @@
         @if ($scores->isEmpty())
             <div class="empty-state">No scores to show. Complete a scenario in the MANGNO game and your scores will appear here.</div>
         @else
-            <div class="table-wrap">
+            <div class="table-wrap table-stack">
                 <table>
                     <thead>
                         <tr>
@@ -37,7 +37,7 @@
                             @php $progress = min(100, max(0, (int) $score['score'])); @endphp
                             <tr>
                                 <td data-label="Category">{{ $score['category'] }}</td>
-                                <td data-label="Best score">{{ (int) $score['score'] }}/100</td>
+                                <td data-label="Best score"><span class="rank-score">{{ (int) $score['score'] }}</span><span class="score-out">/100</span></td>
                                 <td data-label="Progress">
                                     <div class="progress-bar">
                                         <span style="width: {{ $progress }}%"></span>

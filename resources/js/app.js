@@ -295,6 +295,42 @@ document.addEventListener('DOMContentLoaded', function () {
             let rotationTimer = null;
             let isSwapping = false;
 
+            // Swap the landing hero background based on the active scenario slide.
+            const heroBgTarget = document.querySelector('[data-carousel-bg]');
+            const heroPhotoLayer = heroBgTarget ? heroBgTarget.querySelector('.hero-photo') : null;
+            let currentHeroImage = '';
+
+            if (carouselItems[0] && carouselItems[0].image) {
+                currentHeroImage = carouselItems[0].image;
+            }
+
+            carouselItems.forEach(function (item) {
+                if (item && item.image) {
+                    var preload = new Image();
+                    preload.src = item.image;
+                }
+            });
+
+            const applyHeroImage = function (item) {
+                if (!heroBgTarget || !item || !item.image || item.image === currentHeroImage) {
+                    return;
+                }
+
+                currentHeroImage = item.image;
+                var imageUrl = 'url("' + item.image.replace(/"/g, '\\"') + '")';
+
+                if (!heroPhotoLayer || !motion) {
+                    heroBgTarget.style.setProperty('--hero-image', imageUrl);
+                    return;
+                }
+
+                heroPhotoLayer.style.opacity = '0';
+                window.setTimeout(function () {
+                    heroBgTarget.style.setProperty('--hero-image', imageUrl);
+                    heroPhotoLayer.style.opacity = '';
+                }, 280);
+            };
+
             const applyContent = function (index) {
                 const item = carouselItems[index];
                 if (!item) return;
@@ -307,6 +343,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 moduleRows.forEach(function (row, rowIndex) {
                     row.classList.toggle('is-active', rowIndex === index);
                 });
+
+                applyHeroImage(item);
             };
 
             const clearAnimations = function () {

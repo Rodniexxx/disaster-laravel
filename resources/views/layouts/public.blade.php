@@ -4,9 +4,11 @@
     @include('partials.head')
 </head>
 <body class="@yield('body-class')">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     @include('partials.site-header')
 
-    <main class="@yield('main-class')">
+    <main id="main-content" class="@yield('main-class')">
         @include('partials.flash')
         @yield('content')
     </main>

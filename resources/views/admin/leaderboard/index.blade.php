@@ -15,6 +15,11 @@
         // record (unique on user_id + scenario).
         $isOverall = strcasecmp($category, 'Overall') === 0;
         $columnCount = $isOverall ? 4 : 5;
+        $rankLabel = [
+            1 => ['Gold', 'rank-medal--gold'],
+            2 => ['Silver', 'rank-medal--silver'],
+            3 => ['Bronze', 'rank-medal--bronze'],
+        ];
     @endphp
 
     <section class="leaderboard-controls">
@@ -29,7 +34,7 @@
     <p class="muted">Overall totals each player's best completed scenario scores (up to 400). Each disaster is scored out of 100.</p>
 
     <section class="leaderboard-panel">
-        <div class="table-wrap table-compact">
+        <div class="table-wrap table-stack">
             <table>
                 <thead>
                     <tr>
@@ -49,17 +54,22 @@
                         @foreach ($rows as $row)
                             <tr class="leader-row top-{{ $row['rank'] }}">
                                 <td data-label="Rank">
-                                    @if ($row['rank'] === 1)
-                                        <span class="medal medal-gold">🥇</span>
-                                    @elseif ($row['rank'] === 2)
-                                        <span class="medal medal-silver">🥈</span>
-                                    @elseif ($row['rank'] === 3)
-                                        <span class="medal medal-bronze">🥉</span>
+                                    @if (isset($rankLabel[$row['rank']]))
+                                        <span class="rank-medal {{ $rankLabel[$row['rank']][1] }}"
+                                              role="img"
+                                              aria-label="{{ $rankLabel[$row['rank']][0] }} — rank {{ $row['rank'] }}">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <circle cx="12" cy="15" r="5.25"/>
+                                                <path d="M9.4 10.8 6.75 3.9h10.5l-2.65 6.9" fill="none"/>
+                                            </svg>
+                                        </span>
                                     @endif
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
-                                <td data-label="Player">{{ $row['username'] }}</td>
-                                <td data-label="Score">{{ $row['score'] }}</td>
+                                <td data-label="Player">
+                                    <span class="rank-player">{{ $row['username'] }}</span>
+                                </td>
+                                <td data-label="Readiness score"><span class="rank-score">{{ $row['score'] }}</span></td>
                                 <td data-label="Disaster category" class="hide-mobile">{{ $row['category'] }}</td>
                                 @unless ($isOverall)
                                     <td class="table-actions" data-label="Actions">

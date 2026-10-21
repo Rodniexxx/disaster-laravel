@@ -194,7 +194,7 @@
                     Add {{ $definition['name'] ?? ucfirst($platformKey) }} Release
                 </a>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap table-stack">
                 <table>
                     <thead>
                         <tr>

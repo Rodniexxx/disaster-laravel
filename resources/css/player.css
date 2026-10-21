@@ -1,0 +1,332 @@
+/* =========================================================================
+   MANGNO player area — dashboard, mission cards, scores, leaderboard
+   ========================================================================= */
+
+/* --- Stats strip ---------------------------------------------------------- */
+.stats-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--s4);
+    margin-bottom: var(--s6);
+}
+
+.stat-panel {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--s5);
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.stat-panel::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--line-strong);
+}
+
+.stat-panel.highlight::before {
+    background: var(--accent-bright);
+}
+
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.stat-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+
+.stat-value span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0;
+}
+
+.stat-panel small {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.stat-card-link {
+    display: block;
+    border-radius: var(--radius-lg);
+    transition: transform var(--t-base), box-shadow var(--t-base);
+}
+
+.stat-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.stat-card-link.active .stat-panel {
+    border-color: var(--accent);
+}
+
+.stat-card-link:hover .stat-panel {
+    border-color: var(--accent-bright);
+}
+
+/* --- Mission (progress) cards --------------------------------------------- */
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+}
+
+@media (max-width: 1024px) {
+    .progress-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .progress-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.progress-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--s4);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: transform var(--t-base), box-shadow var(--t-base),
+        border-color var(--t-base);
+}
+
+.progress-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--hazard-neutral);
+}
+
+.hazard-earthquake.progress-card::before { background: var(--hazard-earthquake); }
+.hazard-fire.progress-card::before { background: var(--hazard-fire); }
+.hazard-typhoon.progress-card::before { background: var(--hazard-typhoon); }
+.hazard-volcano.progress-card::before { background: var(--hazard-volcano); }
+
+.progress-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--line-strong);
+}
+
+.progress-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--s3);
+}
+
+.card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    background: var(--surface-sunken);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.card-icon.large {
+    width: 56px;
+    height: 56px;
+}
+
+.scenario-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.progress-head-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.progress-index {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.progress-card h3 {
+    font-size: 1.08rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.progress-card > p {
+    font-size: 0.89rem;
+    line-height: 1.55;
+    color: var(--muted);
+    flex: 1;
+}
+
+.score-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+}
+
+.score-label {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.score-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+}
+
+.score-out {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-left: 2px;
+}
+
+.progress-card .btn {
+    margin-top: 2px;
+}
+
+/* --- Leaderboard ---------------------------------------------------------- */
+.leaderboard-page .dashboard-header {
+    margin-bottom: var(--s4);
+}
+
+.leaderboard-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--s4);
+}
+
+.leaderboard-note {
+    max-width: 70ch;
+    margin-bottom: var(--s4);
+}
+
+.leaderboard-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--s4);
+    box-shadow: var(--shadow-sm);
+}
+
+.leaderboard-panel .table-wrap {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.leaderboard-panel .table-wrap thead th {
+    background: transparent;
+}
+
+.leaderboard-panel .table-wrap tbody td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+/* Podium emphasis on the top three ranks */
+.leader-row.top-1 td:first-child .rank-text,
+.leader-row.top-2 td:first-child .rank-text,
+.leader-row.top-3 td:first-child .rank-text {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.leader-row.top-1 {
+    background: rgba(217, 165, 0, 0.06);
+}
+
+.leader-row.top-1:hover {
+    background: rgba(217, 165, 0, 0.11);
+}
+
+.leader-row.top-2,
+.leader-row.top-3 {
+    background: var(--surface-2);
+}
+
+@media (max-width: 768px) {
+    /* On stacked rows, the rank cell reads as the row's headline */
+    .leaderboard-panel .table-stack tbody td {
+        grid-template-columns: 38% 1fr;
+    }
+
+    .leaderboard-panel .table-stack tbody td[data-label="Rank"] {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        background: var(--surface-2);
+        border-bottom: 1px solid var(--line);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .leaderboard-panel .table-stack tbody td[data-label="Rank"]::before {
+        order: -1;
+    }
+
+    .leaderboard-panel .table-stack tbody tr {
+        padding: 4px;
+    }
+}
+
+/* --- Scores pages --------------------------------------------------------- */
+.table-wrap .progress-bar {
+    min-width: 120px;
+}

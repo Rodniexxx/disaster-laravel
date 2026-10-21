@@ -95,7 +95,7 @@
                 <h2>{{ $category }}</h2>
                 <span class="status-badge active">{{ $group->count() }} {{ \Illuminate\Support\Str::plural('question', $group->count()) }}</span>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap table-stack">
                 <table>
                     <thead>
                         <tr>
