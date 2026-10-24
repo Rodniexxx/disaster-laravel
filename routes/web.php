@@ -16,6 +16,7 @@ use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PlayerCertificateController;
 use App\Http\Controllers\ScoreController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,9 @@ Route::post('/logout', [LoginController::class, 'destroy'])
  | ---------------------------------------------------------------------- */
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard/certificate', [PlayerCertificateController::class, 'show'])->name('dashboard.certificate');
+    Route::post('/dashboard/certificate/issue', [PlayerCertificateController::class, 'issue'])->name('dashboard.certificate.issue');
+    Route::get('/dashboard/certificate.pdf', [PlayerCertificateController::class, 'pdf'])->name('dashboard.certificate.pdf');
 
     Route::get('/scores', [ScoreController::class, 'index'])->name('scores.index');
     Route::get('/scores/categories', [ScoreController::class, 'categories'])->name('scores.categories');

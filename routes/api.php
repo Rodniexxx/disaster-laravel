@@ -20,9 +20,14 @@ Route::middleware('throttle:api')->group(function () {
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('readiness', [\App\Http\Controllers\Api\ReadinessController::class, 'show']);
+        Route::get('readiness/certificate', [\App\Http\Controllers\Api\CompletionCertificateController::class, 'show']);
+        Route::post('readiness/certificate/issue', [\App\Http\Controllers\Api\CompletionCertificateController::class, 'issue']);
+        Route::get('readiness/certificate/pdf', [\App\Http\Controllers\Api\CompletionCertificateController::class, 'pdf']);
         Route::post('readiness/attempts', [\App\Http\Controllers\Api\ReadinessController::class, 'store']);
         Route::post('save_score', [ScoreController::class, 'save'])->name('api.save-score');
         Route::get('me', [AuthController::class, 'me'])->name('api.me');
         Route::post('logout', [AuthController::class, 'logout'])->name('api.logout');
     });
 });
+
+require __DIR__.'/profile.php';
