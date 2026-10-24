@@ -128,7 +128,7 @@ class PlayerDashboardTest extends TestCase
             ->assertSee('Volcanic Eruption')
             ->assertSee('Not Started')
             ->assertSee('images/scenarios/earthquake.webp')
-            ->assertSee('images/scenarios/volcanic-eruption.webp');
+            ->assertSee('images/scenarios/volcano.webp');
     }
 
     public function test_adding_a_database_scenario_does_not_change_the_dashboard_cards(): void

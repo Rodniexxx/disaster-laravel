@@ -197,11 +197,19 @@ class AdminLeaderboardScoreDeletionTest extends TestCase
 
         // The category ranking is rebuilt live from the remaining records and
         // the selected category filter is preserved across the redirect.
-        $this->actingAs($admin)
+        $response = $this->actingAs($admin)
             ->get('/admin/leaderboard?category=Fire')
-            ->assertOk()
-            ->assertSee('<td data-label="Player">'.$other->username.'</td>', false)
-            ->assertDontSee('<td data-label="Player">'.$player->username.'</td>', false);
+            ->assertOk();
+
+        // Assert player-cell content independently of nested presentation markup.
+        $document = new \DOMDocument;
+        $this->assertTrue(@$document->loadHTML($response->getContent()));
+        $playerCells = (new \DOMXPath($document))->query('//tbody/tr/td[@data-label="Player"]');
+        $visiblePlayers = [];
+        foreach ($playerCells as $cell) {
+            $visiblePlayers[] = trim($cell->textContent);
+        }
+        $this->assertSame([$other->username], $visiblePlayers);
 
         // The Overall total drops from 320 to the three surviving scenarios.
         $rows = collect(app(ReadinessService::class)->leaderboard('Overall'));

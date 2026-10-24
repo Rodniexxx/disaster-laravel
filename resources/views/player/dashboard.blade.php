@@ -119,4 +119,5 @@
             </article>
         @endforeach
     </section>
+@include('player.partials.completion-certificate-dashboard')
 @endsection

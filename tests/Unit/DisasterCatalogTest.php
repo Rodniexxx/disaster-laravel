@@ -100,7 +100,7 @@ class DisasterCatalogTest extends TestCase
         $this->assertSame('earthquake', $scenarios->first()->slug);
         $this->assertSame('images/scenarios/earthquake.webp', $scenarios->first()->image);
         $this->assertSame(
-            'images/scenarios/volcanic-eruption.webp',
+            'images/scenarios/volcano.webp',
             $scenarios->firstWhere('slug', 'volcano')->image,
         );
 
