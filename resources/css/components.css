@@ -308,7 +308,7 @@
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
     gap: var(--s4);
     margin-bottom: var(--s4);
 }
@@ -520,7 +520,7 @@
 
     .table-stack tbody td {
         display: grid;
-        grid-template-columns: 42% 1fr;
+        grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
         gap: var(--s3);
         align-items: baseline;
         border-bottom: 1px dashed var(--line);
@@ -540,6 +540,17 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--muted);
+        overflow-wrap: anywhere;
+    }
+
+    .table-stack tbody td > * {
+        min-width: 0;
+    }
+
+    .table-stack .rank-you {
+        grid-column: 2;
+        justify-self: start;
+        margin-left: 0;
     }
 
     .table-stack .table-actions {

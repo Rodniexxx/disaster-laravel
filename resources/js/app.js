@@ -22,9 +22,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
+            if (event.key === 'Escape' && navLinks.classList.contains('open')) {
                 setNavState(false);
+                navToggle.focus();
             }
+        });
+
+        window.matchMedia('(max-width: 1170px)').addEventListener('change', function () {
+            setNavState(false);
         });
 
         document.addEventListener('click', function (event) {
@@ -183,11 +188,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Shared page sections must reveal even on pages without a landing hero.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealItems = document.querySelectorAll('.reveal, .reveal-item');
+    if ('IntersectionObserver' in window && !prefersReducedMotion) {
+        const revealEntries = function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+        // A tall form can never reach a 15% intersection on a short screen.
+        const revealObserver = new IntersectionObserver(revealEntries, { threshold: 0 });
+        const itemObserver = new IntersectionObserver(revealEntries, { threshold: 0.15 });
+
+        revealItems.forEach(function (item) {
+            (item.classList.contains('reveal-item') ? itemObserver : revealObserver).observe(item);
+        });
+    } else {
+        revealItems.forEach(function (item) {
+            item.classList.add('is-visible');
+        });
+    }
+
     const hero = document.querySelector('.hero');
     if (!hero) return;
 
     const spotlight = hero.querySelector('.hero-reveal');
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const setSpotlightPosition = function (x, y) {
         if (!spotlight) return;
@@ -219,26 +248,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     defaultSpotlight();
-
-    const revealItems = document.querySelectorAll('.reveal-item');
-    if ('IntersectionObserver' in window) {
-        const revealObserver = new IntersectionObserver(function (entries, observer) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-
-        revealItems.forEach(function (item) {
-            revealObserver.observe(item);
-        });
-    } else {
-        revealItems.forEach(function (item) {
-            item.classList.add('is-visible');
-        });
-    }
 
     const titleWords = document.querySelectorAll('.title-word');
     titleWords.forEach(function (word, index) {

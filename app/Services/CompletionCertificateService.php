@@ -71,8 +71,8 @@ class CompletionCertificateService
             ->where('user_id', $user->id)
             ->where('milestone', self::MILESTONE)
             ->first();
-        $profileName = DB::table('player_profiles')->where('user_id', $user->id)->value('display_name');
-        $displayName = trim((string) ($profileName ?? '')) ?: trim((string) $user->username);
+        // Match the registered account name displayed in the site header; keep profile data untouched.
+        $displayName = trim((string) $user->username);
         $eligible = $completedCount === count(ReadinessService::CRITERIA)
             && count(array_filter($achievements, fn (array $achievement) => $achievement['unlocked'])) === count(self::ACHIEVEMENTS);
         $stars = min(12, $totalStars);
