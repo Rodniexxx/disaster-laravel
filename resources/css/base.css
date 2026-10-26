@@ -10,6 +10,7 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 16px);
     -webkit-text-size-adjust: 100%;
 }
 
@@ -22,7 +23,6 @@ body {
     background-color: var(--paper);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
 }
 
 /* The landing and download pages keep the same paper canvas — only their
@@ -124,6 +124,8 @@ hr {
 .container {
     width: min(var(--container), calc(100% - 40px));
     margin: 0 auto;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
 }
 
 .section {

@@ -10,6 +10,7 @@
     z-index: 60;
     background: var(--ink);
     border-bottom: 1px solid var(--line-dark);
+    padding-top: env(safe-area-inset-top, 0px);
 }
 
 .navbar {
@@ -175,11 +176,12 @@
 @media (max-width: 1170px) {
     .nav-toggle {
         display: inline-flex;
+        flex-shrink: 0;
     }
 
     .nav-links {
         position: absolute;
-        top: var(--header-h);
+        top: 100%;
         left: 0;
         right: 0;
         display: none;
@@ -191,7 +193,12 @@
         border-bottom: 1px solid var(--line-dark);
         box-shadow: var(--shadow-dark);
         max-height: calc(100vh - var(--header-h));
+        max-height: calc(100dvh - var(--header-h) - env(safe-area-inset-top, 0px));
         overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-left: max(var(--s4), env(safe-area-inset-left, 0px));
+        padding-right: max(var(--s4), env(safe-area-inset-right, 0px));
+        padding-bottom: max(var(--s4), env(safe-area-inset-bottom, 0px));
     }
 
     .nav-links.open {
@@ -199,6 +206,7 @@
     }
 
     .nav-links > a {
+        flex-shrink: 0;
         min-height: 46px;
         font-size: 1rem;
         padding: 0 12px;
@@ -221,6 +229,7 @@
     }
 
     .nav-user {
+        flex-shrink: 0;
         margin: var(--s3) 0 0;
         padding: var(--s3) 0 0;
         border-left: 0;
@@ -802,7 +811,7 @@
 /* --- Announcements (landing) ---------------------------------------------- */
 .announcement-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: var(--s4);
 }
 
@@ -1404,7 +1413,7 @@
 .auth-shell {
     width: min(1020px, calc(100% - 40px));
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
@@ -1494,6 +1503,7 @@
 }
 
 .auth-card {
+    min-width: 0;
     padding: clamp(24px, 4vw, 44px);
     display: flex;
     flex-direction: column;
@@ -1541,7 +1551,7 @@
 
 @media (max-width: 860px) {
     .auth-shell {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .auth-visual {
@@ -1551,5 +1561,33 @@
 
     .auth-visual h1 {
         font-size: 1.35rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-visual-inner,
+    .hero-copy,
+    .hero-side,
+    .announcement,
+    .download-card {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .btn,
+    .tab-btn,
+    .icon-button,
+    .back-button {
+        max-width: 100%;
+        min-height: 44px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: center;
+    }
+
+    .auth-form input,
+    .admin-form input {
+        min-width: 0;
+        font-size: 16px;
     }
 }

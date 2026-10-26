@@ -306,7 +306,7 @@
 @media (max-width: 768px) {
     /* On stacked rows, the rank cell reads as the row's headline */
     .leaderboard-panel .table-stack tbody td {
-        grid-template-columns: 38% 1fr;
+        grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
     }
 
     .leaderboard-panel .table-stack tbody td[data-label="Rank"] {
@@ -323,6 +323,37 @@
 
     .leaderboard-panel .table-stack tbody tr {
         padding: 4px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header > div,
+    .leaderboard-controls > div,
+    .admin-panel,
+    .kpi-row > * {
+        min-width: 0;
+    }
+
+    .dashboard-header h1,
+    .panel-header h2 {
+        overflow-wrap: anywhere;
+    }
+
+    .completion-certificate-header {
+        flex-wrap: wrap;
+    }
+
+    .certificate-requirement-group li {
+        grid-template-columns: 20px minmax(0, 1fr);
+    }
+
+    .certificate-requirement-group li strong {
+        grid-column: 2;
+        white-space: normal;
+    }
+
+    .certificate-toolbar {
+        flex-wrap: wrap;
     }
 }
 

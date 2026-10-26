@@ -41,7 +41,7 @@
                         <th>Rank</th>
                         <th>Player</th>
                         <th>Readiness score</th>
-                        <th class="hide-mobile">Disaster category</th>
+                        <th>Disaster category</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,7 +73,7 @@
                                     @endif
                                 </td>
                                 <td data-label="Readiness score"><span class="rank-score">{{ $row['score'] }}</span></td>
-                                <td data-label="Disaster category" class="hide-mobile">{{ $row['category'] }}</td>
+                                <td data-label="Disaster category">{{ $row['category'] }}</td>
                             </tr>
                         @endforeach
                     @endif
