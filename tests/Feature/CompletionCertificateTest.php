@@ -8,6 +8,7 @@ use App\Services\ReadinessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class CompletionCertificateTest extends TestCase
@@ -16,7 +17,47 @@ class CompletionCertificateTest extends TestCase
 
     private const BADGES = ['ready_to_respond', 'storm_ready', 'prepared_learner', 'disaster_ready', 'mangno_master'];
 
-    private function savedProgress(User $user, array $stars, array $badges = self::BADGES): void
+    public static function artworkCases(): array
+    {
+        return [
+            'ten stars and saved-profile name mismatch' => [[3, 2, 3, 2], 10, 'joshua brondial', 'joshua'],
+            'eleven stars and long registered name' => [[3, 3, 3, 2], 11, 'Alexandra Alexandra Alexandra Alexandra Santiago', 'Saved Profile Label'],
+            'twelve stars' => [[3, 3, 3, 3], 12, 'Maria Cristina de los Santos', 'Saved Profile Label'],
+        ];
+    }
+
+    #[DataProvider('artworkCases')]
+    public function test_official_artwork_displays_real_stars_name_date_and_id(array $scores, int $stars, string $name, string $profileName): void
+    {
+        $this->travelTo(new \DateTimeImmutable('2026-10-25 08:00:00+00:00'));
+        $user = $this->player($name);
+        $this->savedProgress($user, $scores, self::BADGES, $profileName);
+        Sanctum::actingAs($user);
+        $issued = $this->postJson('/api/readiness/certificate/issue')->assertOk()
+            ->assertJsonPath('certificate.display_name', $name)
+            ->assertJsonPath('certificate.total_stars', $stars)
+            ->assertJsonPath('certificate.perfect_score', $stars === 12)
+            ->assertJsonPath('certificate.issue_date', 'October 25, 2026');
+        $id = $issued->json('certificate.certificate_id');
+        $pdf = $this->get('/api/readiness/certificate/pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf')->getContent();
+        $this->assertStringContainsString($stars.'/12 STARS', $pdf);
+        $this->assertSame($stars === 12, str_contains($pdf, 'PERFECT SCORE'));
+        $this->assertStringContainsString($name, $pdf);
+        $this->assertStringContainsString('October 25, 2026', $pdf);
+        $this->assertStringContainsString($id, $pdf);
+        $this->assertStringContainsString('/Width 1999 /Height 1414', $pdf);
+        $this->assertSame(3, substr_count($pdf, ' re W n '), 'All three printed placeholder/claim regions must be covered.');
+        $this->assertTrue(str_contains($pdf, file_get_contents(public_path('images/MANGNO_Certificate_Template.jpg'))), 'The supplied JPEG must be embedded unchanged.');
+        $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Hi, '.$name);
+        $page = $this->get(route('dashboard.certificate'))->assertOk()
+            ->assertSee($name)->assertSee($stars.'/12 STARS')->assertSee('October 25, 2026')->assertSee($id)
+            ->assertSee('MANGNO_Certificate_Template.jpg?v=')->assertSee('1999 1414')->assertDontSee('Mangno Master');
+        $this->assertDatabaseHas('player_profiles', ['user_id' => $user->id, 'display_name' => $profileName]);
+        if ($stars === 12) $page->assertSee('PERFECT SCORE'); else $page->assertDontSee('PERFECT SCORE');
+        $this->assertDatabaseCount('completion_certificates', 1);
+    }
+
+    private function savedProgress(User $user, array $stars, array $badges = self::BADGES, string $profileName = 'Registered MANGNO Learner'): void
     {
         $now = now();
         foreach (array_keys(ReadinessService::CRITERIA) as $index => $scenario) {
@@ -31,14 +72,14 @@ class CompletionCertificateTest extends TestCase
             DB::table('readiness_achievements')->insert(['user_id' => $user->id, 'achievement_id' => $badge, 'unlocked_at' => $now]);
         }
         DB::table('player_profiles')->insert([
-            'user_id' => $user->id, 'display_name' => 'Registered MANGNO Learner', 'revision' => 1,
+            'user_id' => $user->id, 'display_name' => $profileName, 'revision' => 1,
             'created_at' => $now, 'updated_at' => $now,
         ]);
     }
 
-    private function player(): User
+    private function player(string $username = 'certificate_player'): User
     {
-        return User::create(['username' => 'certificate_player', 'email' => 'certificate@example.test',
+        return User::create(['username' => $username, 'email' => 'certificate@example.test',
             'password_hash' => bcrypt('test-password'), 'role' => 'user', 'is_active' => true]);
     }
 
@@ -82,7 +123,7 @@ class CompletionCertificateTest extends TestCase
 
     public function test_ten_star_certificate_uses_registered_name_persists_and_downloads_pdf(): void
     {
-        $user = $this->player();
+        $user = $this->player('Registered MANGNO Learner');
         $this->savedProgress($user, [3, 2, 3, 2]);
         Sanctum::actingAs($user);
 
@@ -120,7 +161,7 @@ class CompletionCertificateTest extends TestCase
 
     public function test_twelve_stars_displays_the_perfect_score_line_and_website_certificate(): void
     {
-        $user = $this->player();
+        $user = $this->player('Registered MANGNO Learner');
         $this->savedProgress($user, [3, 3, 3, 3]);
         Sanctum::actingAs($user);
         $this->postJson('/api/readiness/certificate/issue')->assertOk()
