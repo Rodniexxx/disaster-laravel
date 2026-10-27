@@ -17,7 +17,7 @@ class DownloadPageTest extends TestCase
 
         // Deterministic content and storage regardless of the developer's .env.
         Storage::fake('local');
-        config()->set('mangno.downloads.max_upload_kb', 524288);
+        config()->set('mangno.downloads.max_upload_kb', 2097152);
     }
 
     /** @param array<string, mixed> $attributes */
@@ -35,7 +35,7 @@ class DownloadPageTest extends TestCase
     {
         $this->get('/download')
             ->assertOk()
-            ->assertSee('Get Ready with')
+            ->assertSee('Available Downloads')
             ->assertSee('Download for Windows')
             ->assertSee('Download for Android')
             ->assertSee('Before You Download')

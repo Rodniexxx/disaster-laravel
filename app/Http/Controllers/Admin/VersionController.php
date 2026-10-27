@@ -37,7 +37,7 @@ class VersionController extends Controller
             'settings' => $this->settings->all(),
             'platforms' => (array) config('mangno.downloads.platforms', []),
             'prefillPlatform' => $request->query('platform'),
-            'maxUploadMb' => $this->toMb((int) config('mangno.downloads.max_upload_kb', 524288)),
+            'maxUploadMb' => $this->toMb((int) config('mangno.downloads.max_upload_kb', 2097152)),
             'serverUploadMb' => $this->toMb($this->serverUploadLimitKb()),
         ]);
     }
@@ -151,9 +151,6 @@ class VersionController extends Controller
     public function updateContent(Request $request)
     {
         $data = $request->validate([
-            'download_eyebrow' => ['nullable', 'string', 'max:120'],
-            'download_heading' => ['nullable', 'string', 'max:160'],
-            'download_intro' => ['nullable', 'string', 'max:2000'],
             'download_section_eyebrow' => ['nullable', 'string', 'max:120'],
             'download_section_heading' => ['nullable', 'string', 'max:160'],
             'download_windows_title' => ['nullable', 'string', 'max:120'],
@@ -184,7 +181,7 @@ class VersionController extends Controller
         $keys = array_keys((array) config('mangno.downloads.platforms', []));
         $platform = (string) $request->input('platform');
 
-        $fileRules = ['nullable', 'file', 'max:'.(int) config('mangno.downloads.max_upload_kb', 524288)];
+        $fileRules = ['nullable', 'file', 'max:'.(int) config('mangno.downloads.max_upload_kb', 2097152)];
 
         if (in_array($platform, $keys, true)) {
             $fileRules[] = $this->extensionRule($platform);

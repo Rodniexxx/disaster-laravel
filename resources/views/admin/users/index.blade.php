@@ -12,6 +12,8 @@
 @endphp
 
 @section('content')
+    <details class="user-editor" {{ $editing || $errors->any() ? 'open' : '' }}>
+        <summary>{{ $editing ? 'Edit account' : 'Add a user' }}<span aria-hidden="true">+</span></summary>
     <section class="admin-panel">
         <div class="panel-header">
             <h2>{{ $editing ? 'Edit User' : 'Create User' }}</h2>
@@ -60,8 +62,9 @@
             </div>
         </form>
     </section>
+    </details>
 
-    <section class="admin-panel">
+    <section class="admin-panel user-filters">
         <div class="panel-header">
             <h2>Search and Filter</h2>
         </div>
@@ -89,37 +92,32 @@
     <section class="admin-panel">
         <div class="panel-header">
             <h2>User Directory</h2>
+            <p class="muted">{{ number_format($users->total()) }} {{ $users->total() === 1 ? 'account' : 'accounts' }}{{ $search !== '' || $status !== 'all' ? ' matching your filters' : '' }}</p>
         </div>
         <div class="table-wrap table-stack">
-            <table>
+            <table class="users-table">
                 <thead>
                     <tr>
                         <th>Username</th>
-                        <th class="hide-tablet">Email</th>
                         <th>Role</th>
                         <th>Status</th>
                         <th class="hide-tablet">Joined</th>
-                        <th class="hide-mobile">Completed</th>
-                        <th class="hide-mobile">Sessions</th>
-                        <th class="hide-mobile">Best Score</th>
+                        <th class="hide-mobile">Game activity</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @if ($users->isEmpty())
-                        <tr><td colspan="9" class="table-empty">No users found.</td></tr>
+                        <tr><td colspan="6" class="table-empty">No users found.</td></tr>
                     @else
                         @foreach ($users as $user)
                             @php $meta = $sessions->get($user->id); @endphp
                             <tr>
-                                <td data-label="Username">{{ $user->username }}</td>
-                                <td data-label="Email" class="hide-tablet">{{ $user->email }}</td>
+                                <td data-label="Username"><span class="avatar-person"><x-player-avatar :user="$user" :size="36" /><span><span class="directory-name">{{ $user->username }}</span><span class="directory-email">{{ $user->email }}</span></span></span></td>
                                 <td data-label="Role"><span class="status-badge {{ $user->role }}">{{ $user->role }}</span></td>
                                 <td data-label="Status"><span class="status-badge {{ $user->isActive() ? 'active' : 'inactive' }}">{{ $user->isActive() ? 'Active' : 'Inactive' }}</span></td>
-                                <td data-label="Joined" class="hide-tablet">{{ $user->created_at?->format('M j, Y') }}</td>
-                                <td data-label="Completed" class="hide-mobile">{{ (int) $completed->get($user->id, 0) }}</td>
-                                <td data-label="Sessions" class="hide-mobile">{{ (int) ($meta->sessions ?? 0) }}</td>
-                                <td data-label="Best Score" class="hide-mobile">{{ (int) ($meta->best_score ?? 0) }}</td>
+                                <td data-label="Joined" class="hide-tablet directory-date">{{ $user->created_at?->format('M j, Y') }}</td>
+                                <td data-label="Game activity" class="hide-mobile"><span class="directory-activity"><span><strong>{{ (int) $completed->get($user->id, 0) }}</strong> completed · <strong>{{ (int) ($meta->sessions ?? 0) }}</strong> sessions</span><span>Best score <strong>{{ (int) ($meta->best_score ?? 0) }}</strong></span></span></td>
                                 <td class="table-actions" data-label="Actions">
                                     <a href="{{ request()->fullUrlWithQuery(['edit' => $user->id]) }}" class="btn btn-secondary small">Edit</a>
                                     <form method="post" action="{{ route('admin.users.toggle-status', $user) }}" class="inline-form">

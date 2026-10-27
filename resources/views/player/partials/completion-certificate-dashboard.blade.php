@@ -2,7 +2,7 @@
     <header class="completion-certificate-header">
         <div>
             <p class="certificate-eyebrow">MANGNO · READINESS MILESTONE</p>
-            <h2 id="completion-certificate-title">CERTIFICATE OF COMPLETION</h2>
+            <h2 id="completion-certificate-title">Certificate of completion</h2>
             <p class="certificate-summary">
                 {{ $certificate['completed_scenarios'] }} / {{ $certificate['total_scenarios'] }} scenarios
                 <span aria-hidden="true">·</span> {{ collect($certificate['achievements'])->where('unlocked', true)->count() }} / 5 badges
@@ -54,16 +54,16 @@
 
     <div class="certificate-actions">
         @if ($certificate['eligible'] && $certificate['certificate_id'])
-            <a class="btn btn-primary" href="{{ route('dashboard.certificate') }}">VIEW CERTIFICATE</a>
-            <a class="btn btn-secondary" href="{{ route('dashboard.certificate.pdf') }}">DOWNLOAD PDF</a>
+            <a class="btn btn-primary" href="{{ route('dashboard.certificate') }}">View certificate</a>
+            <a class="btn btn-secondary" href="{{ route('dashboard.certificate.pdf') }}">Download PDF</a>
         @elseif ($certificate['eligible'])
             <form method="POST" action="{{ route('dashboard.certificate.issue') }}">
                 @csrf
-                <button class="btn btn-primary" type="submit">VIEW CERTIFICATE</button>
+                <button class="btn btn-primary" type="submit">View certificate</button>
             </form>
             <span class="certificate-claim-note">Your certificate is ready. Claim it once to save its issue date and unique ID.</span>
         @else
-            <button class="btn btn-secondary" type="button" disabled aria-disabled="true">CERTIFICATE LOCKED</button>
+            <button class="btn btn-secondary" type="button" disabled aria-disabled="true">Certificate locked</button>
             <span class="certificate-claim-note">Finish all four scenarios and unlock all five achievements to continue.</span>
         @endif
     </div>

@@ -3,34 +3,45 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PlayerProgress;
+use App\Services\PlayerProgressService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProgressController extends Controller
 {
+    public function __construct(private readonly PlayerProgressService $progress) {}
+
+    private function listing(Request $request): array
+    {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'status' => ['nullable', Rule::in(['all', 'not_started', 'in_progress', 'completed'])],
+            'page' => ['sometimes', 'integer', 'min:1', 'max:100000'],
+        ]);
+        $search = trim($filters['search'] ?? '');
+        $status = $filters['status'] ?? 'all';
+        $rows = $this->progress->players($search, $status)->paginate(10)
+            ->withPath(route('admin.progress.index'))->withQueryString()
+            ->through(fn ($row) => $this->progress->describe($row));
+        $avatars = app(\App\Services\AvatarService::class)->forIds($rows->getCollection()->pluck('id')->all());
+        $rows->through(fn ($row) => [...$row, 'profile_picture_url' => $avatars[$row['id']] ?? app(\App\Services\AvatarService::class)->defaultUrl()]);
+
+        return compact('rows', 'search', 'status');
+    }
+
     public function index(Request $request)
     {
-        $search = trim((string) $request->query('search', ''));
-        $status = (string) $request->query('status', 'all');
+        return view('admin.progress.index', $this->listing($request));
+    }
 
-        $rows = PlayerProgress::query()
-            ->with('user')
-            ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
-                $q->whereHas('user', fn ($u) => $u
-                    ->where('username', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%"))
-                    ->orWhere('scenario_slug', 'like', "%{$search}%");
-            }))
-            ->when(in_array($status, ['not_started', 'in_progress', 'completed'], true),
-                fn ($q) => $q->where('status', $status))
-            ->orderByDesc('updated_at')
-            ->paginate(20)
-            ->withQueryString();
+    public function data(Request $request)
+    {
+        $html = view('admin.progress.results', $this->listing($request))->render();
+        $response = response()->json(['html' => $html]);
+        $response->setEtag(hash('sha256', $html));
+        $response->headers->set('Cache-Control', 'private, no-cache');
+        $response->isNotModified($request);
 
-        return view('admin.progress.index', [
-            'rows' => $rows,
-            'search' => $search,
-            'status' => $status,
-        ]);
+        return $response;
     }
 }

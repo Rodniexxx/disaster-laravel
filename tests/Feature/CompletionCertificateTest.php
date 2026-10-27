@@ -171,7 +171,7 @@ class CompletionCertificateTest extends TestCase
         $this->assertStringContainsString('12/12 STARS', $pdf->getContent());
 
         $this->actingAs($user)->get('/dashboard')->assertOk()
-            ->assertSee('CERTIFICATE OF COMPLETION')->assertSee('DOWNLOAD PDF');
+            ->assertSee('Certificate of completion')->assertSee('Download PDF');
         $this->get(route('dashboard.certificate'))->assertOk()->assertSee('MANGNO_Certificate_Template.jpg')
             ->assertSee('12/12 STARS')->assertSee('CERTIFICATE ID')->assertSee('Registered MANGNO Learner');
         $this->get(route('dashboard.certificate.pdf'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
@@ -191,7 +191,7 @@ class CompletionCertificateTest extends TestCase
         $user = $this->player();
         $this->savedProgress($user, [3], []);
         $this->actingAs($user)->get('/dashboard')->assertOk()
-            ->assertSee('CERTIFICATE OF COMPLETION')->assertSee('1 / 4 scenarios')
+            ->assertSee('Certificate of completion')->assertSee('1 / 4 scenarios')
             ->assertSee('Complete the Earthquake scenario')->assertSee('Unlock the Ready to Respond achievement')
             ->assertDontSee(route('dashboard.certificate.pdf'));
     }
@@ -228,6 +228,6 @@ class CompletionCertificateTest extends TestCase
             ->assertJsonPath('eligibility.eligible', false)->assertJsonPath('certificate', null);
         $this->get('/api/readiness/certificate/pdf')->assertForbidden();
         $this->actingAs($user)->get('/dashboard')->assertOk()
-            ->assertSee('CERTIFICATE LOCKED')->assertDontSee(route('dashboard.certificate.pdf'));
+            ->assertSee('Certificate locked')->assertDontSee(route('dashboard.certificate.pdf'));
     }
 }

@@ -107,8 +107,7 @@
 
 <section class="section container scenario-section" id="safety-guide">
     <div class="section-heading reveal-item">
-        <p class="eyebrow">Safety Guide</p>
-        <h2>What to Do Before, During &amp; After</h2>
+        <h2>Know what to do</h2>
     </div>
 
     <p class="safety-intro reveal-item">
@@ -122,16 +121,16 @@
 
     <div class="safety-grid">
         @foreach ($safetyGuides as $guide)
-            <article class="safety-card reveal-item">
-                <div class="safety-card-head">
-                    <h3>{{ $guide['title'] }}</h3>
-                </div>
+            <details class="safety-card" id="guide-{{ \Illuminate\Support\Str::slug($guide['title']) }}" {{ $loop->first ? 'open' : '' }}>
+                <summary class="safety-card-head">
+                    <h3>{{ $guide['title'] }}</h3><span class="guide-toggle" aria-hidden="true"></span>
+                </summary>
 
                 <span class="agency-badge">Guidance by {{ $guide['agency'] }}</span>
 
                 <div class="phase-grid">
                     <div class="phase before">
-                        <span class="phase-label">Before</span>
+                        <h4 class="phase-label">Before</h4>
                         <ul>
                             @foreach ($guide['before'] as $item)
                                 <li>{{ $item }}</li>
@@ -139,7 +138,7 @@
                         </ul>
                     </div>
                     <div class="phase during">
-                        <span class="phase-label">During</span>
+                        <h4 class="phase-label">During</h4>
                         <ul>
                             @foreach ($guide['during'] as $item)
                                 <li>{{ $item }}</li>
@@ -147,7 +146,7 @@
                         </ul>
                     </div>
                     <div class="phase after">
-                        <span class="phase-label">After</span>
+                        <h4 class="phase-label">After</h4>
                         <ul>
                             @foreach ($guide['after'] as $item)
                                 <li>{{ $item }}</li>
@@ -157,13 +156,12 @@
                 </div>
 
                 <p class="safety-source">{{ $guide['source'] }}</p>
-            </article>
+            </details>
         @endforeach
     </div>
 
     <div class="section-heading section-heading--spaced reveal-item" id="emergency-info">
-        <p class="eyebrow">Emergency Info</p>
-        <h2>Who to Call</h2>
+        <h2>Emergency contacts</h2>
     </div>
 
     <div class="contact-grid">

@@ -88,6 +88,10 @@ COPY --from=vendor /app /var/www/html
 
 COPY --from=assets /app/public/build /var/www/html/public/build
 
+# Debian enables its welcome site in sites-enabled/default. Remove it so it
+# cannot compete with Laravel for the default server on port 80.
+RUN rm -f /etc/nginx/sites-enabled/default
+
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php/entrypoint.sh /usr/local/bin/mangno-entrypoint

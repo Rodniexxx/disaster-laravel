@@ -21,6 +21,7 @@ class UserController extends Controller
         $status = (string) $request->query('status', 'all');
 
         $users = User::query()
+            ->with('playerProfile')
             ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
                 $q->where('username', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
@@ -28,6 +29,7 @@ class UserController extends Controller
             ->when($status === 'active', fn ($q) => $q->where('is_active', true))
             ->when($status === 'inactive', fn ($q) => $q->where('is_active', false))
             ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(10)
             ->withQueryString();
 

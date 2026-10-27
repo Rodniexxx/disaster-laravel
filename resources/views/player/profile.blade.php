@@ -24,6 +24,7 @@
                 <h2>Account summary</h2>
             </div>
             <div class="info-stack">
+                <div class="avatar-person profile-picture-summary"><x-player-avatar :user="$user" :size="72" /><strong>{{ $user->username }}</strong></div>
                 <div class="kpi-row">
                     <span>Username</span>
                     <strong>{{ $user->username }}</strong>
@@ -52,6 +53,14 @@
         </article>
 
         <article class="admin-panel">
+            <div class="panel-header"><h2>Profile picture</h2></div>
+            <form method="POST" action="{{ route('profile-picture.update') }}" enctype="multipart/form-data" class="admin-form profile-picture-form" data-unsaved-guard>
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="expected_revision" value="{{ $user->playerProfile?->revision ?? 0 }}">
+                @include('partials.avatar-upload', ['avatarUser' => $user])
+                <div class="form-actions"><button type="submit" class="btn btn-primary">Save picture</button></div>
+            </form>
             <div class="panel-header">
                 <h2>Account details</h2>
             </div>

@@ -1,0 +1,64 @@
+/* A clear three-part bar: game identity, destinations, account actions. */
+.site-header { background: var(--ink); border: 0; }
+/* Solid fallback keeps navigation readable in browsers without backdrop filtering. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .site-header {
+        background: rgba(12, 21, 32, .42);
+        -webkit-backdrop-filter: blur(12px) saturate(125%);
+        backdrop-filter: blur(12px) saturate(125%);
+        transition: background-color .2s ease, box-shadow .2s ease;
+    }
+    .site-header.is-scrolled {
+        background: rgba(12, 21, 32, .76);
+        -webkit-backdrop-filter: blur(24px) saturate(140%);
+        backdrop-filter: blur(24px) saturate(140%);
+        box-shadow: 0 1px 0 rgba(237, 242, 244, .1); /* taste-skill-ignore: edge of the floating glass navigation */
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .site-header { transition: none; }
+}
+.site-header .navbar { gap: 40px; }
+.site-header .brand { flex-shrink: 0; }
+.site-header .brand-logo { height: 64px; max-width: 180px; }
+.site-header .nav-links { flex: 1; justify-content: space-between; gap: 24px; }
+.nav-primary, .nav-account { display: flex; align-items: center; gap: 8px; }
+.nav-primary { margin-inline: auto; }
+.site-header .nav-primary > a,
+.site-header .nav-account > a,
+.nav-explore > summary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 14px; font-size: 14px; font-weight: 600; letter-spacing: -.02em; color: var(--muted-on-dark); border-radius: 4px; transition: color var(--t-fast), background-color var(--t-fast); }
+.site-header .nav-primary > a:hover,
+.site-header .nav-account > a:hover,
+.nav-explore > summary:hover { color: var(--text-on-dark); background: var(--surface); }
+.site-header .nav-primary > a.active { color: var(--teal); background: var(--teal-soft); }
+.site-header .nav-account > .nav-register { margin: 0; padding-inline: 20px; background: var(--feature-paper); color: var(--button-ink); }
+.site-header .nav-account > .nav-register:hover { color: var(--button-ink); background: var(--accent); }
+.site-header .nav-user { margin: 0; padding: 0; border: 0; gap: 12px; }
+.site-header .nav-user-name { max-width: 130px; font-size: 13px; }
+.site-header .nav-logout { font-size: 13px; border: 0; background: var(--surface); color: var(--text); min-height: 44px; }
+.site-header .nav-logout:hover { background: var(--danger-soft); color: var(--danger); }
+.site-header .nav-toggle { border: 0; background: var(--surface); border-radius: 4px; }
+.nav-explore { position: relative; }
+.nav-explore > summary { list-style: none; cursor: pointer; user-select: none; }
+.nav-explore > summary::-webkit-details-marker { display: none; }
+.nav-explore > summary svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; transition: transform var(--t-fast); }
+.nav-explore[open] > summary { color: var(--teal); }
+.nav-explore[open] > summary svg { transform: rotate(180deg); }
+.nav-explore-menu { position: absolute; top: calc(100% + 12px); left: 0; min-width: 224px; padding: 8px; border-radius: 8px; background: var(--surface-2); box-shadow: var(--shadow-md); } /* taste-skill-ignore: floating navigation menu */
+.nav-explore:not([open]) > .nav-explore-menu { display: none; }
+.nav-explore-menu > a { display: flex; align-items: center; padding: 12px 16px; min-height: 48px; font-size: 14px; font-weight: 500; color: var(--text); border-radius: 4px; }
+.nav-explore-menu > a:hover { background: var(--surface); color: var(--teal); }
+@media (max-width: 1170px) {
+    .site-header .navbar { gap: 24px; }
+    .site-header .nav-links { gap: 16px; padding: 24px max(24px, env(safe-area-inset-right)) 24px max(24px, env(safe-area-inset-left)); }
+    .nav-primary { margin: 0; }
+    .nav-primary, .nav-account { flex-direction: column; align-items: stretch; gap: 4px; }
+    .site-header .nav-primary > a, .nav-explore > summary, .site-header .nav-account > a { justify-content: flex-start; min-height: 48px; padding: 12px 16px; font-size: 15px; }
+    .nav-explore > summary { justify-content: space-between; }
+    .nav-explore-menu { position: static; min-width: 0; margin: 4px 0 8px; padding: 4px 8px; background: var(--surface); box-shadow: none; } /* taste-skill-ignore: remove floating-menu elevation on phones */
+    .nav-explore-menu > a { color: var(--muted); }
+    .nav-account { padding: 16px; background: var(--surface); border-radius: 4px; }
+    .site-header .nav-account > .nav-register { justify-content: center; margin-top: 8px; }
+    .site-header .nav-user { justify-content: space-between; padding: 8px 0 0; }
+    .site-header .nav-user-name { max-width: 65%; }
+}

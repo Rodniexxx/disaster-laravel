@@ -19,6 +19,7 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('announcements', [AnnouncementController::class, 'index'])->name('api.announcements');
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
+        Route::post('progress/start', [\App\Http\Controllers\Api\ProgressController::class, 'start'])->name('api.progress.start');
         Route::get('readiness', [\App\Http\Controllers\Api\ReadinessController::class, 'show']);
         Route::get('readiness/certificate', [\App\Http\Controllers\Api\CompletionCertificateController::class, 'show']);
         Route::post('readiness/certificate/issue', [\App\Http\Controllers\Api\CompletionCertificateController::class, 'issue']);

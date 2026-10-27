@@ -9,20 +9,7 @@
 @endphp
 
 @section('content')
-    <section class="download-hero">
-        <div class="container">
-            @if (trim((string) ($settings['download_eyebrow'] ?? '')) !== '')
-                <p class="eyebrow reveal-item">{{ $settings['download_eyebrow'] }}</p>
-            @endif
-            <h1 class="download-hero-title reveal-item">{{ $settings['download_heading'] }}</h1>
-            @if (trim((string) ($settings['download_intro'] ?? '')) !== '')
-                <p class="download-hero-text reveal-item">{{ $settings['download_intro'] }}</p>
-            @endif
-            <div class="download-hero-actions reveal-item">
-                <a href="#downloads" class="btn btn-primary">Download Now</a>
-            </div>
-        </div>
-    </section>
+   
 
     <section class="section container" id="downloads">
         <div class="section-heading reveal-item">

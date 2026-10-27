@@ -24,11 +24,6 @@ class SettingsService
             'site_name' => config('app.name', 'MANGNO'),
             'site_tagline' => 'Preparedness Simulation',
 
-            'download_eyebrow' => 'Get the Game',
-            'download_heading' => 'Get Ready with MANGNO',
-            'download_intro' => 'Experience interactive disaster preparedness learning with MANGNO, an educational game '
-                .'designed to help you understand proper preparedness measures through simulated disaster scenarios '
-                .'and engaging learning challenges.',
             'download_section_eyebrow' => 'Choose Your Platform',
             'download_section_heading' => 'Available Downloads',
             'download_windows_title' => 'Windows Version',

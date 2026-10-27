@@ -3,21 +3,18 @@
 @section('title', 'Player Progress')
 @section('heading', 'Player Progress')
 @section('eyebrow', 'Player Insights')
-
 @section('back')
     <x-back-button />
 @endsection
 
 @section('content')
     <section class="admin-panel">
-        <div class="panel-header">
-            <h2>Filter Progress</h2>
-        </div>
+        <div class="panel-header"><h2>Filter players</h2></div>
         <form method="get" class="admin-filter-form">
             <div class="form-grid compact">
                 <div class="field-group">
-                    <label for="search">Search</label>
-                    <input type="text" id="search" name="search" value="{{ $search }}" placeholder="Username, email, scenario">
+                    <label for="search">Player username</label>
+                    <input type="search" id="search" name="search" value="{{ $search }}" maxlength="120" placeholder="Search username">
                 </div>
                 <div class="field-group">
                     <label for="status">Status</label>
@@ -29,45 +26,12 @@
                     </select>
                 </div>
             </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary small">Apply Filters</button>
-            </div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary small">Apply Filters</button></div>
         </form>
     </section>
-
-    <section class="admin-panel">
-        <div class="panel-header">
-            <h2>Progress Records</h2>
-        </div>
-        <div class="table-wrap table-stack">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Scenario</th>
-                        <th>Status</th>
-                        <th>Score</th>
-                        <th>Updated</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if ($rows->isEmpty())
-                        <tr><td colspan="5" class="table-empty">No progress records found.</td></tr>
-                    @else
-                        @foreach ($rows as $row)
-                            <tr>
-                                <td data-label="Player">{{ $row->user?->username ?? 'Unknown' }}</td>
-                                <td data-label="Scenario">{{ ucfirst($row->scenario_slug) }}</td>
-                                <td data-label="Status"><span class="status-badge {{ $row->status }}">{{ $row->status }}</span></td>
-                                <td data-label="Score">{{ (int) $row->score }}</td>
-                                <td data-label="Updated">{{ $row->updated_at?->format('M j, Y H:i') }}</td>
-                            </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-
-        {{ $rows->links() }}
+    <section class="admin-panel" data-player-progress data-feed-url="{{ route('admin.progress.data', request()->only('search', 'status', 'page')) }}">
+        <div class="panel-header"><h2>Player progress</h2><p class="muted" data-progress-connection role="status">Updates automatically every 15 seconds.</p></div>
+        <p class="muted">Each completed disaster contributes 25%. Activity reflects recorded gameplay events, not whether a player is currently online.</p>
+        <div data-progress-results>@include('admin.progress.results')</div>
     </section>
 @endsection

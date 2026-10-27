@@ -27,10 +27,12 @@ class LeaderboardController extends Controller
             $category = $this->catalog->displayName($requested) ?? 'Overall';
         }
 
+        $rows = $this->withDisplayCategories($this->readiness->paginateLeaderboard($identifier));
         return view('leaderboard.index', [
             'categories' => $categories,
             'category' => $category,
-            'rows' => $this->withDisplayCategories($this->readiness->paginateLeaderboard($identifier)),
+            'rows' => $rows,
+            'avatars' => app(\App\Services\AvatarService::class)->forNames($rows->getCollection()->pluck('username')->all()),
         ]);
     }
 

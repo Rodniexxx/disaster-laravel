@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -70,6 +71,16 @@ class User extends Authenticatable
     public function progress(): HasMany
     {
         return $this->hasMany(PlayerProgress::class);
+    }
+
+    public function playerProfile(): HasOne
+    {
+        return $this->hasOne(PlayerProfile::class, 'user_id');
+    }
+
+    public function getProfilePictureUrlAttribute(): string
+    {
+        return app(\App\Services\AvatarService::class)->url((int) $this->id, $this->playerProfile);
     }
 
     /* -----------------------------------------------------------------

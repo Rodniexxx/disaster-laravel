@@ -240,7 +240,7 @@ class ReadinessService
     }
 
     /** Website pages are slices of the exact same top-100 ranking returned to Unity. */
-    public function paginateLeaderboard(string $category, int $perPage = 20): \Illuminate\Pagination\LengthAwarePaginator
+    public function paginateLeaderboard(string $category, int $perPage = 10): \Illuminate\Pagination\LengthAwarePaginator
     {
         $rows = collect($this->leaderboard($category));
         $page = max(1, \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage());

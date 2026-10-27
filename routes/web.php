@@ -30,6 +30,8 @@ Route::get('/download/{platform}/file', [DownloadController::class, 'file'])
     ->name('download.file');
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+Route::get('/profile-pictures/{user}/{version}', [\App\Http\Controllers\ProfilePictureController::class, 'show'])
+    ->whereNumber('user')->whereUuid('version')->name('profile-picture.show');
 
 /* -------------------------------------------------------------------------
  | Guest authentication routes
@@ -60,6 +62,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/picture', [\App\Http\Controllers\ProfilePictureController::class, 'update'])->name('profile-picture.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
@@ -79,6 +82,7 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::resource('questions', AdminQuestionController::class)->except(['create', 'show', 'edit']);
 
         Route::get('progress', [AdminProgressController::class, 'index'])->name('progress.index');
+        Route::get('progress/data', [AdminProgressController::class, 'data'])->name('progress.data');
 
         Route::resource('announcements', AdminAnnouncementController::class)->except(['create', 'show', 'edit']);
 

@@ -17,7 +17,7 @@ class AdminGameVersionTest extends TestCase
         parent::setUp();
 
         Storage::fake('local');
-        config()->set('mangno.downloads.max_upload_kb', 524288);
+        config()->set('mangno.downloads.max_upload_kb', 2097152);
     }
 
     /** @param array<string, mixed> $attributes */
@@ -98,8 +98,8 @@ class AdminGameVersionTest extends TestCase
     {
         $this->actingAs($this->makeAdmin())
             ->put(route('admin.versions.content'), [
-                'download_heading' => 'Grab the Game',
-                'download_intro' => 'A custom introduction.',
+                'download_section_heading' => 'Choose your MANGNO download',
+                'download_windows_description' => 'A custom Windows description.',
                 'download_about' => '',
             ])
             ->assertRedirect(route('admin.versions.index'))
@@ -107,9 +107,9 @@ class AdminGameVersionTest extends TestCase
 
         $this->get('/download')
             ->assertOk()
-            ->assertSee('Grab the Game')
-            ->assertSee('A custom introduction.')
-            ->assertDontSee('About MANGNO');
+            ->assertSee('Choose your MANGNO download')
+            ->assertSee('A custom Windows description.')
+            ->assertDontSee('id="about"', false);
     }
 
     public function test_an_admin_can_upload_a_windows_release(): void
@@ -160,6 +160,27 @@ class AdminGameVersionTest extends TestCase
 
         $this->get('/download')->assertOk()->assertSee('4.5.1');
         $this->get(route('downloads.android'))->assertOk();
+    }
+
+    public function test_build_uploads_accept_two_gib_and_reject_larger_files(): void
+    {
+        $this->actingAs($this->makeAdmin());
+
+        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
+            // Report boundary sizes without allocating multi-gigabyte fixtures.
+            $this->post(route('admin.versions.store'), $this->payload([
+                'platform' => $platform,
+                'file' => UploadedFile::fake()->createWithContent('build.'.$extension, 'build')->size(2097152),
+            ]))->assertSessionHasNoErrors()->assertRedirect(route('admin.versions.index'));
+
+            $this->post(route('admin.versions.store'), $this->payload([
+                'platform' => $platform,
+                'version_number' => 'oversized',
+                'file' => UploadedFile::fake()->create('build.'.$extension, 2097153),
+            ]))->assertSessionHasErrors('file');
+        }
+
+        $this->assertSame(2, GameVersion::query()->count());
     }
 
     public function test_invalid_file_types_are_rejected(): void

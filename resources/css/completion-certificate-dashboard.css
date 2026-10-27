@@ -2,32 +2,32 @@
     margin: var(--s6) 0;
     padding: clamp(18px, 3vw, 30px);
     overflow: hidden;
-    border: 1px solid rgba(38, 183, 203, .38);
+    border: 1px solid var(--line);
     border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, rgba(10, 41, 66, .96), rgba(13, 66, 82, .94));
-    box-shadow: var(--shadow-sm);
+    background: var(--surface);
+    box-shadow: none;
     color: #f5f9fc;
 }
 
 .completion-certificate-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.completion-certificate-header h2 { margin: 0 0 8px; color: #ffd700; font-size: clamp(1.3rem, 2.5vw, 1.9rem); }
-.completion-certificate-header .certificate-eyebrow { margin: 0 0 8px; color: #71dbea; font-size: .73rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.completion-certificate-header h2 { margin: 0 0 8px; color: var(--text); font-size: clamp(1.3rem, 2.5vw, 1.9rem); }
+.completion-certificate-header .certificate-eyebrow { margin: 0 0 8px; color: var(--accent-text); font-size: .73rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .completion-certificate-header .certificate-summary { margin: 0; color: #d9e8ef; font-variant-numeric: tabular-nums; }
-.certificate-summary span { color: #71dbea; padding: 0 .25em; }
-.certificate-status { flex: 0 0 auto; border: 1px solid currentColor; border-radius: 999px; padding: 7px 12px; font-size: .74rem; font-weight: 800; letter-spacing: .08em; }
-.certificate-status.ready { color: #ffd700; background: rgba(255, 215, 0, .08); }
+.certificate-summary span { color: var(--accent-text); padding: 0 .25em; }
+.certificate-status { flex: 0 0 auto; border: 1px solid currentColor; border-radius: 4px; padding: 7px 12px; font-size: .74rem; font-weight: 800; letter-spacing: .08em; }
+.certificate-status.ready { color: var(--text); background: rgba(255, 215, 0, .08); }
 .certificate-status.locked { color: #cbd5e1; background: rgba(148, 163, 184, .08); }
 .certificate-requirement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.certificate-requirement-group { min-width: 0; padding: 16px; border: 1px solid rgba(125, 211, 226, .22); border-radius: var(--radius-md); background: rgba(5, 27, 47, .55); }
-.certificate-requirement-group h3, .certificate-missing h3 { margin: 0 0 12px; color: #ffd700; font-size: 1rem; }
+.certificate-requirement-group { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: transparent; }
+.certificate-requirement-group h3, .certificate-missing h3 { margin: 0 0 12px; color: var(--text); font-size: 1rem; }
 .certificate-requirement-group ul, .certificate-missing ul { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; }
 .certificate-requirement-group li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-width: 0; color: #f4f8fb; font-size: .92rem; }
 .certificate-requirement-group li > span:first-child { color: #64748b; font-weight: 800; }
 .certificate-requirement-group li.complete > span:first-child { color: #55dfc0; }
 .certificate-requirement-group li strong { color: #dbe8ed; font-size: .78rem; font-weight: 700; white-space: nowrap; }
-.certificate-missing { margin-top: 16px; padding: 15px 17px; border-left: 3px solid #ffd700; border-radius: 5px 12px 12px 5px; background: rgba(255, 215, 0, .07); }
+.certificate-missing { margin-top: 16px; padding: 15px 17px; border-left: 3px solid var(--text); border-radius: 0; background: var(--surface-2); }
 .certificate-missing li { color: #e7eef3; font-size: .9rem; }
-.certificate-missing li span { margin-right: 7px; color: #71dbea; }
+.certificate-missing li span { margin-right: 7px; color: var(--accent-text); }
 .certificate-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; }
 .certificate-actions form { margin: 0; }
 .certificate-actions button:disabled { opacity: .58; cursor: not-allowed; }
@@ -37,4 +37,12 @@
     .certificate-requirement-grid { grid-template-columns: 1fr; }
     .certificate-requirement-group li { font-size: .84rem; }
     .certificate-requirement-group li strong { font-size: .72rem; }
+}
+
+.completion-certificate-header h2 { font-size: 1.375rem; font-weight: 600; }
+.certificate-status { letter-spacing: 0; font-weight: 600; }
+@media (max-width: 560px) {
+    .completion-certificate-header { flex-wrap: wrap; }
+    .certificate-requirement-group li { grid-template-columns: 16px minmax(0, 1fr); }
+    .certificate-requirement-group li strong { grid-column: 2; white-space: normal; }
 }

@@ -89,6 +89,7 @@ class AuthController extends Controller
 
     private function details(User $user): array
     {
-        return ['user_id' => (int) $user->id, 'username' => $user->username, 'email' => $user->email, 'role' => $user->role];
+        return ['user_id' => (int) $user->id, 'username' => $user->username, 'email' => $user->email, 'role' => $user->role,
+            'profile_picture_url' => $user->profile_picture_url];
     }
 }

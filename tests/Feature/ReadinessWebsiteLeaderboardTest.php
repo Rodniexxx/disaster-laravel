@@ -103,16 +103,24 @@ class ReadinessWebsiteLeaderboardTest extends TestCase
         $api = $this->getJson('/api/readiness/leaderboard?category=Fire')->assertOk()->json('leaderboard');
         $this->assertCount(100, $api);
         $combined = [];
-        for ($page = 1; $page <= 5; $page++) {
+        $admin = $this->makeAdmin();
+        for ($page = 1; $page <= 10; $page++) {
             $response = $this->get('/leaderboard?category=Fire&page='.$page)->assertOk();
             $rows = $response->viewData('rows');
             $this->assertSame(100, $rows->total());
+            $this->assertSame(10, $rows->perPage());
+            $this->assertCount(10, $rows->items());
+            $this->assertSame((($page - 1) * 10) + 1, $rows->items()[0]['rank']);
+            $adminRows = $this->actingAs($admin)->get('/admin/leaderboard?category=Fire&page='.$page)
+                ->assertOk()->viewData('rows');
+            $this->assertSame($rows->items(), $adminRows->items());
+            $this->assertSame(10, $adminRows->perPage());
             $combined = [...$combined, ...$rows->items()];
-            if ($page < 5) $this->assertStringContainsString('category=Fire', $rows->nextPageUrl());
+            if ($page < 10) $this->assertStringContainsString('category=Fire', $rows->nextPageUrl());
         }
         $this->assertSame($api, $combined);
         $this->assertSame(21, $combined[20]['rank']);
-        $this->get('/leaderboard?category=Fire&page=6')->assertOk()->assertViewHas('rows', fn ($rows) => $rows->isEmpty());
+        $this->get('/leaderboard?category=Fire&page=11')->assertOk()->assertViewHas('rows', fn ($rows) => $rows->isEmpty());
     }
 
     public function test_legacy_quiz_scores_do_not_populate_an_empty_readiness_page(): void

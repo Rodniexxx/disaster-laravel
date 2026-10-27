@@ -127,7 +127,7 @@ return [
     'downloads' => [
         'disk' => env('MANGNO_DOWNLOADS_DISK', 'local'),
         'path' => env('MANGNO_DOWNLOADS_PATH', 'downloads'),
-        'max_upload_kb' => (int) env('MANGNO_MAX_UPLOAD_KB', 524288),
+        'max_upload_kb' => (int) env('MANGNO_MAX_UPLOAD_KB', 2097152),
 
         'platforms' => [
             'windows' => [

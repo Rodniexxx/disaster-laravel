@@ -4,9 +4,9 @@
 @section('card-eyebrow', 'Welcome back')
 @section('card-title', 'Login')
 
-@section('visual-kicker', 'Preparedness Game')
-@section('visual-title', 'Continue your emergency actions')
-@section('visual-text', 'Review safe action plans, revisit response drills, and keep your disaster readiness on track.')
+@section('visual-kicker', 'Enjoy The Game')
+@section('visual-title', 'Keep your progress on track.')
+@section('visual-text', 'Review safe action plans, revisit response drills, and keep your disaster preparedness on track.')
 
 
 @section('content')
@@ -30,13 +30,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary full-width" data-loading-text="Signing in...">
+        <button type="submit" class="btn btn-primary full-width" data-loading-text="Logging in...">
             <span>Login</span>
         </button>
     </form>
 
     <div class="auth-links">
-        <span>New to MANGNO?</span>
+        <span>New to Mangno?</span>
         <a href="{{ route('register') }}">Create account</a>
     </div>
 @endsection

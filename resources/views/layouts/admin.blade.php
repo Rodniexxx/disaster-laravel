@@ -13,7 +13,7 @@
             <header class="admin-topbar">
                 <div class="admin-topbar-main">
                     <button type="button" class="admin-menu-toggle" aria-label="Open admin menu"
-                            aria-controls="admin-sidebar" aria-expanded="false">&#9776;</button>
+                            aria-controls="admin-sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/></svg></button>
                     <div>
                         @hasSection('back')
                             @yield('back')

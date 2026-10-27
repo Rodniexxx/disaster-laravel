@@ -7,7 +7,6 @@
         ],
         'Game' => [
             ['route' => 'admin.leaderboard', 'active' => 'admin.leaderboard', 'label' => 'Leaderboard', 'icon' => 'trophy'],
-            ['route' => 'admin.questions.index', 'active' => 'admin.questions.*', 'label' => 'Quiz Questions', 'icon' => 'quiz'],
             ['route' => 'admin.announcements.index', 'active' => 'admin.announcements.*', 'label' => 'Announcements', 'icon' => 'megaphone'],
             ['route' => 'admin.versions.index', 'active' => 'admin.versions.*', 'label' => 'Game Versions', 'icon' => 'box'],
         ],
@@ -23,7 +22,7 @@
         <span class="admin-brand-mark">
             <img src="{{ asset('images/logo.png') }}" alt="MANGNO" class="admin-brand-logo">
         </span>
-        <button type="button" class="admin-sidebar-close" aria-label="Close admin menu">&#10005;</button>
+        <button type="button" class="admin-sidebar-close" aria-label="Close admin menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     </div>
 
     <p class="admin-console-label">Control Center</p>

@@ -41,7 +41,7 @@
                         <th>Rank</th>
                         <th>Player</th>
                         <th>Readiness score</th>
-                        <th class="hide-mobile">Disaster category</th>
+                        <th>Disaster category</th>
                         @unless ($isOverall)
                             <th>Actions</th>
                         @endunless
@@ -49,7 +49,7 @@
                 </thead>
                 <tbody>
                     @if ($rows->isEmpty())
-                        <tr><td colspan="{{ $columnCount }}" class="table-empty">No readiness scores yet. Complete a scenario to join the rankings.</td></tr>
+                        <tr class="leaderboard-empty-row"><td colspan="{{ $columnCount }}" class="table-empty">No readiness scores yet. Complete a scenario to join the rankings.</td></tr>
                     @else
                         @foreach ($rows as $row)
                             <tr class="leader-row top-{{ $row['rank'] }}">
@@ -67,10 +67,10 @@
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
                                 <td data-label="Player">
-                                    <span class="rank-player">{{ $row['username'] }}</span>
+                                    <span class="avatar-person"><x-player-avatar :url="$avatars[$row['username']] ?? null" :size="32" /><span class="rank-player">{{ $row['username'] }}</span></span>
                                 </td>
                                 <td data-label="Readiness score"><span class="rank-score">{{ $row['score'] }}</span></td>
-                                <td data-label="Disaster category" class="hide-mobile">{{ $row['category'] }}</td>
+                                <td data-label="Disaster category">{{ $row['category'] }}</td>
                                 @unless ($isOverall)
                                     <td class="table-actions" data-label="Actions">
                                         <button type="button"

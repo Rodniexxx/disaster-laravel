@@ -1,3 +1,15 @@
+# PHP enforces a 2112 MiB request cap and Laravel enforces 2 GiB per build.
+# Apache's finite LimitRequestBody maximum is smaller than a 2 GiB file.
+LimitRequestBody 0
+
+# Project-scoped XAMPP/mod_php settings; PHP-FPM uses docker/php/php.ini.
+<IfModule php_module>
+    php_value upload_max_filesize 2G
+    php_value post_max_size 2112M
+    php_value max_input_time 3600
+    php_value max_execution_time 3600
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

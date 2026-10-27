@@ -1,41 +1,42 @@
 /* =========================================================================
-   MANGNO design tokens — "Readiness Console" (dark)
-   Near-black blue shell, dark-navy panels and white text, with a single
-   bright-blue action accent plus semantic hazard colors. Matches the
-   MANGNO game client's dark blue / black / white UI.
+   MANGNO — game-inspired midnight navy, ocean teal, and soft mint.
    ========================================================================= */
 
 :root {
     /* --- Surfaces (dark page + panels) --- */
-    --paper: #070b14;
-    --surface: #0d1422;
-    --surface-2: #111a2c;
-    --surface-sunken: #0a101b;
+    --paper: #0c1520;
+    --surface: #142231;
+    --surface-2: #1c3040;
+    --surface-sunken: #101b28;
 
     /* --- Shell (header, footer, hero, sidebar) — black-blue --- */
-    --ink: #03060c;
-    --ink-2: #080e1a;
-    --ink-3: #111b2e;
+    --ink: #09121c;
+    --ink-2: #11202e;
+    --ink-3: #1c3040;
 
     /* --- Text --- */
-    --text: #eaf0fa;
-    --muted: #9aa8bf;
-    --text-on-dark: #f4f7fc;
-    --muted-on-dark: #9fb0c9;
+    --text: #edf2f4;
+    --muted: #a6b8c5;
+    --text-on-dark: #f5f8fa;
+    --muted-on-dark: #a6b8c5;
 
     /* --- Lines --- */
-    --line: #1e2a45;
-    --line-strong: #516797; /* ≥ 3:1 on page + panels — control boundaries */
+    --line: #2b4050;
+    --line-strong: #6b8395;
     --line-dark: rgba(255, 255, 255, 0.14);
     --line-dark-strong: rgba(255, 255, 255, 0.26);
 
-    /* --- Brand accent: bright blue --- */
-    --accent: #2563eb;       /* solid actions — white text 5.2:1 */
-    --accent-hover: #1d4ed8;
-    --accent-bright: #5b9dff; /* rails, icons, eyebrows on near-black (6.8:1+) */
-    --accent-text: #8ab8ff;   /* links / small text on dark surfaces (8.6:1) */
-    --accent-soft: rgba(37, 99, 235, 0.16);
-    --accent-ring: rgba(91, 157, 255, 0.5);
+    /* --- Soft mint actions; teal orientation from the game menu --- */
+    --accent: #95dfc4;
+    --accent-hover: #b7ecd9;
+    --accent-bright: #95dfc4;
+    --accent-text: #a9e7d1;
+    --accent-soft: rgba(149, 223, 196, 0.12);
+    --accent-ring: rgba(149, 223, 196, 0.5);
+    --button-ink: #101c27;
+    --feature-paper: #e2ebed;
+    --teal: #54d0d0;
+    --teal-soft: #163a43;
 
     /* --- Semantic states (bright, text-safe on dark surfaces) --- */
     --danger: #ff7a70;
@@ -65,9 +66,9 @@
     --ring: 0 0 0 3px var(--accent-ring);
 
     /* --- Typography --- */
-    --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
-    --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-    --font-display: var(--font-sans);
+    --font-sans: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif;
+    --font-mono: var(--font-sans);
+    --font-display: "Outfit", "Segoe UI", Arial, sans-serif;
 
     /* --- Spacing scale --- */
     --s1: 4px;
@@ -78,12 +79,12 @@
     --s6: 32px;
     --s7: 48px;
     --s8: 64px;
-    --section-y: clamp(48px, 7vw, 84px);
+    --section-y: clamp(32px, 4vw, 48px);
 
     /* --- Shape --- */
     --radius: 6px;
     --radius-md: 8px;
-    --radius-lg: 10px;
+    --radius-lg: 8px;
     --radius-sm: 4px;
     --radius-pill: 999px;
 
@@ -94,7 +95,7 @@
 
     /* --- Layout --- */
     --container: 1200px;
-    --header-h: 68px;
+    --header-h: 84px;
     --sidebar-w: 240px;
 
     /* --- Motion --- */

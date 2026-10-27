@@ -15,6 +15,7 @@
                     <p class="auth-kicker">@yield('visual-kicker')</p>
                     <h1>@yield('visual-title')</h1>
                     <p>@yield('visual-text')</p>
+                    <img class="auth-preview" src="{{ asset('images/brgyhall.jpg') }}" alt="A community setting in the MANGNO game" width="1892" height="1124">
                     @hasSection('visual-points')
                         <ul class="auth-points">
                             @yield('visual-points')

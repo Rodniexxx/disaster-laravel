@@ -18,6 +18,9 @@ services:
       # Production runtime — no debug output or stack traces in responses.
       APP_ENV: production
       APP_DEBUG: "false"
+      PROFILE_AVATAR_UPLOADS_ENABLED: "true"
+      PROFILE_AVATAR_DISK: profile_volume
+      PROFILE_AVATAR_VOLUME_ROOT: /var/lib/mangno/avatars
       # The queue table exists in this project, so workers use the database driver.
       # Remove this line to fall back to the QUEUE_CONNECTION in your .env (sync).
       QUEUE_CONNECTION: database
@@ -25,6 +28,7 @@ services:
       # Persists uploaded game builds (storage/app/private/downloads), logs,
       # framework cache, sessions and views across container rebuilds.
       - app_storage:/var/www/html/storage
+      - profile_avatars:/var/lib/mangno/avatars
     ports:
       # Host port 8000 matches APP_URL in .env (port 80 is used by XAMPP Apache).
       - "${NGINX_PORT:-8000}:80"
@@ -60,5 +64,6 @@ networks:
     driver: bridge
 
 volumes:
+  profile_avatars:
   app_storage:
   db_data:

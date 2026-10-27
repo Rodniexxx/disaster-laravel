@@ -17,21 +17,7 @@
             @csrf
             @method('PUT')
 
-            <div class="form-grid">
-                <div class="field-group">
-                    <label for="download_eyebrow">Hero Eyebrow</label>
-                    <input type="text" id="download_eyebrow" name="download_eyebrow" value="{{ old('download_eyebrow', $settings['download_eyebrow'] ?? '') }}">
-                </div>
-                <div class="field-group">
-                    <label for="download_heading">Main Heading</label>
-                    <input type="text" id="download_heading" name="download_heading" value="{{ old('download_heading', $settings['download_heading'] ?? '') }}">
-                </div>
-            </div>
-
-            <div class="field-group">
-                <label for="download_intro">Introduction / Hero Description</label>
-                <textarea id="download_intro" name="download_intro" rows="3">{{ old('download_intro', $settings['download_intro'] ?? '') }}</textarea>
-            </div>
+          
 
             <div class="form-grid">
                 <div class="field-group">

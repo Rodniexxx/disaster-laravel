@@ -223,7 +223,7 @@
 
 .admin-topbar-main h1 {
     font-size: clamp(1.35rem, 2.4vw, 1.75rem);
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.015em;
 }
 
@@ -434,3 +434,34 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Operational pages share the same restrained surfaces and readable labels. */
+.admin-sidebar { border-right-color: var(--line); }
+.admin-brand { border-bottom-color: var(--line); }
+.admin-nav a { border-radius: 4px; font-size: .875rem; }
+.admin-nav a.active { background: var(--accent-soft); }
+.admin-panel { box-shadow: none; }
+.admin-topbar { padding-block: 8px 24px; }
+.admin-panel .table-wrap { border-inline: 0; border-radius: 0; }
+.admin-panel .table-wrap thead th { background: transparent; }
+.admin-sidebar-footer button { font-family: var(--font-sans); letter-spacing: 0; text-transform: none; }
+.admin-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1100px) {
+    .admin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .admin-stats { grid-template-columns: 1fr; }
+    .admin-panel { padding: 16px; }
+    .topbar-user { width: 100%; flex-wrap: wrap; }
+}
+/* Player progress keeps the existing admin table and mint status palette. */
+.player-progress-table .progress-detail { display: block; max-width: 30ch; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.player-progress-table .progress-percentage { display: block; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.player-progress-table progress { display: block; width: 144px; max-width: 100%; height: 7px; border: 0; border-radius: 8px; overflow: hidden; appearance: none; background: var(--surface-2); accent-color: var(--accent); }
+.player-progress-table progress::-webkit-progress-bar { background: var(--surface-2); }
+.player-progress-table progress::-webkit-progress-value { background: var(--accent); border-radius: 8px; }
+.player-progress-table progress::-moz-progress-bar { background: var(--accent); }
+.player-progress-table .status-badge.in_progress { background: var(--accent-soft); color: var(--accent-text); }
+.player-progress-table .status-badge.not_started { background: var(--surface-2); color: var(--muted); }
+.player-progress-table .status-badge.completed { background: var(--success-soft); color: var(--success); }
+.player-progress-table time { font-size: 13px; color: var(--muted); }

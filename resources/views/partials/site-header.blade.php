@@ -13,15 +13,23 @@
         </button>
 
         <div class="nav-links" id="primary-navigation">
-            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
-            <a href="{{ route('home') }}#disaster-guides">Disasters</a>
-            <a href="{{ route('home') }}#ans">Announcements</a>
-            <a href="{{ route('home') }}#about">About</a>
-            <a href="{{ route('download') }}" class="{{ request()->routeIs('download') ? 'active' : '' }}">Download</a>
-            <a href="{{ route('leaderboard.index') }}" class="{{ request()->routeIs('leaderboard.*') ? 'active' : '' }}">Leaderboard</a>
+            <div class="nav-primary">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" @if(request()->routeIs('home')) aria-current="page" @endif>Home</a>
+               
+                   
+                    
+                        <a href="{{ route('home') }}#disaster-guides">Scenarios</a>
+                        <a href="{{ route('home') }}#ans">Announcements</a>
+                        <a href="{{ route('home') }}#about">About</a>
+                 
+                <a href="{{ route('leaderboard.index') }}" class="{{ request()->routeIs('leaderboard.*') ? 'active' : '' }}" @if(request()->routeIs('leaderboard.*')) aria-current="page" @endif>Leaderboard</a>
+                <a href="{{ route('download') }}" class="{{ request()->routeIs('download') ? 'active' : '' }}" @if(request()->routeIs('download')) aria-current="page" @endif>Download</a>
+            </div>
+            <div class="nav-account">
             @auth
-                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
+                <a href="{{ route('dashboard') }}" class="nav-register {{ request()->routeIs('dashboard') ? 'active' : '' }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif>Dashboard</a>
                 <div class="nav-user">
+                    <a href="{{ route('profile.edit') }}" aria-label="Edit profile picture"><x-player-avatar :user="auth()->user()" :size="32" /></a>
                     <span class="nav-user-name">Hi, {{ auth()->user()->username }}</span>
                     <form method="POST" action="{{ route('logout') }}" class="inline-form">
                         @csrf
@@ -30,8 +38,9 @@
                 </div>
             @else
                 <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Login</a>
-                <a href="{{ route('register') }}" class="nav-register {{ request()->routeIs('register') ? 'active' : '' }}">Register</a>
+                <a href="{{ route('register') }}" class="nav-register {{ request()->routeIs('register') ? 'active' : '' }}">Create account</a>
             @endauth
+            </div>
         </div>
     </nav>
 </header>

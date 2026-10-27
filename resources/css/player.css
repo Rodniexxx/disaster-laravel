@@ -19,7 +19,7 @@
     display: grid;
     gap: 6px;
     align-content: start;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
     overflow: hidden;
 }
 
@@ -75,8 +75,8 @@
 }
 
 .stat-card-link:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: none;
+    box-shadow: none;
 }
 
 .stat-card-link.active .stat-panel {
@@ -115,7 +115,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: var(--s4);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
     overflow: hidden;
     transition: transform var(--t-base), box-shadow var(--t-base),
         border-color var(--t-base);
@@ -137,8 +137,8 @@
 .hazard-volcano.progress-card::before { background: var(--hazard-volcano); }
 
 .progress-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
+    transform: none;
+    box-shadow: none;
     border-color: var(--line-strong);
 }
 
@@ -264,7 +264,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: var(--s4);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
 }
 
 .leaderboard-panel .table-wrap {
@@ -360,4 +360,52 @@
 /* --- Scores pages --------------------------------------------------------- */
 .table-wrap .progress-bar {
     min-width: 120px;
+}
+
+/* A compact summary and horizontal scenario records give results a clear hierarchy. */
+.stats-strip { gap: 0; border-block: 1px solid var(--line); background: transparent; }
+.stat-panel { border: 0; border-right: 1px solid var(--line); border-radius: 0; background: transparent; padding: 20px 24px; }
+.stats-strip > :last-child, .stats-strip > :last-child .stat-panel { border-right: 0; }
+.stat-panel::before { display: none; }
+.stat-label { font-family: var(--font-sans); text-transform: none; letter-spacing: 0; font-size: .8125rem; }
+.stat-value { font-family: var(--font-sans); font-size: 2rem; }
+.stat-card-link { border-radius: 0; }
+.stat-card-link:hover { background: var(--surface); }
+.progress-grid { grid-template-columns: 1fr; gap: 0; border-top: 1px solid var(--line); }
+.progress-card { display: grid; grid-template-columns: minmax(180px, .9fr) minmax(0, 1.6fr) minmax(120px, .6fr); gap: 12px 24px; align-items: center; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; padding: 24px 0; }
+.progress-card::before { display: none; }
+.progress-card:hover { border-color: var(--line); background: transparent; }
+.progress-head { grid-column: 1; grid-row: 1 / span 3; align-items: center; justify-content: flex-start; }
+.progress-head-meta { align-items: flex-start; min-width: 0; }
+.card-icon.large { width: 64px; height: 72px; border: 0; border-radius: 4px; }
+.progress-card h3 { grid-column: 2; font-weight: 600; font-size: 1.125rem; }
+.progress-card > p { grid-column: 2; font-size: .875rem; }
+.progress-card .score-row { grid-column: 3; grid-row: 1; border: 0; padding: 0; }
+.progress-card .progress-bar { grid-column: 3; grid-row: 2; }
+.progress-card > .btn { grid-column: 3; width: 100%; }
+.score-label { font-family: var(--font-sans); font-size: .75rem; text-transform: none; letter-spacing: 0; }
+.score-value { font-size: 1.25rem; }
+.leaderboard-panel { padding: 0; border-width: 1px 0 0; border-radius: 0; background: transparent; }
+.leader-row.top-1, .leader-row.top-2, .leader-row.top-3 { background: transparent; }
+.leader-row.is-current { background: var(--accent-soft); }
+.leaderboard-panel .pagination-wrap { padding-block: 16px; }
+@media (max-width: 980px) {
+    .progress-card { grid-template-columns: minmax(160px, .8fr) minmax(0, 1.4fr); }
+    .progress-head { grid-row: 1 / span 2; }
+    .progress-card .score-row { grid-column: 2; grid-row: auto; }
+    .progress-card .progress-bar { grid-column: 2; grid-row: auto; }
+    .progress-card > .btn { grid-column: 2; justify-self: start; width: auto; }
+}
+@media (max-width: 560px) {
+    .stats-strip { grid-template-columns: 1fr; }
+    .stat-panel { border-right: 0; border-bottom: 1px solid var(--line); padding: 16px 0; grid-template-columns: 1fr auto; align-items: center; }
+    .stat-panel small { grid-column: 1 / -1; }
+    .stats-strip > :last-child, .stats-strip > :last-child .stat-panel { border-bottom: 0; }
+    .stat-value { font-size: 1.75rem; }
+    .progress-card { grid-template-columns: 1fr; gap: 12px; }
+    .progress-head { grid-column: 1; grid-row: auto; }
+    .progress-head-meta { flex-direction: row; flex-wrap: wrap; align-items: center; }
+    .progress-index { width: 100%; }
+    .progress-card h3, .progress-card > p, .progress-card .score-row, .progress-card .progress-bar, .progress-card > .btn { grid-column: 1; grid-row: auto; }
+    .progress-card > .btn { width: 100%; }
 }

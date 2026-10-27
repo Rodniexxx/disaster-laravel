@@ -38,6 +38,7 @@ class LeaderboardController extends Controller
             'categories' => $categories,
             'category' => $category,
             'rows' => $rows,
+            'avatars' => app(\App\Services\AvatarService::class)->forNames($rows->getCollection()->pluck('username')->all()),
             // Row identifiers for the Delete buttons are resolved alongside the
             // ranking instead of inside it: leaderboard rows are shared with the
             // Unity API and must keep their exact public shape.

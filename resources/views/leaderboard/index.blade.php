@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Leaderboard')
+@section('body-class', 'leaderboard-theme')
 @section('main-class', 'dashboard-page container leaderboard-page')
 
 @php
@@ -17,8 +18,8 @@
     <section class="dashboard-header reveal">
         <div>
             <x-back-button />
-            <p class="eyebrow">Disaster readiness rankings</p>
             <h1>Leaderboard</h1>
+            <p class="section-description">Practice. Improve. Find your place.</p>
         </div>
     </section>
 
@@ -46,7 +47,7 @@
                 </thead>
                 <tbody>
                     @if ($rows->isEmpty())
-                        <tr><td colspan="4" class="table-empty">No readiness scores yet. Complete a scenario to join the rankings.</td></tr>
+                        <tr class="leaderboard-empty-row"><td colspan="4" class="table-empty">No readiness scores yet. Complete a scenario to join the rankings.</td></tr>
                     @else
                         @foreach ($rows as $row)
                             @php
@@ -67,7 +68,7 @@
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
                                 <td data-label="Player">
-                                    <span class="rank-player">{{ $row['username'] }}</span>
+                                    <span class="avatar-person"><x-player-avatar :url="$avatars[$row['username']] ?? null" :size="32" /><span class="rank-player">{{ $row['username'] }}</span></span>
                                     @if ($isCurrentPlayer)
                                         <span class="rank-you">You</span>
                                     @endif

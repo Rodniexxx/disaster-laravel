@@ -5,13 +5,14 @@
 @section('card-title', 'Register')
 
 @section('visual-kicker', 'Create an account')
-@section('visual-title', 'Build your emergency readiness')
+@section('visual-title', 'Strengthen Your Knowledge of Disaster Preparedness.')
 @section('visual-text', 'Create an account to play the game, enjoy and learn scenarios, and track progress.')
 
 
 @section('content')
-    <form method="post" action="{{ route('register') }}" class="auth-form" data-submit-state>
+    <form method="post" action="{{ route('register') }}" enctype="multipart/form-data" class="auth-form" data-submit-state>
         @csrf
+        @include('partials.avatar-upload')
 
         <div class="field-group">
             <label for="username">Username</label>
