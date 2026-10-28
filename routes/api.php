@@ -31,3 +31,5 @@ Route::middleware('throttle:api')->group(function () {
 });
 
 require __DIR__.'/profile.php';
+
+require __DIR__.'/leaderboard.php';
