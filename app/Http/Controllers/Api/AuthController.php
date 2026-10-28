@@ -16,18 +16,29 @@ class AuthController extends Controller
     {
         $request->validate([
             'username' => ['nullable', 'string', 'max:100'],
-            'email' => ['nullable', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:100'],
             'login_identifier' => ['nullable', 'string', 'max:100'],
             'password' => ['required', 'string', 'max:255'],
             'device_name' => ['sometimes', 'string', 'max:100'],
         ]);
-        $identifier = trim($request->input('username') ?: ($request->input('email') ?: $request->input('login_identifier', '')));
-        if ($identifier === '') {
-            return response()->json(['success' => false, 'message' => 'Username/email is required.'], 422);
+        $email = trim((string) $request->input('email', ''));
+        $identifier = trim((string) ($request->input('username') ?: $request->input('login_identifier', '')));
+        if ($email === '' && $identifier === '') {
+            return response()->json(['success' => false, 'message' => 'Email address is required.'], 422);
         }
-        $user = User::query()->where('username', $identifier)->orWhere('email', $identifier)->first();
+
+        // New Unity clients submit an explicit email. Older clients may still submit
+        // username or login_identifier, so retain that compatibility path.
+        if ($email !== '') {
+            $user = User::query()->whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
+        } else {
+            $user = User::query()->where('username', $identifier)->first();
+            if (! $user) {
+                $user = User::query()->whereRaw('LOWER(email) = ?', [strtolower($identifier)])->first();
+            }
+        }
         if (! $user || ! Hash::check($request->input('password'), $user->password_hash) || ! $user->isActive()) {
-            return response()->json(['success' => false, 'message' => 'Invalid username or password'], 401);
+            return response()->json(['success' => false, 'message' => 'Invalid email or password.'], 401);
         }
         return DB::transaction(function () use ($user, $request) {
             $user->forceFill(['last_login_at' => now()])->save();
@@ -45,7 +56,9 @@ class AuthController extends Controller
             'password_confirmation' => ['sometimes', 'required', 'string', 'same:password'],
             'device_name' => ['sometimes', 'string', 'max:100'],
         ]);
-        if (User::query()->where('username', $data['username'])->exists() || User::query()->where('email', $data['email'])->exists()) {
+        $data['email'] = strtolower(trim($data['email']));
+        if (User::query()->where('username', $data['username'])->exists()
+            || User::query()->whereRaw('LOWER(email) = ?', [$data['email']])->exists()) {
             return response()->json(['success' => false, 'message' => 'Username or email is already registered.'], 409);
         }
         return DB::transaction(function () use ($data, $request) {
