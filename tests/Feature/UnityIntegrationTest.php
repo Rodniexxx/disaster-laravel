@@ -68,6 +68,28 @@ class UnityIntegrationTest extends TestCase
         $this->withToken($b)->getJson('/api/me')->assertOk();
     }
 
+    public function test_email_login_trims_whitespace_and_matches_email_case_insensitively(): void
+    {
+        $this->makeUser(['username' => 'mailcase', 'email' => 'mixed.case@example.com', 'password' => 'secret123']);
+
+        $this->postJson('/api/login', ['email' => '  MIXED.CASE@EXAMPLE.COM  ', 'password' => 'secret123'])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('email', 'mixed.case@example.com');
+    }
+
+    public function test_email_login_rejects_malformed_unregistered_and_incorrect_credentials(): void
+    {
+        $this->makeUser(['username' => 'mailcheck', 'email' => 'mailcheck@example.com', 'password' => 'secret123']);
+
+        $this->postJson('/api/login', ['email' => 'not-an-email', 'password' => 'secret123'])
+            ->assertUnprocessable()->assertJsonValidationErrors('email');
+        $this->postJson('/api/login', ['email' => 'missing@example.com', 'password' => 'secret123'])
+            ->assertUnauthorized()->assertJsonPath('message', 'Invalid email or password.');
+        $this->postJson('/api/login', ['email' => 'mailcheck@example.com', 'password' => 'wrongpass'])
+            ->assertUnauthorized()->assertJsonPath('message', 'Invalid email or password.');
+    }
+
     public function test_disabled_expired_and_invalid_tokens_cannot_submit_even_without_accept_header(): void
     {
         $user = $this->makeUser();
@@ -103,6 +125,9 @@ class UnityIntegrationTest extends TestCase
             ->assertUnprocessable()->assertJsonValidationErrors(['username', 'email', 'password']);
         $this->postJson('/api/register', ['username' => 'new', 'email' => 'new@example.com', 'password' => 'secret123', 'confirm_password' => 'different'])
             ->assertUnprocessable()->assertJsonValidationErrors('confirm_password');
+        $this->makeUser(['username' => 'caseexisting', 'email' => 'CaseExisting@example.com']);
+        $this->postJson('/api/register', ['username' => 'casenew', 'email' => 'caseexisting@example.com', 'password' => 'secret123'])
+            ->assertStatus(409);
         $this->makeUser(['username' => 'disabled', 'password' => 'secret123', 'is_active' => false]);
         $this->postJson('/api/login', ['username' => 'disabled', 'password' => 'secret123'])->assertUnauthorized();
         $this->assertDatabaseCount('personal_access_tokens', 0);
