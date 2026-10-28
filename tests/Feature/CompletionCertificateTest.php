@@ -42,7 +42,12 @@ class CompletionCertificateTest extends TestCase
         $pdf = $this->get('/api/readiness/certificate/pdf')->assertOk()->assertHeader('Content-Type', 'application/pdf')->getContent();
         $this->assertStringContainsString($stars.'/12 STARS', $pdf);
         $this->assertSame($stars === 12, str_contains($pdf, 'PERFECT SCORE'));
-        $this->assertStringContainsString($name, $pdf);
+        $displayName = mb_strtoupper($name, 'UTF-8');
+        $nameLayout = app(\App\Services\CompletionCertificatePdf::class)->nameLayout($name);
+        $this->assertSame($displayName, implode(' ', $nameLayout['lines']));
+        $this->assertStringContainsString('/BaseFont /PlayfairDisplay-Bold', $pdf);
+        $this->assertStringContainsString('/FontFile2', $pdf);
+        $this->assertStringContainsString('/ToUnicode', $pdf);
         $this->assertStringContainsString('October 25, 2026', $pdf);
         $this->assertStringContainsString($id, $pdf);
         $this->assertStringContainsString('/Width 1999 /Height 1414', $pdf);
@@ -50,7 +55,8 @@ class CompletionCertificateTest extends TestCase
         $this->assertTrue(str_contains($pdf, file_get_contents(public_path('images/MANGNO_Certificate_Template.jpg'))), 'The supplied JPEG must be embedded unchanged.');
         $this->actingAs($user)->get('/dashboard')->assertOk()->assertSee('Hi, '.$name);
         $page = $this->get(route('dashboard.certificate'))->assertOk()
-            ->assertSee($name)->assertSee($stars.'/12 STARS')->assertSee('October 25, 2026')->assertSee($id)
+            ->assertSee($displayName)->assertSee($stars.'/12 STARS')->assertSee('October 25, 2026')->assertSee($id)
+            ->assertSee('Playfair Display')->assertSee('PlayfairDisplay-Bold.ttf')
             ->assertSee('MANGNO_Certificate_Template.jpg?v=')->assertSee('1999 1414')->assertDontSee('Mangno Master');
         $this->assertDatabaseHas('player_profiles', ['user_id' => $user->id, 'display_name' => $profileName]);
         if ($stars === 12) $page->assertSee('PERFECT SCORE'); else $page->assertDontSee('PERFECT SCORE');
@@ -153,7 +159,8 @@ class CompletionCertificateTest extends TestCase
         $this->assertStringContainsString('10/12 STARS', $pdf->getContent());
         $this->assertStringNotContainsString('PERFECT SCORE', $pdf->getContent());
         $this->assertStringContainsString($id, $pdf->getContent());
-        $this->assertStringContainsString('Registered MANGNO Learner', $pdf->getContent());
+        $this->assertStringContainsString('/BaseFont /PlayfairDisplay-Bold', $pdf->getContent());
+        $this->assertSame(['REGISTERED MANGNO', 'LEARNER'], app(\App\Services\CompletionCertificatePdf::class)->nameLayout('Registered MANGNO Learner')['lines']);
         $this->assertDatabaseCount('completion_certificates', 1);
         $this->assertDatabaseCount('readiness_progress', 4);
         $this->assertDatabaseCount('readiness_achievements', 5);

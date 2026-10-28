@@ -7,7 +7,9 @@
         $artworkFile = public_path($artworkPath);
         $artworkHash = is_file($artworkFile) ? @hash_file('sha256', $artworkFile) : false;
         $artwork = asset($artworkPath).($artworkHash ? '?v='.substr($artworkHash, 0, 12) : '');
-        $nameSize = app(\App\Services\CompletionCertificatePdf::class)->nameFontSize($certificate['display_name']);
+        $certificatePdf = app(\App\Services\CompletionCertificatePdf::class);
+        $displayName = $certificatePdf->uppercaseName($certificate['display_name']);
+        $nameLayout = $certificatePdf->nameLayout($displayName);
         $patches = [[350, 630, 1300, 170], [300, 978, 1420, 212], [400, 1200, 400, 85]];
     @endphp
     <section class="certificate-page" aria-labelledby="certificate-page-title">
@@ -16,7 +18,7 @@
             <a href="{{ route('dashboard.certificate.pdf') }}" class="btn btn-primary">DOWNLOAD PDF</a>
         </div>
         <h1 id="certificate-page-title" class="visually-hidden">Certificate of Completion</h1>
-        <div class="certificate-sheet" aria-label="MANGNO certificate of completion for {{ $certificate['display_name'] }}">
+        <div class="certificate-sheet" aria-label="MANGNO certificate of completion for {{ $displayName }}">
             <img src="{{ $artwork }}" alt="" class="certificate-artwork">
             <svg class="certificate-fields" viewBox="0 0 1999 1414" role="img" aria-label="{{ $certificate['display_name'] }}, {{ $stars }}/12 stars, issued {{ $certificate['issue_date'] }}">
                 @foreach ($patches as [$x, $y, $width, $height])
@@ -26,7 +28,11 @@
                     </svg>
                 @endforeach
                 <g text-anchor="middle" font-family="Helvetica, Arial, sans-serif">
-                    <text x="999.5" y="760" font-size="{{ $nameSize }}" font-weight="700" fill="#050505">{{ $certificate['display_name'] }}</text>
+                    <text class="certificate-player-name" text-anchor="middle" x="999.5" font-size="{{ $nameLayout['fontSize'] }}" font-weight="700" fill="#1a1f6b" letter-spacing="{{ $nameLayout['tracking'] }}">
+                        @foreach ($nameLayout['lines'] as $lineIndex => $line)
+                            <tspan x="999.5" y="{{ $nameLayout['firstBaseline'] + $lineIndex * $nameLayout['leading'] }}">{{ $line }}</tspan>
+                        @endforeach
+                    </text>
                     <g fill="#1a1f6b" font-size="40" font-style="italic">
                         <text x="999.5" y="1017">The recipient has completed all four disaster scenarios and earned</text>
                         <text x="999.5" y="1069" font-weight="700">{{ $stars }}/12 STARS{{ $stars === 12 ? ' - PERFECT SCORE' : '' }}</text>
@@ -40,6 +46,8 @@
         </div>
     </section>
     <style>
+        @font-face { font-family: "Playfair Display"; src: url("{{ asset('fonts/PlayfairDisplay-Bold.ttf') }}") format("truetype"); font-style: normal; font-weight: 700; font-display: block; }
+        .certificate-player-name { font-family: "Playfair Display", serif; font-weight: 700; fill: #1a1f6b; }
         .certificate-page { max-width: 1500px; margin: 0 auto; padding: clamp(12px, 2vw, 28px); }
         .certificate-toolbar { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
         .certificate-sheet { position: relative; width: min(100%, 1200px); aspect-ratio: 1999 / 1414; margin: 0 auto; overflow: hidden; box-shadow: 0 18px 55px rgba(3, 17, 31, .24); }
