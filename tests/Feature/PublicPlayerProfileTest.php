@@ -9,6 +9,7 @@ use App\Services\PlayerProgressService;
 use App\Services\ReadinessService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -35,10 +36,34 @@ class PublicPlayerProfileTest extends TestCase
         foreach (['Overall', 'Fire'] as $category) {
             $page = $this->get(route('leaderboard.index', ['category' => $category]))->assertOk();
             foreach ([$first, $second] as $player) {
-                $page->assertSee('data-player-profile="'.route('leaderboard.player', $player).'"', false)
+                $page->assertSee('data-player-profile="'.route('leaderboard.player', $player, false).'"', false)
                     ->assertSee('View '.e($player->username)."'s player profile", false);
             }
             $page->assertSee('aria-haspopup="dialog"', false)->assertSee('id="player-profile-dialog"', false);
+        }
+    }
+
+    public function test_popup_requests_stay_on_the_page_origin_behind_an_https_proxy(): void
+    {
+        $player = $this->makeUser();
+        $this->attempt($player, 'Fire');
+
+        // A TLS-terminating proxy may leave Laravel generating HTTP URLs.
+        URL::forceScheme('http');
+        URL::forceRootUrl('http://internal.example');
+
+        try {
+            $page = $this->get('https://mangno.example/leaderboard')->assertOk();
+            preg_match('/data-player-profile="([^"]+)"/', $page->getContent(), $match);
+            $endpoint = $match[1] ?? '';
+
+            $this->assertSame('/leaderboard/players/'.$player->id, $endpoint);
+            $this->assertNull(parse_url($endpoint, PHP_URL_SCHEME));
+            $this->assertNull(parse_url($endpoint, PHP_URL_HOST));
+            $this->getJson($endpoint)->assertOk()->assertJsonPath('username', $player->username);
+        } finally {
+            URL::forceScheme(null);
+            URL::forceRootUrl(null);
         }
     }
 

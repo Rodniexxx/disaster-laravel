@@ -71,7 +71,7 @@
                                     @php($player = $players->get($row['username']))
                                     @if ($player)
                                         <button type="button" class="avatar-person player-profile-trigger"
-                                                data-player-profile="{{ route('leaderboard.player', $player) }}"
+                                                data-player-profile="{{ route('leaderboard.player', $player, false) }}"
                                                 aria-haspopup="dialog" aria-controls="player-profile-dialog"
                                                 aria-label="View {{ $row['username'] }}'s player profile">
                                             <x-player-avatar :user="$player" :size="32" />
