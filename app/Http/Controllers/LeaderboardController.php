@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\ReadinessService;
 use App\Support\DisasterCatalog;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,11 +29,14 @@ class LeaderboardController extends Controller
         }
 
         $rows = $this->withDisplayCategories($this->readiness->paginateLeaderboard($identifier));
+        $players = User::query()->whereIn('username', $rows->getCollection()->pluck('username'))
+            ->with('playerProfile')->get()->keyBy('username');
+
         return view('leaderboard.index', [
             'categories' => $categories,
             'category' => $category,
             'rows' => $rows,
-            'avatars' => app(\App\Services\AvatarService::class)->forNames($rows->getCollection()->pluck('username')->all()),
+            'players' => $players,
         ]);
     }
 

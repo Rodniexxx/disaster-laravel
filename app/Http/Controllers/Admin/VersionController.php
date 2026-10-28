@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\GameVersion;
 use App\Services\AuditLogger;
-use App\Services\GameReleaseService;
 use App\Services\SettingsService;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Admin "Game Versions" screen. This is the single place where the content of
@@ -20,7 +17,6 @@ class VersionController extends Controller
 {
     public function __construct(
         private readonly AuditLogger $audit,
-        private readonly GameReleaseService $releases,
         private readonly SettingsService $settings,
     ) {}
 
@@ -37,28 +33,13 @@ class VersionController extends Controller
             'settings' => $this->settings->all(),
             'platforms' => (array) config('mangno.downloads.platforms', []),
             'prefillPlatform' => $request->query('platform'),
-            'maxUploadMb' => $this->toMb((int) config('mangno.downloads.max_upload_kb', 2097152)),
-            'serverUploadMb' => $this->toMb($this->serverUploadLimitKb()),
         ]);
-    }
-
-    /** Stream the uploaded build of a single release for admin review. */
-    public function download(GameVersion $version): BinaryFileResponse
-    {
-        abort_unless($version->hasLocalFile(), 404);
-
-        return $this->releases->serve($version);
     }
 
     public function store(Request $request)
     {
         $data = $this->validateRelease($request);
         $platform = $data['platform'];
-        $file = $request->file('file');
-
-        if ($file) {
-            $data = array_merge($data, $this->releases->storeUpload($file, $platform, $data['version_number']));
-        }
 
         $data['platform'] = $this->platformName($platform);
 
@@ -78,22 +59,11 @@ class VersionController extends Controller
     {
         $data = $this->validateRelease($request);
         $platform = $data['platform'];
-        $file = $request->file('file');
-        $previousFile = $version->file_path;
-
-        if ($file) {
-            $data = array_merge($data, $this->releases->storeUpload($file, $platform, $data['version_number']));
-        }
 
         $data['platform'] = $this->platformName($platform);
 
         $version->update($data);
         $this->syncLatest($version, $request->boolean('is_latest'));
-
-        // Only drop the old build once the replacement has been stored and saved.
-        if ($file && $previousFile) {
-            $this->releases->deleteFile($previousFile);
-        }
 
         $this->audit->log($request->user(), 'updated game version', 'game_versions', [
             'id' => $version->id,
@@ -106,10 +76,8 @@ class VersionController extends Controller
     public function destroy(Request $request, GameVersion $version)
     {
         $id = $version->id;
-        $path = $version->file_path;
 
         $version->delete();
-        $this->releases->deleteFile($path);
 
         $this->audit->log($request->user(), 'deleted game version', 'game_versions', ['id' => $id]);
 
@@ -179,13 +147,6 @@ class VersionController extends Controller
     private function validateRelease(Request $request): array
     {
         $keys = array_keys((array) config('mangno.downloads.platforms', []));
-        $platform = (string) $request->input('platform');
-
-        $fileRules = ['nullable', 'file', 'max:'.(int) config('mangno.downloads.max_upload_kb', 2097152)];
-
-        if (in_array($platform, $keys, true)) {
-            $fileRules[] = $this->extensionRule($platform);
-        }
 
         $data = $request->validate([
             'platform' => ['required', Rule::in($keys)],
@@ -194,10 +155,10 @@ class VersionController extends Controller
             'release_notes' => ['nullable', 'string', 'max:5000'],
             'release_date' => ['nullable', 'date'],
             'requirements' => ['nullable', 'string', 'max:255'],
-            'download_url' => ['nullable', 'url', 'max:255'],
+            'download_url' => ['nullable', 'url:http,https', 'max:255'],
             'status' => ['required', Rule::in([GameVersion::STATUS_PUBLISHED, GameVersion::STATUS_UNPUBLISHED])],
             'is_latest' => ['nullable', 'boolean'],
-            'file' => $fileRules,
+            'file' => ['prohibited'],
         ]);
 
         unset($data['file']);
@@ -211,23 +172,6 @@ class VersionController extends Controller
         $data['is_latest'] = $request->boolean('is_latest');
 
         return $data;
-    }
-
-    /** Server-side extension allow-list for the chosen platform. */
-    private function extensionRule(string $platform): callable
-    {
-        $extensions = array_map('strtolower', (array) config("mangno.downloads.platforms.{$platform}.extensions", []));
-
-        return function (string $attribute, mixed $value, callable $fail) use ($extensions): void {
-            if (! $value instanceof UploadedFile) {
-                return;
-            }
-
-            if (! in_array(strtolower($value->getClientOriginalExtension()), $extensions, true)) {
-                $labels = implode(', ', array_map(fn (string $extension): string => '.'.$extension, $extensions));
-                $fail("The build must be one of these file types: {$labels}.");
-            }
-        };
     }
 
     private function syncLatest(GameVersion $version, bool $isLatest): void
@@ -245,38 +189,5 @@ class VersionController extends Controller
     private function platformName(string $key): string
     {
         return (string) (config("mangno.downloads.platforms.{$key}.name") ?? ucfirst($key));
-    }
-
-    private function toMb(int $kilobytes): int
-    {
-        return (int) max(1, (int) round($kilobytes / 1024));
-    }
-
-    private function serverUploadLimitKb(): int
-    {
-        $upload = $this->iniToKb((string) ini_get('upload_max_filesize'));
-        $post = $this->iniToKb((string) ini_get('post_max_size'));
-
-        $limits = array_filter([$upload, $post], fn (int $kb): bool => $kb > 0);
-
-        return $limits === [] ? 0 : (int) min($limits);
-    }
-
-    private function iniToKb(string $value): int
-    {
-        $value = trim($value);
-
-        if ($value === '') {
-            return 0;
-        }
-
-        $number = (float) $value;
-
-        return match (strtolower(substr($value, -1))) {
-            'g' => (int) ($number * 1024 * 1024),
-            'm' => (int) ($number * 1024),
-            'k' => (int) $number,
-            default => (int) ($number / 1024),
-        };
     }
 }

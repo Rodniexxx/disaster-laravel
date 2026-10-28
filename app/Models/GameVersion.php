@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Maps disaster_game.game_versions.
@@ -68,29 +67,21 @@ class GameVersion extends Model
     }
 
     /**
-     * Rows that claim a download, either an uploaded file or an external URL.
+     * Rows with an external download URL.
      *
      * @param  Builder<GameVersion>  $query
      * @return Builder<GameVersion>
      */
     public function scopeWithDownload(Builder $query): Builder
     {
-        return $query->where(function (Builder $query) {
-            $query->whereNotNull('file_path')->orWhereNotNull('download_url');
-        });
-    }
-
-    /** True when an uploaded file exists on disk right now. */
-    public function hasLocalFile(): bool
-    {
-        return $this->file_path !== null
-            && Storage::disk(config('mangno.downloads.disk', 'local'))->exists($this->file_path);
+        return $query->whereNotNull('download_url')->where('download_url', '!=', '');
     }
 
     /** True when this release can actually be downloaded. */
     public function isAvailable(): bool
     {
-        return $this->hasLocalFile() || $this->download_url !== null;
+        return filter_var($this->download_url, FILTER_VALIDATE_URL) !== false
+            && in_array(strtolower((string) parse_url($this->download_url ?? '', PHP_URL_SCHEME)), ['http', 'https'], true);
     }
 
     public function isPublished(): bool
@@ -101,7 +92,7 @@ class GameVersion extends Model
     /** File extension of the downloadable artifact, without the dot. */
     public function extension(): ?string
     {
-        $path = $this->hasLocalFile() ? $this->file_path : $this->download_url;
+        $path = $this->download_url;
 
         if (! $path) {
             return null;

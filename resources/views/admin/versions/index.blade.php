@@ -86,7 +86,7 @@
             @endif
         </div>
 
-        <form method="post" enctype="multipart/form-data"
+        <form method="post"
               action="{{ $editing ? route('admin.versions.update', $editing) : route('admin.versions.store') }}"
               class="admin-form" data-unsaved-guard>
             @csrf
@@ -132,22 +132,9 @@
             </div>
 
             <div class="field-group">
-                <label for="file">Build File</label>
-                <input type="file" id="file" name="file" accept=".exe,.msi,.zip,.apk">
-                <p class="field-help">
-                    Windows: .exe, .msi or .zip build package &middot; Android: .apk.
-                    Maximum {{ $maxUploadMb }} MB (server allows {{ $serverUploadMb }} MB).
-                    @if ($editing && $editing->file_name)
-                        Current file: <strong>{{ $editing->file_name }}</strong>@if ($editing->formattedSize()) ({{ $editing->formattedSize() }})@endif.
-                        Uploading a new file replaces it.
-                    @endif
-                </p>
-            </div>
-
-            <div class="field-group">
                 <label for="download_url">External Download URL <span class="field-help">(optional)</span></label>
                 <input type="url" id="download_url" name="download_url" value="{{ old('download_url', $editing->download_url ?? '') }}" placeholder="https://...">
-                <p class="field-help">Used only when no build file is uploaded.</p>
+                <p class="field-help">Users download the game from this external URL.</p>
             </div>
 
             <div class="field-group">
@@ -215,22 +202,16 @@
                                         @endif
                                     </td>
                                     <td data-label="Build">
-                                        @if ($version->file_name)
-                                            <span class="release-file-name">{{ $version->file_name }}</span>
-                                            <span class="release-meta">
-                                                @if ($version->formattedSize()) &middot; {{ $version->formattedSize() }} @endif
-                                                @unless ($version->hasLocalFile()) &middot; <span class="status-badge inactive">Missing</span> @endunless
-                                            </span>
-                                        @elseif ($version->download_url)
+                                        @if ($version->download_url)
                                             <span class="release-file-name">{{ $version->download_url }}</span>
                                         @else
-                                            <span class="release-meta">No file uploaded</span>
+                                            <span class="release-meta">No external URL set</span>
                                         @endif
                                     </td>
                                     <td data-label="Release date">{{ $version->release_date?->format('M j, Y H:i') ?? 'Not set' }}</td>
                                     <td class="table-actions" data-label="Actions">
-                                        @if ($version->hasLocalFile())
-                                            <a href="{{ route('admin.versions.download', $version) }}" class="btn btn-secondary small">Download</a>
+                                        @if ($version->isAvailable())
+                                            <a href="{{ $version->download_url }}" class="btn btn-secondary small">Download</a>
                                         @endif
                                         <a href="{{ route('admin.versions.index', ['edit' => $version->id]) }}#release-form" class="btn btn-secondary small">Edit</a>
                                         <form method="post" action="{{ route('admin.versions.toggle', $version) }}" class="inline-form">
@@ -245,7 +226,7 @@
                                                 <button type="submit" class="btn btn-secondary small">Set Latest</button>
                                             </form>
                                         @endunless
-                                        <form method="post" action="{{ route('admin.versions.destroy', $version) }}" class="inline-form" onsubmit="return confirm('Delete this release and its uploaded file?');">
+                                        <form method="post" action="{{ route('admin.versions.destroy', $version) }}" class="inline-form" onsubmit="return confirm('Delete this release?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger small">Delete</button>
@@ -264,25 +245,10 @@
         <div class="panel-header">
             <h2>How Downloads Work</h2>
         </div>
-        <div class="info-stack">
-            <div class="kpi-row">
-                <span>Storage location</span>
-                <strong>storage/app/private/downloads/</strong>
-            </div>
-            <div class="kpi-row">
-                <span>Application upload limit</span>
-                <strong>{{ $maxUploadMb }} MB</strong>
-            </div>
-            <div class="kpi-row">
-                <span>Server upload limit (PHP)</span>
-                <strong>{{ $serverUploadMb }} MB</strong>
-            </div>
-        </div>
         <p class="field-help">
-            Uploaded builds are stored outside the web root and streamed to users through a protected route, so the
-            file is never executable from the browser. The public
+            Users download the game from the external URL set on each release. The public
             <a href="{{ route('download') }}" target="_blank" rel="noopener">/download</a>
-            page always shows the latest published release that has an available file.
+            page always shows the latest published release that has an available external URL.
         </p>
     </section>
 @endsection

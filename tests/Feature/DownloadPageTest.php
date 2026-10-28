@@ -17,7 +17,6 @@ class DownloadPageTest extends TestCase
 
         // Deterministic content and storage regardless of the developer's .env.
         Storage::fake('local');
-        config()->set('mangno.downloads.max_upload_kb', 2097152);
     }
 
     /** @param array<string, mixed> $attributes */
@@ -58,7 +57,7 @@ class DownloadPageTest extends TestCase
             ->assertDontSee(route('downloads.windows'));
     }
 
-    public function test_a_published_release_with_a_file_is_shown_with_its_metadata(): void
+    public function test_an_external_release_keeps_its_metadata_and_takes_priority_over_a_stored_file(): void
     {
         Storage::disk('local')->put('downloads/windows/build.exe', str_repeat('a', 2048));
 
@@ -69,6 +68,7 @@ class DownloadPageTest extends TestCase
             'file_name' => 'MANGNO-Windows.exe',
             'file_size' => 2048,
             'requirements' => 'Windows 10 (64-bit), 4 GB RAM',
+            'download_url' => 'https://example.com/MANGNO.exe',
         ]);
 
         $this->get('/download')
@@ -78,7 +78,7 @@ class DownloadPageTest extends TestCase
             ->assertSee('MANGNO-Windows.exe')
             ->assertSee('Windows 10 (64-bit), 4 GB RAM')
             ->assertSee('2 KB')
-            ->assertSee('href="'.route('downloads.windows').'"', false);
+            ->assertSee('href="https://example.com/MANGNO.exe"', false);
     }
 
     public function test_an_external_url_release_is_shown_as_available(): void
@@ -95,23 +95,16 @@ class DownloadPageTest extends TestCase
             ->assertSee('href="https://example.com/MANGNO-Android.apk"', false);
     }
 
-    public function test_the_latest_published_build_is_streamed_to_the_user(): void
+    public function test_platform_endpoints_redirect_to_the_correct_external_urls(): void
     {
-        Storage::disk('local')->put('downloads/windows/build.exe', 'fake-exe-bytes');
+        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
+            $url = "https://example.com/MANGNO.{$extension}?download=1&platform={$platform}";
+            $this->release(['platform' => ucfirst($platform), 'download_url' => $url]);
 
-        $this->release([
-            'file_path' => 'downloads/windows/build.exe',
-            'file_name' => 'MANGNO-Windows.exe',
-            'file_size' => 14,
-        ]);
-
-        $response = $this->get('/download/windows');
-
-        $response->assertOk();
-        $this->assertStringContainsString(
-            'MANGNO-Windows.exe',
-            (string) $response->headers->get('content-disposition')
-        );
+            $this->get("/download/{$platform}")->assertRedirect($url);
+            $this->get("/download/{$platform}/file")->assertRedirect($url);
+            $this->get('/download')->assertSee('href="'.e($url).'"', false);
+        }
     }
 
     public function test_a_missing_build_returns_not_found(): void
@@ -125,18 +118,52 @@ class DownloadPageTest extends TestCase
         $this->get('/download/macos/file')->assertNotFound();
     }
 
-    public function test_a_published_release_with_a_missing_file_is_not_downloadable(): void
+    public function test_a_local_only_release_is_not_downloadable_even_when_its_file_exists(): void
     {
+        Storage::disk('local')->put('downloads/windows/missing.exe', 'legacy build');
         $this->release([
             'file_path' => 'downloads/windows/missing.exe',
             'file_name' => 'missing.exe',
         ]);
 
         $this->get('/download/windows')->assertNotFound();
+        Storage::disk('local')->assertExists('downloads/windows/missing.exe');
 
         $this->get('/download')
             ->assertOk()
             ->assertSee('Coming soon')
             ->assertDontSee(route('downloads.windows'));
+    }
+
+    public function test_latest_selection_skips_local_only_releases_and_unpublished_links(): void
+    {
+        $url = 'https://example.com/current.exe';
+        $this->release(['download_url' => $url, 'release_date' => now()->subDays(2)]);
+        $this->release(['file_path' => 'downloads/windows/new.exe', 'is_latest' => true]);
+        $this->release([
+            'download_url' => 'https://example.com/unpublished.exe',
+            'status' => GameVersion::STATUS_UNPUBLISHED,
+            'is_latest' => true,
+        ]);
+
+        $this->get('/download/windows')->assertRedirect($url);
+        $this->get('/download')->assertSee('href="'.$url.'"', false);
+
+        $preferred = 'https://example.com/preferred.exe';
+        $this->release([
+            'download_url' => $preferred,
+            'release_date' => now()->subDays(3),
+            'is_latest' => true,
+        ]);
+        $this->get('/download/windows')->assertRedirect($preferred);
+    }
+
+    public function test_empty_or_non_http_legacy_urls_are_not_downloadable(): void
+    {
+        foreach (['', 'ftp://example.com/build.exe', 'invalid'] as $url) {
+            $version = $this->release(['download_url' => $url]);
+            $this->get('/download/windows')->assertNotFound();
+            $version->delete();
+        }
     }
 }

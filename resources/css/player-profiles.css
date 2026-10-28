@@ -1,0 +1,88 @@
+/* Public player details share the leaderboard's existing type and palette. */
+.player-profile-trigger {
+    padding: 4px 0;
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.player-profile-trigger:hover .rank-player { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
+.player-profile-trigger:focus-visible,
+.player-profile-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.player-profile-trigger .player-avatar { transition: opacity 140ms ease; }
+.player-profile-trigger:hover .player-avatar { opacity: .8; }
+body.player-profile-open { overflow: hidden; }
+.player-profile-dialog {
+    width: min(620px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    box-shadow: 0 24px 80px rgb(0 0 0 / .35);
+    overflow: hidden;
+}
+.player-profile-dialog::backdrop { background: rgb(0 0 0 / .72); }
+.player-profile-dialog[open] { animation: player-profile-enter 160ms ease-out; }
+.player-profile-dialog.is-closing { animation: player-profile-leave 140ms ease-in forwards; }
+.player-profile-shell { display: flex; flex-direction: column; max-height: calc(100dvh - 32px); }
+.player-profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; background: var(--surface-sunken); }
+.player-profile-heading h2 { margin: 0; font-size: 18px; font-family: var(--font-display); }
+.player-profile-close { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: var(--radius); background: transparent; color: var(--muted); cursor: pointer; }
+.player-profile-close:hover { color: var(--text); background: var(--surface-2); }
+.player-profile-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 24px; }
+.player-profile-body:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.player-profile-identity { display: flex; align-items: center; gap: 16px; }
+.player-profile-identity > div { min-width: 0; }
+.player-profile-identity h3 { margin: 0 0 6px; font-family: var(--font-display); font-size: 28px; line-height: 1.2; overflow-wrap: anywhere; }
+.player-profile-meta { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.player-profile-meta span { display: block; }
+.player-profile-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+.player-profile-totals > div { padding: 16px; background: var(--surface-sunken); border-radius: var(--radius); }
+.player-profile-totals dt { font-size: 13px; color: var(--muted); }
+.player-profile-totals dd { margin: 6px 0 0; font-size: 25px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.player-profile-section { margin-top: 24px; }
+.player-profile-section h3 { margin: 0; font-size: 16px; }
+.player-profile-section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.player-profile-section-heading > span { font-size: 13px; color: var(--muted); }
+.player-profile-section progress { display: block; width: 100%; height: 8px; margin-top: 12px; border: 0; border-radius: 4px; overflow: hidden; background: var(--surface-2); accent-color: var(--accent); }
+.player-profile-section progress::-webkit-progress-bar { background: var(--surface-2); }
+.player-profile-section progress::-webkit-progress-value { background: var(--accent); }
+.player-profile-section progress::-moz-progress-bar { background: var(--accent); }
+.player-profile-help { margin: 6px 0 12px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.player-profile-scenarios { padding: 0; margin: 0; list-style: none; }
+.player-profile-scenario { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.player-profile-scenario h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+.player-profile-scenario-result { flex-shrink: 0; text-align: right; }
+.player-profile-scenario-result > strong { display: block; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.player-profile-star-line { display: flex; justify-content: flex-end; gap: 3px; margin-top: 6px; }
+.player-profile-star-line svg { width: 16px; height: 16px; }
+.player-profile-star-line .is-earned { fill: var(--accent); stroke: var(--accent); }
+.player-profile-star-line .is-unearned { fill: none; stroke: var(--muted); }
+.player-profile-achievements { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 12px 0; list-style: none; }
+.player-profile-achievement { padding: 6px 10px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-text); font-size: 13px; }
+.player-profile-certificate { display: flex; justify-content: space-between; gap: 12px; margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+.player-profile-certificate strong { color: var(--text); text-align: right; font-weight: 500; }
+.player-profile-message { color: var(--muted); margin: 0 0 12px; }
+.player-profile-message.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.player-profile-dialog [hidden] { display: none !important; }
+@keyframes player-profile-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes player-profile-leave { to { opacity: 0; transform: translateY(8px); } }
+@media (max-width: 480px) {
+    .player-profile-heading { padding-inline: 16px; }
+    .player-profile-body { padding: 20px 16px; }
+    .player-profile-identity h3 { font-size: 24px; }
+    .player-profile-totals { gap: 8px; }
+    .player-profile-totals > div { padding: 12px; }
+    .player-profile-totals dd { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .player-profile-dialog[open], .player-profile-dialog.is-closing { animation: none; }
+    .player-profile-trigger .player-avatar { transition: none; }
+}

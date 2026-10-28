@@ -2,10 +2,12 @@ import './bootstrap';
 import { initGameShowcases } from './game-showcase';
 import { initPlayerProgress } from './player-progress';
 import { initAvatars } from './avatars';
+import { initPlayerProfiles } from './player-profiles';
 
 document.addEventListener('DOMContentLoaded', function () {
     initPlayerProgress();
     initAvatars();
+    initPlayerProfiles();
     const siteHeader = document.querySelector('.site-header');
     if (siteHeader) {
         let scrollFramePending = false;

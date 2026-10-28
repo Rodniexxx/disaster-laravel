@@ -1,31 +1,32 @@
-# Game build upload limits
+# External game downloads
 
-Game releases accept one APK/EXE (or another allowed platform build type) per
-request, up to **2 GiB = 2,147,483,648 bytes = 2,097,152 KiB**. The admin UI
-displays this as 2048 MB. Existing admin authorization and extension validation
-continue to apply. Profile pictures retain their separate 2 MB limit.
+Game installers are hosted externally. In **Admin > Game Versions**, create or
+edit a release and set its **External Download URL** to the real HTTP/HTTPS
+installer URL for Windows or Android. Existing URLs are preserved.
 
-- Laravel: `MANGNO_MAX_UPLOAD_KB=2097152`, default in `config/mangno.php`.
-- XAMPP Apache/mod_php: project-scoped settings in `public/.htaccess` apply
-  without changing the machine-wide PHP configuration or restarting Apache.
-- Docker PHP: `upload_max_filesize=2G`, `post_max_size=2112M`.
-- Docker nginx: `client_max_body_size 2112M`.
-- PHP input/execution and nginx upstream timeouts: 3600 seconds. These are
-  ceilings, not a guarantee that every slow connection will finish.
+The public `/download` page keeps both platform cards, descriptions, instructions,
+and release metadata. Each button links to the selected release's external URL.
+The `/download/windows`, `/download/android`, and `/download/{platform}/file`
+compatibility endpoints redirect to the same URL. Selection prefers a release
+marked latest, then the newest release date and ID, and requires a published
+release with a usable external URL. Without one, the card stays unavailable.
 
-The request limit includes 64 MiB above the file limit for multipart fields.
-Apache's `LimitRequestBody 0` lets PHP enforce the request cap because Apache's
-largest finite value is below the required size. Uploads stream to temporary
-storage; PHP memory does not need to equal the file size. Keep sufficient free
-disk space for temporary and stored copies, and persistent storage for builds.
+Installer upload fields and storage handlers have been removed. Release create
+and update requests reject the former `file` field. The admin stored-file
+endpoint `/admin/versions/{version}/file` no longer exists.
 
-Rebuild/redeploy the Docker image to activate its changed configuration. On
-other hosts, configure PHP and the web server or upstream proxy to accept this
-request size; `.htaccess` PHP values apply only to Apache/mod_php. Rebuild any
-Laravel configuration cache after changing environment values.
+No migration or data conversion is needed. Existing `game_versions` columns,
+URLs, and metadata remain intact. Previously uploaded installers remain in
+storage; editing or deleting a release does not delete its stored installer.
+Profile picture uploads retain their separate validation and storage behavior.
 
-These are standard single-request uploads, without chunking or resume. A
-connection interruption requires restarting the upload. Boundary tests use
-reported fake file sizes to check acceptance at 2 GiB and rejection above it for
-both APK and EXE without allocating gigabytes of test data. Local Apache/PHP
-settings were verified over HTTP; a full 2 GiB transfer was not performed.
+Shared PHP, Apache, and nginx request limits remain unchanged to preserve the
+existing deployment configuration. `MANGNO_MAX_UPLOAD_KB`,
+`MANGNO_DOWNLOADS_DISK`, and `MANGNO_DOWNLOADS_PATH` are no longer used by the
+application's download feature. Rebuild/redeploy the application normally and
+refresh Laravel's configuration/route caches through the existing deployment
+workflow.
+
+Regression coverage is in `AdminGameVersionTest` and `DownloadPageTest`, including
+external link management, redirects for both platforms, upload rejection,
+publication/latest selection, metadata retention, and preservation of stored files.

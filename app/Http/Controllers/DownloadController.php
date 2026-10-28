@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\GameReleaseService;
 use App\Services\SettingsService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Http\RedirectResponse;
 
 /**
- * Public download page and the file endpoints behind its buttons.
+ * Public download page and external download redirects.
  *
  * All content comes from the database (game_versions) and the editable settings,
  * so administrators manage the page entirely from the admin area.
@@ -30,24 +30,21 @@ class DownloadController extends Controller
     }
 
     /** Latest published Windows build. */
-    public function windows(): BinaryFileResponse
+    public function windows(): RedirectResponse
     {
         return $this->file('windows');
     }
 
     /** Latest published Android build. */
-    public function android(): BinaryFileResponse
+    public function android(): RedirectResponse
     {
         return $this->file('android');
     }
 
     /**
-     * Stream the latest published build for a whitelisted platform.
-     *
-     * The platform is checked against configuration and the on-disk path comes
-     * from the database, so no request value can ever reach the filesystem.
+     * Redirect to the latest published external download for a supported platform.
      */
-    public function file(string $platform): BinaryFileResponse
+    public function file(string $platform): RedirectResponse
     {
         $platform = strtolower($platform);
 
@@ -55,9 +52,9 @@ class DownloadController extends Controller
 
         $release = $this->releases->latest($platform);
 
-        abort_if($release === null || ! $release->hasLocalFile(), 404);
+        abort_if($release === null, 404);
 
-        return $this->releases->serve($release);
+        return redirect()->away($release->download_url);
     }
 
     /**
@@ -91,7 +88,7 @@ class DownloadController extends Controller
             'status' => $release?->isPublished() ? 'Published' : 'Unpublished',
             'available' => $available,
             'url' => $available
-                ? ($release->hasLocalFile() ? route('downloads.'.$key) : $release->download_url)
+                ? $release->download_url
                 : null,
         ];
     }

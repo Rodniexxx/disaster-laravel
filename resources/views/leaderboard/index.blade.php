@@ -68,7 +68,18 @@
                                     <span class="rank-text">{{ $row['rank'] }}</span>
                                 </td>
                                 <td data-label="Player">
-                                    <span class="avatar-person"><x-player-avatar :url="$avatars[$row['username']] ?? null" :size="32" /><span class="rank-player">{{ $row['username'] }}</span></span>
+                                    @php($player = $players->get($row['username']))
+                                    @if ($player)
+                                        <button type="button" class="avatar-person player-profile-trigger"
+                                                data-player-profile="{{ route('leaderboard.player', $player) }}"
+                                                aria-haspopup="dialog" aria-controls="player-profile-dialog"
+                                                aria-label="View {{ $row['username'] }}'s player profile">
+                                            <x-player-avatar :user="$player" :size="32" />
+                                            <span class="rank-player">{{ $row['username'] }}</span>
+                                        </button>
+                                    @else
+                                        <span class="avatar-person"><x-player-avatar :size="32" /><span class="rank-player">{{ $row['username'] }}</span></span>
+                                    @endif
                                     @if ($isCurrentPlayer)
                                         <span class="rank-you">You</span>
                                     @endif
@@ -86,4 +97,5 @@
             {{ $rows->links() }}
         </div>
     </section>
+    @include('leaderboard.player-profile-modal')
 @endsection

@@ -17,7 +17,6 @@ class AdminGameVersionTest extends TestCase
         parent::setUp();
 
         Storage::fake('local');
-        config()->set('mangno.downloads.max_upload_kb', 2097152);
     }
 
     /** @param array<string, mixed> $attributes */
@@ -41,6 +40,7 @@ class AdminGameVersionTest extends TestCase
             'status' => 'active',
             'release_notes' => 'Initial release.',
             'requirements' => 'Windows 10 (64-bit), 4 GB RAM',
+            'download_url' => 'https://example.com/MANGNO.exe',
         ], $overrides);
     }
 
@@ -84,8 +84,10 @@ class AdminGameVersionTest extends TestCase
             ->assertSee('Android Releases')
             ->assertSee('7.7.7')
             ->assertSee('Table Row')
-            ->assertSee('MANGNO-Windows.exe')
-            ->assertSee('No file uploaded')
+            ->assertDontSee('type="file"', false)
+            ->assertDontSee('multipart/form-data')
+            ->assertDontSee('Build File')
+            ->assertSee('No external URL set')
             ->assertSee('https://example.com/MANGNO.apk')
             ->assertSee('Latest')
             ->assertSee('Set Latest')
@@ -112,104 +114,12 @@ class AdminGameVersionTest extends TestCase
             ->assertDontSee('id="about"', false);
     }
 
-    public function test_an_admin_can_upload_a_windows_release(): void
-    {
-        $this->actingAs($this->makeAdmin())
-            ->post(route('admin.versions.store'), $this->payload([
-                'is_latest' => '1',
-                'file' => UploadedFile::fake()->create('MANGNO-Windows.exe', 16, 'application/octet-stream'),
-            ]))
-            ->assertRedirect(route('admin.versions.index'))
-            ->assertSessionHasNoErrors();
-
-        $version = GameVersion::query()->firstOrFail();
-
-        $this->assertSame('1.2.0', $version->version_number);
-        $this->assertSame('Windows', $version->platform);
-        $this->assertSame('MANGNO-Windows.exe', $version->file_name);
-        $this->assertTrue($version->file_size > 0);
-        $this->assertTrue($version->is_latest);
-        Storage::disk('local')->assertExists($version->file_path);
-
-        // The public page picks the new build up automatically.
-        $this->get('/download')
-            ->assertOk()
-            ->assertSee('1.2.0')
-            ->assertSee('Storm Update')
-            ->assertSee('MANGNO-Windows.exe')
-            ->assertSee(route('downloads.windows'));
-
-        $this->get(route('downloads.windows'))->assertOk();
-    }
-
-    public function test_an_admin_can_upload_an_android_release(): void
-    {
-        $this->actingAs($this->makeAdmin())
-            ->post(route('admin.versions.store'), $this->payload([
-                'platform' => 'android',
-                'version_number' => '4.5.1',
-                'file' => UploadedFile::fake()->create('MANGNO-Android.apk', 32, 'application/vnd.android.package-archive'),
-            ]))
-            ->assertRedirect(route('admin.versions.index'))
-            ->assertSessionHasNoErrors();
-
-        $version = GameVersion::query()->firstOrFail();
-
-        $this->assertSame('Android', $version->platform);
-        Storage::disk('local')->assertExists($version->file_path);
-
-        $this->get('/download')->assertOk()->assertSee('4.5.1');
-        $this->get(route('downloads.android'))->assertOk();
-    }
-
-    public function test_build_uploads_accept_two_gib_and_reject_larger_files(): void
-    {
-        $this->actingAs($this->makeAdmin());
-
-        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
-            // Report boundary sizes without allocating multi-gigabyte fixtures.
-            $this->post(route('admin.versions.store'), $this->payload([
-                'platform' => $platform,
-                'file' => UploadedFile::fake()->createWithContent('build.'.$extension, 'build')->size(2097152),
-            ]))->assertSessionHasNoErrors()->assertRedirect(route('admin.versions.index'));
-
-            $this->post(route('admin.versions.store'), $this->payload([
-                'platform' => $platform,
-                'version_number' => 'oversized',
-                'file' => UploadedFile::fake()->create('build.'.$extension, 2097153),
-            ]))->assertSessionHasErrors('file');
-        }
-
-        $this->assertSame(2, GameVersion::query()->count());
-    }
-
-    public function test_invalid_file_types_are_rejected(): void
-    {
-        $admin = $this->makeAdmin();
-
-        $this->actingAs($admin)
-            ->post(route('admin.versions.store'), $this->payload([
-                'file' => UploadedFile::fake()->create('payload.php', 2),
-            ]))
-            ->assertSessionHasErrors('file');
-
-        $this->actingAs($admin)
-            ->post(route('admin.versions.store'), $this->payload([
-                'platform' => 'android',
-                'file' => UploadedFile::fake()->create('build.exe', 2),
-            ]))
-            ->assertSessionHasErrors('file');
-
-        $this->assertSame(0, GameVersion::query()->count());
-    }
-
     public function test_unpublished_releases_are_not_public(): void
     {
         $this->actingAs($this->makeAdmin())
             ->post(route('admin.versions.store'), $this->payload([
                 'version_number' => '5.0.0',
                 'status' => 'inactive',
-                'file' => UploadedFile::fake()->create('MANGNO-Windows.exe', 8),
             ]))
             ->assertRedirect();
 
@@ -250,31 +160,7 @@ class AdminGameVersionTest extends TestCase
         $this->assertFalse($older->refresh()->is_latest);
     }
 
-    public function test_replacing_a_build_removes_the_old_file(): void
-    {
-        $admin = $this->makeAdmin();
-
-        $this->actingAs($admin)->post(route('admin.versions.store'), $this->payload([
-            'file' => UploadedFile::fake()->create('MANGNO-Windows.exe', 8),
-        ]))->assertRedirect();
-
-        $version = GameVersion::query()->firstOrFail();
-        $oldPath = $version->file_path;
-
-        $this->actingAs($admin)->put(route('admin.versions.update', $version), $this->payload([
-            'version_number' => '1.2.1',
-            'file' => UploadedFile::fake()->create('MANGNO-Windows-new.exe', 12),
-        ]))->assertRedirect()->assertSessionHasNoErrors();
-
-        $version->refresh();
-
-        $this->assertNotSame($oldPath, $version->file_path);
-        $this->assertSame('MANGNO-Windows-new.exe', $version->file_name);
-        Storage::disk('local')->assertMissing($oldPath);
-        Storage::disk('local')->assertExists($version->file_path);
-    }
-
-    public function test_an_admin_can_delete_a_release_and_its_file(): void
+    public function test_deleting_a_release_preserves_its_existing_file(): void
     {
         Storage::disk('local')->put('downloads/windows/old.exe', 'bytes');
         $version = $this->release([
@@ -288,25 +174,102 @@ class AdminGameVersionTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseMissing('game_versions', ['id' => $version->id]);
-        Storage::disk('local')->assertMissing('downloads/windows/old.exe');
+        Storage::disk('local')->assertExists('downloads/windows/old.exe');
     }
 
-    public function test_an_admin_can_download_a_specific_release_file(): void
+    public function test_an_admin_can_create_and_edit_external_links_for_both_platforms(): void
     {
-        Storage::disk('local')->put('downloads/windows/x.exe', 'bytes');
+        $this->actingAs($this->makeAdmin());
+
+        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
+            $url = "https://example.com/MANGNO.{$extension}";
+            $this->post(route('admin.versions.store'), $this->payload([
+                'platform' => $platform,
+                'download_url' => $url,
+                'is_latest' => true,
+            ]))->assertRedirect(route('admin.versions.index'))->assertSessionHasNoErrors();
+
+            $version = GameVersion::query()->platform($platform)->firstOrFail();
+            $this->assertSame($url, $version->download_url);
+            $this->assertNull($version->file_path);
+            $this->get("/download/{$platform}")->assertRedirect($url);
+
+            $updatedUrl = $url.'?release=2';
+            $this->put(route('admin.versions.update', $version), $this->payload([
+                'platform' => $platform,
+                'download_url' => $updatedUrl,
+            ]))->assertRedirect(route('admin.versions.index'))->assertSessionHasNoErrors();
+
+            $this->assertSame($updatedUrl, $version->refresh()->download_url);
+            $this->get("/download/{$platform}")->assertRedirect($updatedUrl);
+        }
+
+        $this->assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_installer_uploads_are_rejected_on_create_and_update(): void
+    {
+        $this->actingAs($this->makeAdmin());
+
+        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
+            $payload = $this->payload([
+                'platform' => $platform,
+                'file' => UploadedFile::fake()->create('build.'.$extension, 8),
+            ]);
+            $this->post(route('admin.versions.store'), $payload)->assertSessionHasErrors('file');
+            $this->assertDatabaseCount('game_versions', 0);
+
+            $version = $this->release(['platform' => ucfirst($platform)]);
+            $this->put(route('admin.versions.update', $version), $payload)->assertSessionHasErrors('file');
+            $this->assertSame('1.0.0', $version->refresh()->version_number);
+            $this->assertNull($version->file_path);
+            $version->delete();
+        }
+
+        $this->assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_editing_a_legacy_release_preserves_its_file_and_metadata(): void
+    {
+        $path = 'downloads/windows/old.exe';
+        Storage::disk('local')->put($path, 'bytes');
         $version = $this->release([
-            'file_path' => 'downloads/windows/x.exe',
-            'file_name' => 'MANGNO-Windows.exe',
+            'file_path' => $path,
+            'file_name' => 'old.exe',
             'file_size' => 5,
         ]);
 
-        $response = $this->actingAs($this->makeAdmin())
-            ->get(route('admin.versions.download', $version));
+        $this->actingAs($this->makeAdmin())
+            ->put(route('admin.versions.update', $version), $this->payload([
+                'file_path' => 'downloads/replacement.exe',
+                'file_name' => 'replacement.exe',
+                'file_size' => 100,
+            ]))->assertRedirect()->assertSessionHasNoErrors();
 
-        $response->assertOk();
-        $this->assertStringContainsString(
-            'MANGNO-Windows.exe',
-            (string) $response->headers->get('content-disposition')
-        );
+        $this->assertSame($path, $version->refresh()->file_path);
+        $this->assertSame('old.exe', $version->file_name);
+        $this->assertSame(5, $version->file_size);
+        Storage::disk('local')->assertExists($path);
+        $this->get('/download/windows')->assertRedirect('https://example.com/MANGNO.exe');
+    }
+
+    public function test_the_admin_stored_file_endpoint_is_removed(): void
+    {
+        $version = $this->release();
+        $this->actingAs($this->makeAdmin())
+            ->get("/admin/versions/{$version->id}/file")->assertNotFound();
+    }
+
+    public function test_invalid_or_non_http_download_urls_are_rejected(): void
+    {
+        $this->actingAs($this->makeAdmin());
+
+        foreach (['invalid', 'ftp://example.com/build.exe', 'javascript:alert(1)'] as $url) {
+            $this->post(route('admin.versions.store'), $this->payload([
+                'download_url' => $url,
+            ]))->assertSessionHasErrors('download_url');
+        }
+
+        $this->assertDatabaseCount('game_versions', 0);
     }
 }

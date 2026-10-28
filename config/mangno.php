@@ -115,19 +115,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | The admin "Game Versions" page is the source of truth for the public
-    | /download page. Uploaded builds are stored on the private disk below
-    | (outside the web root) and streamed through a controller action.
-    |
-    | "extensions" lists the build file types accepted for each platform.
-    | "max_upload_kb" is the server-side upload ceiling in kilobytes; keep the
-    | PHP upload_max_filesize and post_max_size values at least as large.
+    | /download page. Installers are hosted at the external URLs set on releases.
     |
     */
 
     'downloads' => [
-        'disk' => env('MANGNO_DOWNLOADS_DISK', 'local'),
-        'path' => env('MANGNO_DOWNLOADS_PATH', 'downloads'),
-        'max_upload_kb' => (int) env('MANGNO_MAX_UPLOAD_KB', 2097152),
 
         'platforms' => [
             'windows' => [
@@ -137,7 +129,6 @@ return [
                 'file_type' => '.exe',
                 'button' => 'Download for Windows',
                 'description' => 'Experience MANGNO on your Windows computer and explore interactive disaster preparedness scenarios.',
-                'extensions' => ['exe', 'msi', 'zip'],
             ],
 
             'android' => [
@@ -147,7 +138,6 @@ return [
                 'file_type' => '.apk',
                 'button' => 'Download for Android',
                 'description' => 'Take MANGNO with you and learn disaster preparedness through interactive gameplay on your Android device.',
-                'extensions' => ['apk'],
             ],
         ],
     ],

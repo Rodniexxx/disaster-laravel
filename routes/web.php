@@ -30,6 +30,8 @@ Route::get('/download/{platform}/file', [DownloadController::class, 'file'])
     ->name('download.file');
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+Route::get('/leaderboard/players/{user}', \App\Http\Controllers\PublicPlayerProfileController::class)
+    ->whereNumber('user')->middleware('throttle:60,1')->name('leaderboard.player');
 Route::get('/profile-pictures/{user}/{version}', [\App\Http\Controllers\ProfilePictureController::class, 'show'])
     ->whereNumber('user')->whereUuid('version')->name('profile-picture.show');
 
@@ -87,7 +89,6 @@ Route::middleware(['auth', 'active', 'admin'])
         Route::resource('announcements', AdminAnnouncementController::class)->except(['create', 'show', 'edit']);
 
         Route::put('versions/content', [AdminVersionController::class, 'updateContent'])->name('versions.content');
-        Route::get('versions/{version}/file', [AdminVersionController::class, 'download'])->name('versions.download');
         Route::patch('versions/{version}/toggle', [AdminVersionController::class, 'toggle'])->name('versions.toggle');
         Route::patch('versions/{version}/latest', [AdminVersionController::class, 'setLatest'])->name('versions.latest');
         Route::resource('versions', AdminVersionController::class)->except(['create', 'show', 'edit']);
