@@ -14,7 +14,7 @@
         @csrf
 
         <div class="field-group">
-            <label for="login_identifier">Username or Email</label>
+            <label for="login_identifier">Email</label>
             <input type="text" id="login_identifier" name="login_identifier"
                    value="{{ old('login_identifier') }}" autocomplete="username" required autofocus>
         </div>

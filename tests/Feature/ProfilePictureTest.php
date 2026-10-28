@@ -41,7 +41,7 @@ class ProfilePictureTest extends TestCase
     public function test_registration_without_photo_preserves_the_existing_flow_and_default_avatar(): void
     {
         $this->post('/register', $this->registration())->assertRedirect('/login')->assertSessionHasNoErrors();
-        $user = User::where('username','newplayer')->firstOrFail();
+        $user = User::where('username','Newplayer')->firstOrFail();
         $this->assertStringEndsWith('/images/default-avatar.png', $user->profile_picture_url);
         $this->assertDatabaseCount('player_profiles', 0);
         $this->assertDatabaseCount('leaderboard', 0);
@@ -51,7 +51,7 @@ class ProfilePictureTest extends TestCase
     public function test_registration_with_photo_creates_owned_processed_file_and_can_serve_it_publicly(): void
     {
         $this->post('/register', $this->registration(['profile_picture'=>UploadedFile::fake()->image('photo.png', 120, 100)]))->assertRedirect('/login');
-        $user = User::where('username','newplayer')->firstOrFail(); $profile = $user->playerProfile;
+        $user = User::where('username','Newplayer')->firstOrFail(); $profile = $user->playerProfile;
         $this->assertTrue(app(AvatarService::class)->owned((int)$user->id, $profile->avatar_path));
         Storage::disk('s3')->assertExists($profile->avatar_path);
         $this->get(parse_url($user->profile_picture_url, PHP_URL_PATH))->assertOk()

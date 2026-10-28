@@ -15,9 +15,9 @@
         @include('partials.avatar-upload')
 
         <div class="field-group">
-            <label for="username">Username</label>
+            <label for="username">Full Name</label>
             <input type="text" id="username" name="username" value="{{ old('username') }}"
-                   autocomplete="username" required autofocus>
+                   autocomplete="username" autocapitalize="words" data-registration-username required autofocus>
         </div>
 
         <div class="field-group">
