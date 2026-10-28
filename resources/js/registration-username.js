@@ -2,8 +2,8 @@ export function capitalizeUsername(value) {
     return value.replace(/(^|[\p{Z}\t\n\r\f\x0B])(\p{L})/gu, (_, space, letter) => space + letter.toUpperCase());
 }
 
-export function initRegistrationUsernames(root = document) {
-    root.querySelectorAll('[data-registration-username]').forEach((input) => {
+export function initUsernameCapitalization(root = document) {
+    root.querySelectorAll('[data-registration-username], [data-profile-username]').forEach((input) => {
         let composing = false;
         const format = () => {
             const original = input.value;

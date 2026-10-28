@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { capitalizeUsername, initRegistrationUsernames } from '../../resources/js/registration-username.js';
+import { capitalizeUsername, initUsernameCapitalization } from '../../resources/js/registration-username.js';
 
 class Input extends EventTarget {
     form = new EventTarget();
@@ -26,8 +26,8 @@ class Input extends EventTarget {
 
 function field() {
     const input = new Input();
-    initRegistrationUsernames({ querySelectorAll: (selector) => {
-        assert.equal(selector, '[data-registration-username]');
+    initUsernameCapitalization({ querySelectorAll: (selector) => {
+        assert.equal(selector, '[data-registration-username], [data-profile-username]');
         return [input];
     } });
     return input;

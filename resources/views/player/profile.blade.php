@@ -26,7 +26,7 @@
             <div class="info-stack">
                 <div class="avatar-person profile-picture-summary"><x-player-avatar :user="$user" :size="72" /><strong>{{ $user->username }}</strong></div>
                 <div class="kpi-row">
-                    <span>Username</span>
+                    <span>Name</span>
                     <strong>{{ $user->username }}</strong>
                 </div>
                 <div class="kpi-row">
@@ -71,8 +71,8 @@
                 @method('PATCH')
 
                 <div class="field-group">
-                    <label for="username">Username</label>
-                    <input id="username" name="username" type="text" value="{{ old('username', $user->username) }}" required>
+                    <label for="username">Full Name</label>
+                    <input id="username" name="username" type="text" value="{{ old('username', $user->username) }}" autocapitalize="words" data-profile-username required>
                     @error('username')
                         <p class="field-error">{{ $message }}</p>
                     @enderror

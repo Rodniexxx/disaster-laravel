@@ -3,13 +3,13 @@ import { initGameShowcases } from './game-showcase';
 import { initPlayerProgress } from './player-progress';
 import { initAvatars } from './avatars';
 import { initPlayerProfiles } from './player-profiles';
-import { initRegistrationUsernames } from './registration-username';
+import { initUsernameCapitalization } from './registration-username';
 
 document.addEventListener('DOMContentLoaded', function () {
     initPlayerProgress();
     initAvatars();
     initPlayerProfiles();
-    initRegistrationUsernames();
+    initUsernameCapitalization();
     const siteHeader = document.querySelector('.site-header');
     if (siteHeader) {
         let scrollFramePending = false;
