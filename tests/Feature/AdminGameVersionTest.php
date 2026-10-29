@@ -229,7 +229,7 @@ class AdminGameVersionTest extends TestCase
         $this->assertSame([], Storage::disk('local')->allFiles());
     }
 
-    public function test_editing_a_legacy_release_preserves_its_file_and_metadata(): void
+    public function test_editing_a_legacy_release_updates_metadata_and_preserves_its_file(): void
     {
         $path = 'downloads/windows/old.exe';
         Storage::disk('local')->put($path, 'bytes');
@@ -247,10 +247,48 @@ class AdminGameVersionTest extends TestCase
             ]))->assertRedirect()->assertSessionHasNoErrors();
 
         $this->assertSame($path, $version->refresh()->file_path);
-        $this->assertSame('old.exe', $version->file_name);
-        $this->assertSame(5, $version->file_size);
+        $this->assertSame('replacement.exe', $version->file_name);
+        $this->assertSame(100, $version->file_size);
         Storage::disk('local')->assertExists($path);
         $this->get('/download/windows')->assertRedirect('https://example.com/MANGNO.exe');
+    }
+
+    public function test_file_metadata_can_be_created_prefilled_displayed_and_cleared(): void
+    {
+        $this->actingAs($this->makeAdmin());
+
+        foreach (['windows' => 'exe', 'android' => 'apk'] as $platform => $extension) {
+            $name = 'MANGNO-build.'.$extension;
+            $this->post(route('admin.versions.store'), $this->payload([
+                'platform' => $platform, 'file_name' => $name, 'file_size' => 104857600,
+            ]))->assertRedirect()->assertSessionHasNoErrors();
+
+            $version = GameVersion::query()->platform($platform)->firstOrFail();
+            $this->assertSame($name, $version->file_name);
+            $this->assertSame(104857600, $version->file_size);
+            $this->get(route('admin.versions.index', ['edit' => $version->id]))
+                ->assertOk()->assertSee('name="file_name"', false)
+                ->assertSee('value="'.$name.'"', false)->assertSee('value="104857600"', false);
+            $this->get('/download')->assertOk()->assertSee($name)->assertSee('100 MB');
+
+            $this->put(route('admin.versions.update', $version), $this->payload([
+                'platform' => $platform, 'file_name' => '', 'file_size' => '',
+            ]))->assertRedirect()->assertSessionHasNoErrors();
+            $this->assertNull($version->refresh()->file_name);
+            $this->assertNull($version->file_size);
+        }
+    }
+
+    public function test_invalid_file_metadata_is_rejected(): void
+    {
+        $this->actingAs($this->makeAdmin());
+        foreach ([-1, 1.5, '100 MB'] as $size) {
+            $this->post(route('admin.versions.store'), $this->payload(['file_size' => $size]))
+                ->assertSessionHasErrors('file_size');
+        }
+        $this->post(route('admin.versions.store'), $this->payload(['file_name' => str_repeat('a', 256)]))
+            ->assertSessionHasErrors('file_name');
+        $this->assertDatabaseCount('game_versions', 0);
     }
 
     public function test_the_admin_stored_file_endpoint_is_removed(): void

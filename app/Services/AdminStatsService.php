@@ -6,7 +6,6 @@ use App\Models\AdminActivityLog;
 use App\Models\Announcement;
 use App\Models\GameVersion;
 use App\Models\Leaderboard;
-use App\Models\PlayerProgress;
 use App\Models\QuizQuestion;
 use App\Models\Scenario;
 use App\Models\User;
@@ -17,6 +16,8 @@ use Illuminate\Database\Eloquent\Collection;
  */
 class AdminStatsService
 {
+    public function __construct(private readonly PlayerProgressService $progress) {}
+
     /**
      * @return array<string, int>
      */
@@ -29,7 +30,7 @@ class AdminStatsService
             'scenarios' => Scenario::query()->count(),
             'questions' => QuizQuestion::query()->count(),
             'sessions' => Leaderboard::query()->count(),
-            'completed_progress' => PlayerProgress::query()->where('status', PlayerProgress::STATUS_COMPLETED)->count(),
+            'completed_players' => $this->progress->players(status: 'completed')->count(),
             'announcements' => Announcement::query()->count(),
             'versions' => GameVersion::query()->count(),
         ];

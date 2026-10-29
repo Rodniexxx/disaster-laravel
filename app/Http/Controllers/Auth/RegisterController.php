@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\AvatarService;
+use App\Support\Username;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,6 +18,11 @@ class RegisterController extends Controller
 
     public function store(Request $request, AvatarService $avatars)
     {
+        $username = $request->input('username');
+        if (is_string($username)) {
+            $request->merge(['username' => Username::capitalizeWords($username)]);
+        }
+
         $data = $request->validate([
             'username' => ['required', 'string', 'max:50', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:100', 'unique:users,email'],

@@ -156,6 +156,8 @@ class VersionController extends Controller
             'release_date' => ['nullable', 'date'],
             'requirements' => ['nullable', 'string', 'max:255'],
             'download_url' => ['nullable', 'url:http,https', 'max:255'],
+            'file_name' => ['nullable', 'string', 'max:255'],
+            'file_size' => ['nullable', 'integer', 'min:0', 'max:9223372036854775807'],
             'status' => ['required', Rule::in([GameVersion::STATUS_PUBLISHED, GameVersion::STATUS_UNPUBLISHED])],
             'is_latest' => ['nullable', 'boolean'],
             'file' => ['prohibited'],

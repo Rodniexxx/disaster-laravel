@@ -17,17 +17,10 @@
             <small>Saved score entries</small>
         </article>
         <article class="stat-panel highlight">
-            <span class="stat-label">Completed Scenarios</span>
-            <strong class="stat-value">{{ number_format($totals['completed_progress']) }}</strong>
-            <small>Completed player progress records</small>
+            <span class="stat-label">Players Who Completed the Game</span>
+            <strong class="stat-value">{{ number_format($totals['completed_players']) }}</strong>
+            <small>Completed all four scenarios</small>
         </article>
-        <a href="{{ route('admin.questions.index') }}" class="stat-card-link {{ request()->routeIs('admin.questions.*') ? 'active' : '' }}">
-    <article class="stat-panel highlight">
-        <span class="stat-label">Scenarios</span>
-        <strong class="stat-value">{{ number_format($totals['scenarios']) }}</strong>
-        <small>{{ number_format($totals['questions']) }} quiz questions</small>
-    </article>
-</a>
     </section>
 
     <section class="admin-grid">

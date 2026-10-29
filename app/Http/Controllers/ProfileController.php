@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Username;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,11 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
+
+        $username = $request->input('username');
+        if (is_string($username)) {
+            $request->merge(['username' => Username::capitalizeWords($username)]);
+        }
 
         $data = $request->validate([
             'username' => ['required', 'string', 'max:50', Rule::unique('users', 'username')->ignore($user->id)],

@@ -137,6 +137,18 @@
                 <p class="field-help">Users download the game from this external URL.</p>
             </div>
 
+            <div class="form-grid">
+                <div class="field-group">
+                    <label for="file_name">File Name <span class="field-help">(optional)</span></label>
+                    <input type="text" id="file_name" name="file_name" maxlength="255" value="{{ old('file_name', $editing->file_name ?? '') }}" placeholder="e.g. MANGNO-Windows.exe">
+                </div>
+                <div class="field-group">
+                    <label for="file_size">File Size (bytes) <span class="field-help">(optional)</span></label>
+                    <input type="number" id="file_size" name="file_size" min="0" step="1" value="{{ old('file_size', $editing->file_size ?? '') }}" aria-describedby="file_size_help">
+                    <p class="field-help" id="file_size_help">Enter the size in bytes (1 MB = 1,048,576 bytes). The download page displays KB, MB or GB automatically.</p>
+                </div>
+            </div>
+
             <div class="field-group">
                 <label for="release_notes">Release Notes / Description</label>
                 <textarea id="release_notes" name="release_notes" rows="4">{{ old('release_notes', $editing->release_notes ?? '') }}</textarea>
