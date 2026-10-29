@@ -15,6 +15,12 @@ class ReadinessService
         'Fire' => ['objectives', 'family_evacuation', 'safe_area'],
         'Volcano' => ['mask', 'goggles', 'official_order', 'family_evacuation', 'shelter'],
     ];
+    // Earthquake's optional hard-mode evidence is submitted alongside the three
+    // core actions. Keep the standard criteria list for scenario/progress APIs.
+    public const EARTHQUAKE_HARD_CRITERIA = [
+        'hard_safe_route', 'hard_falling_objects_and_glass', 'hard_teacher_decision',
+        'hard_assembly_headcount', 'hard_aftershock_response',
+    ];
     private const COUNTS = ['preparation', 'objectives', 'family_evacuation'];
 
     public static function overall(float $gameplay, int $quiz): int
@@ -28,6 +34,15 @@ class ReadinessService
     public function score(array $data): array
     {
         $criteria = self::CRITERIA[$data['scenario']];
+        if ($data['scenario'] === 'Earthquake') {
+            $submittedIds = array_column($data['metrics'], 'id');
+            $hardCriteria = array_merge($criteria, self::EARTHQUAKE_HARD_CRITERIA);
+            if (count($submittedIds) === count($hardCriteria)
+                && count(array_diff($hardCriteria, $submittedIds)) === 0
+                && count(array_diff($submittedIds, $hardCriteria)) === 0) {
+                $criteria = $hardCriteria;
+            }
+        }
         $metrics = collect($data['metrics'])->keyBy('id');
         if (count($data['metrics']) !== count($criteria) || $metrics->count() !== count($criteria)
             || array_diff($criteria, $metrics->keys()->all())) {
@@ -37,8 +52,9 @@ class ReadinessService
         foreach ($criteria as $id) {
             $m = $metrics[$id];
             $count = in_array($id, self::COUNTS, true) && ! ($data['scenario'] === 'Volcano');
+            $allowedBinary = $id === 'hard_falling_objects_and_glass' ? [0.0, 0.5, 1.0] : [0.0, 1.0];
             if ($m['earned'] > $m['possible'] || ! is_finite((float) $m['earned'])
-                || ! is_finite((float) $m['possible']) || (! $count && ($m['possible'] != 1 || ! in_array((float) $m['earned'], [0.0, 1.0], true)))
+                || ! is_finite((float) $m['possible']) || (! $count && ($m['possible'] != 1 || ! in_array((float) $m['earned'], $allowedBinary, true)))
                 || ($count && (floor($m['earned']) != $m['earned'] || floor($m['possible']) != $m['possible']))) {
                 throw ValidationException::withMessages(['metrics' => 'Invalid gameplay evidence.']);
             }
