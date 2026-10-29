@@ -45,6 +45,34 @@ class ReadinessTest extends TestCase
         $first['quiz_correct'] = 7;
         $this->postJson('/api/readiness/attempts', $first)->assertUnprocessable();
     }
+    public function test_earthquake_hard_evidence_persists_and_retries_do_not_duplicate(): void
+    {
+        $user = $this->makeUser(); Sanctum::actingAs($user, ['scores:submit']);
+        $attempt = $this->attempt('Earthquake', 8);
+        foreach (ReadinessService::EARTHQUAKE_HARD_CRITERIA as $id) {
+            $earned = $id === 'hard_falling_objects_and_glass' ? 0.5 : 1.0;
+            $attempt['metrics'][] = ['id' => $id, 'earned' => $earned, 'possible' => 1.0];
+        }
+
+        $this->postJson('/api/readiness/attempts', $attempt)->assertOk()
+            ->assertJsonPath('gameplay_score', 94)->assertJsonPath('quiz_score', 80)
+            ->assertJsonPath('overall_score', 88)->assertJsonPath('stars', 2);
+        $this->postJson('/api/readiness/attempts', $attempt)->assertOk();
+        $this->assertDatabaseCount('readiness_attempts', 1);
+        $this->getJson('/api/readiness')->assertOk()
+            ->assertJsonPath('progress.scenarios.1.scenario', 'Earthquake')
+            ->assertJsonPath('progress.scenarios.1.completed', true)
+            ->assertJsonPath('progress.scenarios.1.best_overall_score', 88)
+            ->assertJsonPath('progress.scenarios.1.best_gameplay_score', 94)
+            ->assertJsonPath('progress.scenarios.1.best_quiz_score', 80);
+        $this->getJson('/api/readiness/leaderboard?category=Earthquake')->assertOk()
+            ->assertJsonPath('leaderboard.0.score', 88);
+        $other = $this->makeUser(); Sanctum::actingAs($other, ['scores:submit']);
+        $this->getJson('/api/readiness')->assertOk()->assertJsonPath('progress.total_stars', 0);
+        Sanctum::actingAs($user, ['scores:submit']);
+        $this->getJson('/api/readiness')->assertOk()
+            ->assertJsonPath('progress.scenarios.1.best_overall_score', 88);
+    }
     public function test_all_achievements_and_new_overall_leaderboard_exclude_legacy_scores(): void
     {
         $user = $this->makeUser(); Sanctum::actingAs($user, ['scores:submit']);

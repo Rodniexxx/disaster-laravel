@@ -23,7 +23,7 @@ class ReadinessController extends Controller
             'completed' => ['required', 'boolean'],
             'quiz_correct' => ['required', 'integer', 'between:0,10'],
             'quiz_total' => ['required', 'integer', 'in:10'],
-            'metrics' => ['required', 'array', 'min:2', 'max:5'],
+            'metrics' => ['required', 'array', 'min:2', 'max:8'],
             'metrics.*' => ['required', 'array:id,earned,possible'],
             'metrics.*.id' => ['required', 'string', 'max:32', 'distinct'],
             'metrics.*.earned' => ['required', 'numeric', 'min:0', 'max:200'],
